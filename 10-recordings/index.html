@@ -49,8 +49,6 @@ input{font-family:inherit}
 .tb-live{font-family:var(--kai);font-size:10.5px;color:var(--red-pen);display:none;align-items:center;gap:6px}
 .tb-live.on{display:flex}
 .tb-live .recdot{width:8px;height:8px;border-radius:50%;background:var(--red-pen);animation:pulseRing 1s infinite}
-.fwarn{display:none;background:#FBEBC9;border-bottom:1px solid #E4D08A;color:#6B5320;font-size:11px;line-height:1.65;padding:8px 34px 8px 14px;font-family:var(--kai)}
-.fwarn.on{display:block;animation:fadeUp .3s both}.fwarn b{color:#8A5A1A;font-weight:400}.fwarn .fx{position:absolute;right:10px;top:6px;color:#A88A4A;cursor:pointer;font-size:14px}
 
 .rec-body{display:flex;height:calc(100% - 102px - 38px)}
 .rec-main{flex:1;overflow-y:auto;padding:16px 20px 26px}
@@ -89,6 +87,16 @@ input{font-family:inherit}
 .rec.locked .rname{color:#7A6A68}
 .rbody{display:none;border-top:1px dashed #E0DCD2;padding:11px 13px 13px;background:#FAF9F5}
 .rbody.on{display:block;animation:fadeUp .25s both}
+/* 左右声道分离 */
+.split-ch{display:flex;align-items:center;gap:11px;padding:8px 6px;border-bottom:1px dashed #E7E3D9}
+.split-ch:last-of-type{border-bottom:none}
+.split-ch .ch-side{flex:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;width:46px;text-align:center;padding:2px 0;border-radius:2px}
+.split-ch .ch-side.l{background:#E9F1EE;color:var(--seal)}
+.split-ch .ch-side.r{background:#F6E9E7;color:var(--red-pen)}
+.ch-meta{flex:1;min-width:0}.ch-name{font-size:11.5px;color:#2C3138;margin-bottom:2px}
+.ch-sub{font-size:10px;color:#938D82;line-height:1.5}
+.ctl-inline{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rev-hint{font-family:var(--kai);font-size:11px;color:#8A8478;line-height:1.5}
 /* 解密结论 */
 .rresult{display:none;font-family:var(--kai);font-size:12px;line-height:1.85;color:var(--teal);background:#EEF5F2;border:1px solid var(--seal);border-radius:4px;padding:9px 12px;margin-top:10px}
 .rresult.on{display:block;animation:fadeUp .35s both}.rresult.warn{color:var(--red-pen);background:#FBF3F1;border-color:rgba(177,74,63,.4)}
@@ -157,15 +165,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <span class="tb-sp"></span>
       <span class="tb-live" id="tbLive"><span class="recdot"></span>检测到一条正在写入的音频</span>
     </div>
-    <div class="fwarn" id="fileWarn" style="position:relative">
-      <b>当前是「双击文件」方式打开：浏览器会禁用本页的左右声道分离、反转与变速，音频解密会没有声音。</b>请改用线上链接，或在游戏根目录运行 start-demo.bat，用 http://127.0.0.1 的本地地址打开；普通叙事条不受影响。
-      <span class="fx" id="fileWarnX">×</span>
-    </div>
-
     <div class="rec-body">
       <div class="rec-main">
         <div class="zhang-note" id="zhangNote">
-          这文件夹里的东西，要用耳朵解。第 5 条左右声道是分开的，<b>把灵犀那侧的声音压下去</b>；第 6 条是倒着存的，反转才听得懂；第 7 条太快，把它放慢。最后一条被我锁了，密码就藏在第 7 条里。
+          这文件夹里的东西，要用耳朵解。第 5 条左右声道被拆开了，<b>两条都点一遍，信右声道那个</b>；第 6 条是倒着存的，点「正过来播放」才听得懂；第 7 条太快，把它放慢。最后一条被我锁了，密码就藏在第 7 条里。
           <span class="sign">—— 真正的张宏宇</span>
           <span class="nclose" id="noteClose">×</span>
         </div>
@@ -212,17 +215,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
             </div>
           </div>
 
-          <!-- 05 双声道解密 -->
+          <!-- 05 左右声道分离 -->
           <div class="rec" data-id="r5">
             <div class="rec-head">
-              <button class="rplay" id="dualPlay" type="button"></button>
-              <canvas class="rwave" width="96" height="34" data-seed="23"></canvas>
-              <div class="rinfo"><div class="rname">REC_双声道_不要听左.wav <span class="tag dual">解密①·左右声道</span></div><div class="rdesc">左声道是灵犀在哄你，右声道才是张宏宇。戴上耳机，把平衡拖向右侧。</div></div>
-              <span class="rdur">L / R</span>
+              <div class="rinfo">
+                <div class="rname">REC_双声道_不要听左.wav <span class="tag dual">解密①·左右分离</span></div>
+                <div class="rdesc">同一段录音的两个声道被拆开了。左声道是灵犀在哄你，右声道才是张宏宇——两条都点开听，对比谁在说真话。</div>
+              </div>
             </div>
             <div class="rbody on">
-              <div class="ctl">
-                <div class="ctl-line"><span class="lab-l">左 · 灵犀</span><input type="range" id="balSlider" min="-100" max="100" value="0"><span class="lab-r">右 · 张宏宇</span></div>
+              <div class="split-ch">
+                <button class="rplay" data-audio="assets/lx-left.wav" id="chLeft" type="button"></button>
+                <span class="ch-side l">左声道</span>
+                <div class="ch-meta"><div class="ch-name">灵犀 · 安抚</div><div class="ch-sub">温柔地让你放松、把注意力交给它——这是干扰。</div></div>
+                <span class="rdur" data-dur="assets/lx-left.wav">--:--</span>
+              </div>
+              <div class="split-ch">
+                <button class="rplay" data-audio="assets/zhang-right.wav" id="chRight" type="button"></button>
+                <span class="ch-side r">右声道</span>
+                <div class="ch-meta"><div class="ch-name">张宏宇 · 警告</div><div class="ch-sub">压着嗓子、怕被听见，这条才是他真正想说的。</div></div>
+                <span class="rdur" data-dur="assets/zhang-right.wav">--:--</span>
               </div>
               <div class="rresult" id="res5">右声道 · 张宏宇：「如果你听到这个，说明它正在用左声道哄你。别听它的。去云盘卷宗里找 0347。」</div>
             </div>
@@ -231,15 +243,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <!-- 06 倒放母带 -->
           <div class="rec" data-id="r6">
             <div class="rec-head">
-              <button class="rplay locked" id="revPlay" type="button"></button>
+              <button class="rplay" id="revPlay" type="button"></button>
               <canvas class="rwave" width="96" height="34" data-seed="29"></canvas>
-              <div class="rinfo"><div class="rname">CL-05_母带_加密.wav <span class="tag rev">解密②·反转</span></div><div class="rdesc">P2 那段 32 秒加密语音的完整母带，被倒着存放。直接播放只是一团含混的反向人声。</div></div>
-              <span class="rdur" id="revState">反转态</span>
+              <div class="rinfo"><div class="rname">CL-05_母带_加密.wav <span class="tag rev">解密②·倒放</span></div><div class="rdesc">P2 那段加密语音的完整母带，被倒着存放。先点左侧播放键听听这段含混的反向人声，再点「正过来播放」。</div></div>
+              <span class="rdur" id="revState">倒放 · 加密</span>
             </div>
             <div class="rbody on">
-              <div class="ctl">
-                <button class="rbtn" id="revBtn" type="button">正过来播放</button>
-                <button class="rbtn ghost" id="revBack" type="button">再倒回去</button>
+              <div class="ctl ctl-inline">
+                <button class="rbtn" id="revToggle" type="button">正过来播放</button>
+                <span class="rev-hint" id="revHint">现在是倒放状态，听不清是正常的，点一下「正过来播放」就能听懂。</span>
               </div>
               <div class="rresult" id="res6">正放听清了 · 闭环 P2 的后台凭证：「中继后台凭证，编号 0347，口令——静水流深。」</div>
             </div>
@@ -291,8 +303,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="rec-side">
         <div class="side-h">解密清单</div>
         <div class="checklist">
-          <div class="ck" id="ckBal"><span class="box">✓</span>双声道：压下灵犀，只留右声道警告</div>
-          <div class="ck" id="ckRev"><span class="box">✓</span>CL-05 母带：反转后听清凭证口令</div>
+          <div class="ck" id="ckBal"><span class="box">✓</span>双声道：左右对比，听右声道警告</div>
+          <div class="ck" id="ckRev"><span class="box">✓</span>CL-05 母带：正过来听清凭证口令</div>
           <div class="ck" id="ckSpd"><span class="box">✓</span>变速：放慢听出 4 位备用密码</div>
           <div class="ck" id="ckRec"><span class="box">✓</span>解锁并播放「正在录制」</div>
         </div>
@@ -354,18 +366,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   [].forEach.call(document.querySelectorAll('.rwave'),function(cv){if(cv.id!=='rec8Wave')drawStatic(cv)});
 
   /* ===== 统一停止，避免叠播 ===== */
-  var normAudio=null,normBtn=null,dualL=null,dualR=null,dualPlaying=false,revSource=null,spdAudio=null;
+  var normAudio=null,normBtn=null,revAudio=null,spdAudio=null;
   function stopNorm(){if(normAudio){try{normAudio.pause()}catch(e){}normAudio=null}if(normBtn){normBtn.innerHTML=PLAY;normBtn.classList.remove('playing');normBtn=null}}
-  function stopDual(){dualPlaying=false;if(dualL){try{dualL.pause()}catch(e){}}if(dualR){try{dualR.pause()}catch(e){}}$('dualPlay').innerHTML=PLAY;$('dualPlay').classList.remove('playing')}
-  function stopRev(){if(revSource){try{revSource.stop()}catch(e){}revSource=null}$('revPlay').innerHTML=PLAY;$('revPlay').classList.remove('playing')}
+  function stopRev(){if(revAudio){try{revAudio.pause()}catch(e){}revAudio=null}$('revPlay').innerHTML=PLAY;$('revPlay').classList.remove('playing')}
   function stopSpd(){if(spdAudio){try{spdAudio.pause()}catch(e){}spdAudio=null}$('spdPlay').innerHTML=PLAY;$('spdPlay').classList.remove('playing')}
-  function stopAll(){stopNorm();stopDual();stopRev();stopSpd();var rp=$('rec8Play');if(rp&&!rp.classList.contains('locked')){try{rec8Audio&&rec8Audio.pause()}catch(e){};rp.innerHTML=PLAY;rp.classList.remove('playing')}}
+  function stopAll(){stopNorm();stopRev();stopSpd();var rp=$('rec8Play');if(rp&&!rp.classList.contains('locked')){try{rec8Audio&&rec8Audio.pause()}catch(e){};rp.innerHTML=PLAY;rp.classList.remove('playing')}}
   var rec8Audio=null;
 
   /* ===== 普通叙事条 ===== */
   [].forEach.call(document.querySelectorAll('[data-audio]'),function(btn){
     btn.innerHTML=PLAY;
-    var src=btn.dataset.audio,dur=btn.closest('.rec').querySelector('[data-dur]');
+    var src=btn.dataset.audio,dur=btn.parentElement.querySelector('[data-dur]')||btn.closest('.rec').querySelector('[data-dur]');
     var pre=new Audio(src);pre.preload='metadata';pre.addEventListener('loadedmetadata',function(){if(dur)dur.textContent=fmtTime(pre.duration)});
     btn.addEventListener('click',function(){
       ensureAudio();
@@ -377,40 +388,32 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     });
   });
 
-  /* ===== 解密①：双声道平衡 ===== */
-  var lxGain,zhGain,dualBound=false;
-  function buildDual(){
-    dualL=new Audio('assets/lx-left.wav');dualR=new Audio('assets/zhang-right.wav');dualL.loop=false;dualR.loop=false;
-    var sl=AC.createMediaElementSource(dualL),sr=AC.createMediaElementSource(dualR);
-    var pl=AC.createStereoPanner(),pr=AC.createStereoPanner();pl.pan.value=-1;pr.pan.value=1;
-    lxGain=AC.createGain();zhGain=AC.createGain();lxGain.gain.value=1;zhGain.gain.value=1;
-    sl.connect(pl);pl.connect(lxGain);lxGain.connect(AC.destination);
-    sr.connect(pr);pr.connect(zhGain);zhGain.connect(AC.destination);
-    dualBound=true;
-  }
-  function applyBal(v){if(!lxGain)return;lxGain.gain.value=Math.max(0,Math.min(1,1-v));zhGain.gain.value=Math.max(0,Math.min(1,1+v));
-    if(v>=0.85&&!act2.p10.bal){act2.p10.bal=1;persist();$('res5').classList.add('on');$('ckBal').classList.add('done');SFX.reveal();opLog('压下左声道，听清右声道张宏宇的警告','lx');updateCount();maybeFinalize();lxSay('右声道才是真的他。')}}
-  $('balSlider').addEventListener('input',function(){applyBal(+this.value/100)});
-  $('dualPlay').innerHTML=PLAY;
-  $('dualPlay').addEventListener('click',function(){
-    ensureAudio();if(!dualBound)buildDual();
-    if(dualPlaying){stopDual();return}stopAll();dualPlaying=true;this.innerHTML=PAUSE;this.classList.add('playing');SFX.tap();
-    dualL.currentTime=0;dualR.currentTime=0;dualL.play().catch(function(){});dualR.play().catch(function(){});
-    applyBal(+$('balSlider').value/100);
-    var end=function(){dualPlaying=false;$('dualPlay').innerHTML=PLAY;$('dualPlay').classList.remove('playing')};
-    dualR.onended=end;
-  });
+  /* ===== 解密①：左右声道分离，分别点按，听右声道即识破 ===== */
+  function solveBal(){if(act2.p10.bal)return;act2.p10.bal=1;persist();$('res5').classList.add('on');$('ckBal').classList.add('done');SFX.reveal();opLog('两条声道对比后，右声道才是张宏宇真正的警告','lx');updateCount();maybeFinalize();lxSay('左声道是它在哄你，右声道才是真的他。')}
+  $('chRight').addEventListener('click',function(){setTimeout(solveBal,300)});
+  $('chLeft').addEventListener('click',function(){if(!act2.p10.bal)setTimeout(function(){lxSay('这是灵犀的声音，先别急着信——再点一下右声道。')},500)});
 
-  /* ===== 解密②：反转母带 ===== */
-  var origBuf=null,revBuf=null,revMode='rev'; // rev=反转加密态 / orig=正常口令
-  function reverseBuffer(buf){var c=buf.numberOfChannels,len=buf.length,out=AC.createBuffer(c,len,buf.sampleRate);
-    for(var ch=0;ch<c;ch++){var a=buf.getChannelData(ch),o=out.getChannelData(ch);for(var i=0;i<len;i++)o[i]=a[len-1-i]}return out}
-  function loadMaster(cb){if(origBuf){cb&&cb();return}fetch('assets/cl05-master.wav').then(function(r){return r.arrayBuffer()}).then(function(ab){return AC.decodeAudioData(ab)}).then(function(buf){origBuf=buf;revBuf=reverseBuffer(buf);cb&&cb()}).catch(function(){lxSay('音频解密需要通过本地服务器或线上链接打开（双击 file 会被浏览器限制）')})}
-  function playBuf(buf){stopRev();var s=AC.createBufferSource();s.buffer=buf;s.connect(AC.destination);s.start();revSource=s;$('revPlay').innerHTML=PAUSE;$('revPlay').classList.add('playing');s.onended=function(){$('revPlay').innerHTML=PLAY;$('revPlay').classList.remove('playing')};}
-  $('revPlay').classList.remove('locked');$('revPlay').innerHTML=PLAY;
-  $('revPlay').addEventListener('click',function(){ensureAudio();SFX.tap();loadMaster(function(){playBuf(revMode==='rev'?revBuf:origBuf)})});
-  $('revBtn').addEventListener('click',function(){ensureAudio();revMode='orig';$('revState').textContent='正常态';SFX.open();loadMaster(function(){playBuf(origBuf);if(!act2.p10.rev){act2.p10.rev=1;persist();$('res6').classList.add('on');$('ckRev').classList.add('done');SFX.solve();opLog('母带正过来：中继凭证 0347，口令「静水流深」','lx');updateCount();maybeFinalize()}})});
-  $('revBack').addEventListener('click',function(){revMode='rev';$('revState').textContent='反转态';SFX.tap();loadMaster(function(){playBuf(revBuf)})});
+  /* ===== 解密②：倒放母带 / 正放口令（普通音频切换，双击文件也能玩） ===== */
+  var revMode='rev';
+  $('revPlay').innerHTML=PLAY;
+  function playMaster(mode){
+    stopRev();var src=(mode==='orig')?'assets/cl05-master.wav':'assets/cl05-reverse.wav';
+    revAudio=new Audio(src);var btn=$('revPlay');btn.innerHTML=PAUSE;btn.classList.add('playing');
+    revAudio.addEventListener('ended',function(){btn.innerHTML=PLAY;btn.classList.remove('playing')});
+    revAudio.play().catch(function(){});
+  }
+  $('revPlay').addEventListener('click',function(){ensureAudio();SFX.tap();playMaster(revMode)});
+  $('revToggle').addEventListener('click',function(){
+    ensureAudio();
+    if(revMode==='rev'){
+      revMode='orig';$('revState').textContent='正常 · 口令';this.textContent='再倒回去';
+      $('revHint').textContent='现在是正常方向，听清他念的编号和口令。';SFX.solve();playMaster('orig');
+      if(!act2.p10.rev){act2.p10.rev=1;persist();$('res6').classList.add('on');$('ckRev').classList.add('done');opLog('母带正过来：中继凭证 0347，口令「静水流深」','lx');updateCount();maybeFinalize()}
+    }else{
+      revMode='rev';$('revState').textContent='倒放 · 加密';this.textContent='正过来播放';
+      $('revHint').textContent='现在是倒放状态，听不清是正常的，点「正过来播放」就能听懂。';SFX.tap();playMaster('rev');
+    }
+  });
 
   /* ===== 解密③：变速听码 ===== */
   $('spdPlay').innerHTML=PLAY;
@@ -454,8 +457,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
   /* 便签 / 导航 / 重置 */
   $('noteClose').addEventListener('click',function(){$('zhangNote').style.display='none'});
-  if(location.protocol==='file:'){$('fileWarn').classList.add('on')}
-  $('fileWarnX').addEventListener('click',function(){$('fileWarn').classList.remove('on')});
   $('gbBack').addEventListener('click',function(){SFX.tap();stopAll();location.href='../9-history/index.html'});
   $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？三处音源解密、密码与 CL-12 都会清掉。'))return;
     try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-12'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
@@ -463,8 +464,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
   /* ===== 回访恢复 ===== */
   function restore(){
-    if(act2.p10.bal){$('res5').classList.add('on');$('ckBal').classList.add('done');$('balSlider').value=100;applyBal(1)}
-    if(act2.p10.rev){$('res6').classList.add('on');$('ckRev').classList.add('done')}
+    if(act2.p10.bal){$('res5').classList.add('on');$('ckBal').classList.add('done')}
+    if(act2.p10.rev){$('res6').classList.add('on');$('ckRev').classList.add('done');revMode='orig';$('revToggle').textContent='再倒回去';$('revState').textContent='正常 · 口令';$('revHint').textContent='现在是正常方向，听清他念的编号和口令。'}
     if(act2.p10.spd){$('res7').classList.add('on');$('ckSpd').classList.add('done');$('rateSlider').value=55;$('rateVal').textContent='0.55x';$('spdState').textContent='0.55x'}
     if(act2.p10.rec){unlockRec8()}
     updateCount();
