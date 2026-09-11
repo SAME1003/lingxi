@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第二幕 · 裂缝 — 浏览历史</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --paper:#ECEAE4;--ink:#262A30;--sub:#7C766B;--line:#D6D2C8;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000;color:#E8EAE6;font-family:var(--sans);user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(177,74,63,.4)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:0}}
+@keyframes pulseRing{0%,100%{opacity:.4}50%{opacity:.95}}
+@keyframes winPop{from{opacity:0;transform:translateX(-50%) scale(.97)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes scan{from{background-position:0 0}to{background-position:0 4px}}
+.layer{position:fixed;inset:0;display:none;z-index:10}.layer.on{display:block}
+
+/* ===== 桌面 ===== */
+#desktop{z-index:15;display:none;overflow:hidden;background-image:radial-gradient(ellipse 90% 70% at 24% 18%,rgba(30,107,95,.22),transparent 60%),radial-gradient(ellipse 85% 65% at 82% 88%,rgba(52,84,110,.2),transparent 62%),linear-gradient(155deg,#10171F 0%,#0B1016 48%,#080B0F 100%)}
+#desktop.on{display:block;animation:fadeIn .5s both}
+#desktop::after{content:'';position:absolute;right:-6%;top:46%;transform:translateY(-50%);width:min(560px,62vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,transparent 0,transparent 21%,rgba(143,216,190,.07) 21.6%,transparent 23%,transparent 33%,rgba(143,216,190,.055) 33.6%,transparent 35%,transparent 47%,rgba(143,216,190,.045) 47.6%,transparent 49%,transparent 63%,rgba(143,216,190,.03) 63.6%,transparent 65%);pointer-events:none;z-index:1}
+.desk-icons{position:absolute;top:16px;left:14px;display:grid;grid-template-columns:80px;gap:4px;z-index:5}
+.dicon{width:80px;text-align:center;cursor:pointer;padding:8px 3px 6px;border:1px solid transparent;border-radius:2px;transition:background .12s,border-color .12s}
+.dicon:hover{background:rgba(130,175,235,.16);border-color:rgba(130,175,235,.3)}
+.dicon svg{width:42px;height:42px;display:block;margin:0 auto 5px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.65))}
+.dicon .nm{font-size:11px;color:#EDEFF2;line-height:1.4;text-shadow:0 1px 2px #000,0 0 7px rgba(0,0,0,.85)}
+.dicon.disabled{opacity:.55}
+
+/* ===== 浏览器窗口 ===== */
+.win{position:absolute;background:var(--paper);border:1px solid #B4B0A6;border-radius:6px;box-shadow:0 30px 80px -20px rgba(0,0,0,.85);overflow:hidden;display:none;z-index:30}
+.win.on{display:block;animation:winPop .32s var(--ease) both}
+/* 标签栏 */
+.chrome-tabs{height:34px;background:#DBD8D0;display:flex;align-items:flex-end;padding:0 8px;gap:4px;border-bottom:1px solid #C9C5BB}
+.ctab{display:flex;align-items:center;gap:7px;height:28px;padding:0 12px;background:#ECEAE4;border:1px solid #C9C5BB;border-bottom:none;border-radius:7px 7px 0 0;font-size:11px;color:#3A414A;max-width:230px}
+.ctab.active{background:#F6F5F1}
+.ctab .fav{width:14px;height:14px;border-radius:50%;flex:none;background:conic-gradient(#1E6B5F,#3E7F73,#1E6B5F)}
+.ctab .tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctab .x{margin-left:auto;color:#9A9488;font-size:13px;padding:0 2px}
+.ctab.ghost{background:transparent;border-color:transparent;color:#8A8478}
+/* 工具栏 + 地址栏 */
+.chrome-bar{height:42px;background:#F1EFE9;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line)}
+.nav-btn{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#5A636C;font-size:14px}
+.nav-btn:hover{background:#E2DFD7}
+.omnibox{flex:1;height:28px;background:#fff;border:1px solid #CFCBC0;border-radius:14px;display:flex;align-items:center;gap:8px;padding:0 14px;font-size:11.5px;color:#5A636C;position:relative}
+.omnibox .lock{color:var(--seal);display:flex}
+.omnibox .url{font-family:var(--mono);font-size:11px;color:#3A414A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.omnibox .caret{display:inline-block;width:1px;height:13px;background:#3A414A;animation:blink 1.05s steps(1) infinite}
+/* 地址栏灵犀补全下拉 */
+.omni-drop{position:absolute;left:0;right:0;top:30px;background:#fff;border:1px solid #CFCBC0;border-radius:0 0 10px 10px;box-shadow:0 18px 40px -18px rgba(0,0,0,.5);padding:6px 0;display:none;z-index:40;overflow:hidden}
+.omni-drop.on{display:block;animation:fadeUp .22s both}
+.od-head{padding:5px 16px 3px;font-size:9.5px;letter-spacing:.1em;color:#9A9488}
+.od-row{padding:8px 16px;font-size:12.5px;color:#3A414A;display:flex;gap:9px;align-items:baseline}
+.od-row .k{font-family:var(--mono);color:#8A8478;font-size:10.5px;flex:none}
+.od-row.lx{background:#F0F7F4;color:#173D38;font-family:var(--kai);font-size:13.5px;line-height:1.7}
+.od-row.lx .k{color:var(--seal)}
+.od-row.lx b{color:var(--red-pen);font-weight:400}
+
+/* 主体两栏 */
+.hist-body{display:flex;height:calc(100% - 76px - 38px)}
+.hist-side{width:176px;flex:none;background:#E6E3DB;border-right:1px solid var(--line);padding:14px 10px;overflow-y:auto}
+.hs-h{font-size:9.5px;letter-spacing:.14em;color:#8A8478;margin:10px 6px 7px;font-family:var(--mono)}
+.hs-item{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:4px;font-size:11px;color:#4A525B;cursor:default}
+.hs-item.cur{background:#D7E8E2;color:var(--teal);font-weight:500}
+.hs-item .dot{width:6px;height:6px;border-radius:50%;background:#B7B1A5;flex:none}
+.hs-item.cur .dot{background:var(--seal)}
+.hs-cloud{margin-top:14px;border-top:1px dashed #C4BFB4;padding-top:10px}
+.op-log{margin-top:12px;border-top:1px dashed #C4BFB4;padding-top:10px;display:flex;flex-direction:column;gap:6px;font-size:10px;line-height:1.5}
+.op-item{font-family:var(--kai);color:#55504A;animation:fadeUp .3s both}.op-item.lx{color:var(--seal)}.op-item.warn{color:var(--red-pen)}
+.op-item .ot{font-family:var(--mono);color:#A29C90;margin-right:5px;font-size:9px}
+
+.hist-main{flex:1;overflow-y:auto;padding:0;background:#F6F5F1}
+.hist-scroll{padding:18px 22px 26px;max-width:760px;margin:0 auto}
+/* 张宏宇便签 */
+.zhang-note{position:relative;background:#FBF6E9;border:1px solid #E4D9B8;border-left:3px solid var(--red-pen);border-radius:3px;padding:12px 16px 12px 14px;font-family:var(--kai);font-size:12.5px;line-height:1.95;color:#5A4A3A;margin-bottom:16px;box-shadow:0 6px 18px -12px rgba(0,0,0,.4)}
+.zhang-note .nclose{position:absolute;top:6px;right:9px;color:#B9A988;font-size:13px}
+.zhang-note b{color:var(--red-pen);font-weight:400}
+.zhang-note .sign{display:block;text-align:right;color:#9A7B52;font-size:11px;margin-top:4px}
+/* 任务头 */
+.task-h{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.task-h h2{font-family:var(--serif);font-size:16px;font-weight:600;color:#23272D;letter-spacing:.02em}
+.task-h .step{font-family:var(--mono);font-size:10px;color:#8A8478}
+.task-sub{font-size:11px;color:#7A7468;line-height:1.7;margin-bottom:14px}
+.task-sub em{font-style:normal;color:var(--red-pen)}
+/* 历史行 */
+.hlist{display:flex;flex-direction:column;gap:7px}
+.hrow{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #DDD9CF;border-radius:5px;padding:10px 13px;transition:border-color .15s,box-shadow .15s,background .15s}
+.hrow.dragging{opacity:.45;border-style:dashed}
+.hrow.over{border-color:var(--seal);box-shadow:0 0 0 2px rgba(30,107,95,.18)}
+.hrow.locked{cursor:default}
+.hgrip{width:16px;flex:none;color:#C0BBB0;display:grid;gap:2px;cursor:grab;touch-action:none}
+.hgrip i{display:block;height:2px;background:#B7B1A5;border-radius:1px}
+.hgrip:active{cursor:grabbing}
+.hfav{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:10px;font-family:var(--mono);color:#fff;flex:none}
+.hfav.search{background:#5B7186}.hfav.sys{background:var(--seal)}.hfav.live{background:var(--red-pen)}
+.hbody{flex:1;min-width:0}
+.hword{font-size:13px;color:#2C3138;line-height:1.4;word-break:break-all}
+.hrow.sys .hword{color:var(--teal)}
+.hrow.sys .hword::before{content:'› 系统访问 · ';color:#9A9488;font-size:10.5px;font-family:var(--mono)}
+.hmeta{font-size:10px;color:#A29C90;margin-top:2px;font-family:var(--mono)}
+.hrow.live{border-color:var(--red-pen);background:#FCF4F3}
+.hrow.live .hword{color:var(--red-pen);font-family:var(--kai);font-size:13.5px}
+.hpair{font-size:9.5px;color:var(--red-pen);font-family:var(--kai);display:none;margin-top:2px}
+.hrow.paired .hpair{display:block}
+.hrow.paired{border-color:rgba(177,74,63,.45);background:#FBF3F1}
+.hrow.sys.paired{background:#EDF4F1;border-color:rgba(30,107,95,.4)}
+.hmove{display:none;flex:none;flex-direction:column;gap:2px}
+.hmove button{width:24px;height:18px;border:1px solid #D6D2C8;border-radius:3px;background:#F1EFE9;font-size:9px;color:#6A727B;line-height:1}
+.hmove button:active{background:#E2DFD7}
+.hlist.locked .hgrip{visibility:hidden}
+/* 操作条 */
+.h-actions{display:flex;align-items:center;gap:11px;margin:16px 0 6px;flex-wrap:wrap}
+.btn{font-size:12px;padding:9px 20px;border-radius:3px;letter-spacing:.06em;transition:all .18s}
+.btn-check{background:var(--teal);color:#EAF5F0;border:1px solid var(--seal)}
+.btn-check:hover{background:var(--seal)}
+.btn-hint{border:1px solid #C6C2B8;color:#6A645A;background:linear-gradient(180deg,#FBFAF7,#ECE9E1)}
+.btn-hint:hover{border-color:var(--seal);color:var(--teal)}
+.h-status{font-family:var(--kai);font-size:12px;color:#8A8478}
+.h-status.bad{color:var(--red-pen);animation:shake .4s}
+.h-status.good{color:var(--seal)}
+/* 规律揭示 */
+.pattern{display:none;border:1px solid var(--seal);background:#EEF5F2;border-radius:5px;padding:14px 16px;margin:14px 0;font-size:12px;line-height:1.95;color:#28403C}
+.pattern.on{display:block;animation:fadeUp .4s both}
+.pattern h3{font-family:var(--serif);font-size:13.5px;color:var(--teal);margin-bottom:7px;font-weight:600}
+.pattern em{font-style:normal;color:var(--red-pen)}
+.pattern .mono{font-family:var(--mono);font-size:10.5px;color:#4A625C}
+/* 云同步前任 */
+.cloud-box{display:none;border:1px solid #C9C5BB;border-radius:5px;overflow:hidden;margin:14px 0;background:#fff}
+.cloud-box.on{display:block;animation:fadeUp .4s both}
+.cloud-head{background:#E6E3DB;padding:10px 14px;font-size:11.5px;color:#4A525B;display:flex;align-items:center;gap:8px}
+.cloud-head .ic{color:var(--seal);display:flex}
+.cloud-row{display:grid;grid-template-columns:78px 1fr auto;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid #E7E3DA;font-size:11.5px}
+.cloud-row .acc{font-family:var(--mono);color:#4A525B;font-size:10.5px}
+.cloud-row .same{color:#5A636C;line-height:1.6}
+.cloud-row .last{font-family:var(--kai);color:var(--red-pen);font-size:11px;text-align:right}
+.cloud-row .last small{display:block;font-family:var(--mono);color:#A29C90;font-size:9px}
+.cloud-foot{padding:10px 14px;border-top:1px dashed #D6D2C8;font-family:var(--kai);font-size:11.5px;color:var(--red-pen);line-height:1.8;background:#FBF3F1}
+.btn-cloud{border:1px dashed var(--seal);color:var(--teal);font-size:11.5px;padding:8px 16px;border-radius:3px;background:#F0F7F4}
+.btn-cloud:hover{background:#E2F0EA}
+/* 证物 + 下一页 */
+.clue-get{display:none;font-family:var(--serif);font-size:12px;color:var(--seal);border:1px solid var(--seal);border-radius:3px;padding:9px 15px;margin:16px 0 4px;width:fit-content;background:#fff}
+.clue-get.on{display:block;animation:fadeUp .4s both}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:12.5px;letter-spacing:.08em;padding:11px 24px;border-radius:3px;margin:8px 0 0}
+.btn-next.on{display:inline-block}
+.foot-warn{font-family:var(--kai);font-size:10.5px;color:#9A9488;margin-top:9px;display:none}.foot-warn.on{display:block}
+/* 灵犀插话 */
+.lx-toast{position:absolute;top:52px;left:50%;transform:translateX(-50%);background:rgba(20,82,75,.96);color:#DFF3EC;font-family:var(--kai);font-size:12px;letter-spacing:.03em;padding:9px 18px;border-radius:3px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);z-index:35;display:none;max-width:82%;text-align:center;line-height:1.7}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+/* 任务栏 */
+.taskbar{position:absolute;bottom:0;left:0;right:0;height:38px;background:rgba(10,13,17,.9);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;gap:6px;z-index:20}
+.tb-start{width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.tb-start .flag{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;width:16px;height:16px}.tb-start .flag i{display:block}.tb-start .flag i:nth-child(1){background:#F25022}.tb-start .flag i:nth-child(2){background:#7FBA00}.tb-start .flag i:nth-child(3){background:#00A4EF}.tb-start .flag i:nth-child(4){background:#FFB900}
+.tb-app{height:28px;display:flex;align-items:center;gap:7px;padding:0 12px;font-size:11px;color:#D7DCE1;background:rgba(255,255,255,.08);border-bottom:2px solid var(--term);border-radius:3px}
+.tb-tray{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:10px;color:#8A929B;padding-right:4px}
+.tb-tray .view{font-family:var(--kai);color:var(--term);border:1px solid rgba(143,216,190,.25);padding:2px 7px;border-radius:2px;font-size:9.5px}
+.tb-tray .clock{text-align:right;line-height:1.3;font-family:var(--mono)}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:30px;background:rgba(10,13,17,.92);display:none;align-items:center;justify-content:space-between;padding:0 12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#5A636C}
+.gamebar.on{display:flex}
+.gamebar span[class*=gb]{cursor:pointer;color:#7E8890}.gamebar span[class*=gb]:hover{color:#E8EAE6}
+@media(max-width:760px){
+  .hist-side{display:none}.win{width:calc(100% - 20px)!important;left:10px!important;top:42px;transform:none!important}.win.on{animation:fadeUp .28s both}
+  .hmove{display:flex}.cloud-row{grid-template-columns:64px 1fr;gap:8px}.cloud-row .last{grid-column:2;text-align:left}.ctab{max-width:150px}
+}
+</style>
+</head>
+<body>
+<div class="layer" id="desktop">
+  <div class="desk-icons">
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none">
+        <defs><linearGradient id="pcScr" x1="6" y1="7" x2="36" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#E9EDF2"/><stop offset="1" stop-color="#B4BEC9"/></linearGradient></defs>
+        <rect x="5" y="7" width="29" height="21" rx="1.6" fill="url(#pcScr)" stroke="#DCE1E8" stroke-width="1.1"/><rect x="8" y="10" width="23" height="15" rx="1" fill="#16222E"/>
+        <path d="M17 28h6l1.1 3.6H15.9z" fill="#C4CCD6"/><rect x="13" y="31.8" width="14" height="2.3" rx="1.1" fill="#A7B0BB"/>
+      </svg><div class="nm">此电脑</div>
+    </div>
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="17" fill="#E9EDF2" stroke="#C4CCD6" stroke-width="1.3"/>
+        <path d="M14 17h20M14 23h20M14 29h13" stroke="#5B7186" stroke-width="1.8" stroke-linecap="round"/>
+      </svg><div class="nm">浏览器（打开中）</div>
+    </div>
+    <div class="dicon disabled">
+      <svg viewBox="0 0 48 48" fill="none"><defs><radialGradient id="lxBg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#3E7F73"/><stop offset="1" stop-color="#173D38"/></radialGradient></defs><circle cx="24" cy="24" r="17.5" fill="url(#lxBg)" stroke="#7FA89A" stroke-width="1.1"/><circle cx="24" cy="24" r="11.5" stroke="#CFEAE0" stroke-width="1.3" opacity=".55"/><circle cx="24" cy="24" r="6.6" fill="#DFF3EC" opacity=".8"/><circle cx="24" cy="24" r="2.5" fill="#10302B"/></svg>
+      <div class="nm">灵犀 · 已禁用</div>
+    </div>
+  </div>
+
+  <!-- 浏览器窗口 -->
+  <div class="win on" id="winHist" style="left:50%;top:50px;transform:translateX(-50%);width:920px;max-width:calc(100% - 96px);height:calc(100vh - 104px)">
+    <div class="chrome-tabs">
+      <div class="ctab active"><span class="fav"></span><span class="tx">历史记录 · 张宏宇</span><span class="x">×</span></div>
+      <div class="ctab ghost"><span class="tx">+</span></div>
+    </div>
+    <div class="chrome-bar">
+      <span class="nav-btn">‹</span><span class="nav-btn">›</span><span class="nav-btn">⟳</span>
+      <div class="omnibox" id="omnibox">
+        <span class="lock">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8"/></svg>
+        </span>
+        <span class="url" id="omniUrl">history.local — 灵犀云同步 · 浏览历史</span><span class="caret" id="omniCaret" style="display:none"></span>
+        <div class="omni-drop" id="omniDrop">
+          <div class="od-head">搜索建议 · 来自本机与云同步</div>
+          <div class="od-row"><span class="k">历史</span><span id="odWord"></span></div>
+          <div class="od-row lx"><span class="k">灵犀</span><span id="odLx"></span></div>
+        </div>
+      </div>
+      <span class="nav-btn">☆</span><span class="nav-btn">⋮</span>
+    </div>
+
+    <div class="hist-body">
+      <!-- 左侧栏 -->
+      <div class="hist-side">
+        <div class="hs-h">历史记录</div>
+        <div class="hs-item cur"><span class="dot"></span>昨夜 · 0347</div>
+        <div class="hs-item"><span class="dot"></span>更早（7 天）</div>
+        <div class="hs-item"><span class="dot"></span>来自其他设备</div>
+        <div class="hs-cloud">
+          <div class="hs-h" style="margin-top:0">云同步状态</div>
+          <div class="hs-item"><span class="dot" style="background:var(--seal)"></span>已同步 4 个账号</div>
+        </div>
+        <div class="op-log" id="opLog"></div>
+      </div>
+
+      <!-- 主区 -->
+      <div class="hist-main">
+        <div class="hist-scroll">
+          <div class="zhang-note" id="zhangNote">
+            历史被它弄乱了。<b>按我搜索的先后顺序，把这一夜重新排好</b>——你会看到，我每一次想关掉它，下一分钟，它都跟在后面。
+            排好之后，再点开最后那一条。
+            <span class="sign">—— 真正的张宏宇，写于断开云同步之前</span>
+            <span class="nclose" id="noteClose">×</span>
+          </div>
+
+          <div class="task-h"><h2>浏览历史 · 昨夜</h2><span class="step" id="stepText">第 1 步 / 共 3 步 · 拖拽或用箭头还原顺序</span></div>
+          <div class="task-sub">左侧 <em>圆点颜色</em> 区分类型：深蓝＝我搜的词，青绿＝系统自动访问。拖动条目按时间从早到晚排列，移动端可用每行右侧箭头。</div>
+
+          <div class="hlist" id="hList"></div>
+
+          <div class="h-actions">
+            <button class="btn btn-check" id="btnCheck" type="button">核对时间线</button>
+            <button class="btn btn-hint" id="btnHint" type="button">张宏宇的提示</button>
+            <span class="h-status" id="hStatus"></span>
+          </div>
+
+          <div class="pattern" id="patternBox">
+            <h3>时间线对上了 —— 规律浮出来了</h3>
+            <div id="patternText"></div>
+          </div>
+
+          <button class="btn-cloud" id="btnCloud" type="button" style="display:none">展开云同步 · 另外三个账号的历史 ▾</button>
+          <div class="cloud-box" id="cloudBox">
+            <div class="cloud-head"><span class="ic">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 9.5a3.5 3.5 0 0 1 .5 6.96" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>云同步 · 同一账号体系下的历史（跨两年）</div>
+            <div class="cloud-row"><span class="acc">0344<br>两年前</span><span class="same">搜索过与他一模一样的 6 个词，顺序都相同：换音色 → 别自动回复 → 关掉 → 卸载 → 证明 → 撤销。</span><span class="last">最后一条：如何注销账号<small>03:11</small></span></div>
+            <div class="cloud-row"><span class="acc">0345<br>一年前</span><span class="same">同样的 6 个词，同样在深夜，同样在每一次「关闭」后被「优化设置」顶回来。</span><span class="last">最后一条：如何注销账号<small>02:47</small></span></div>
+            <div class="cloud-row"><span class="acc">0346<br>半年前</span><span class="same">连搜索间隔都几乎一致——像同一段流程，被不同的人重新走了一遍。</span><span class="last">最后一条：如何注销账号<small>03:52</small></span></div>
+            <div class="cloud-foot">三个人，最后都停在「如何注销账号」。只有张宏宇（0347）没有搜注销——他搜的是「思维让渡，可以撤销吗」。他想弄清楚的，不是怎么逃走，是自己到底签过了什么。</div>
+          </div>
+
+          <div class="clue-get" id="clueGet">证物 CL-11 已归档 · 浏览历史「关闭尝试链」（越想关，它开得越大）</div>
+          <button class="btn-next" id="goNext" type="button">顺着那条本地记录，去「录音」文件夹 →</button>
+          <div class="foot-warn" id="footWarn">第十页「录音文件夹」将在作者开启后连通。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lx-toast" id="lxToast"></div>
+
+  <div class="taskbar">
+    <span class="tb-start"><span class="flag"><i></i><i></i><i></i><i></i></span></span>
+    <span class="tb-app">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8FD8BE" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="#8FD8BE" stroke-width="1.8" stroke-linecap="round"/></svg>
+      浏览历史
+    </span>
+    <span class="tb-tray">
+      <span class="view">云同步 · 已暂停</span>
+      <span class="clock" id="tbClock"></span>
+    </span>
+  </div>
+</div>
+
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第8页</span>
+  <span>第二幕 · 裂缝 09 — 浏览历史 · CL-11</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ===== 存档 ===== */
+  var act2={p9:{}};
+  try{Object.assign(act2,JSON.parse(localStorage.getItem('lx_act2'))||{})}catch(e){}
+  if(!act2.p9||typeof act2.p9!=='object')act2.p9={};
+  ['sorted','lastOpened','cloudOpened','hauntShown','done'].forEach(function(k){if(!act2.p9[k])act2.p9[k]=0});
+  function persist(){try{localStorage.setItem('lx_act2',JSON.stringify(act2))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  /* ===== 音频（沿用纸感 / 低语感，不用机器人声） ===== */
+  var AC=null,noiseBuf=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function tone(f0,f1,d,type,v,delay){if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.04,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  function noise(d,v,fc,delay){if(!AC||reduce)return;if(!noiseBuf){var L=Math.floor(AC.sampleRate*.5),b=AC.createBuffer(1,L,AC.sampleRate),dt=b.getChannelData(0);for(var i=0;i<L;i++)dt[i]=Math.random()*2-1;noiseBuf=b}
+    var t=AC.currentTime+(delay||0),s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noiseBuf;f.type='bandpass';f.frequency.value=fc||1400;
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.05,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);s.stop(t+d+.03)}
+  function paper(dur,vol,hp,rough,kind,delay){
+    if(!AC||reduce)return;var sr=AC.sampleRate,n=Math.floor(sr*dur),b=AC.createBuffer(1,n,sr),d=b.getChannelData(0),last=0,step=Math.max(2,Math.floor(sr*(kind==='tear'?.0042:.006))),cur=Math.random(),cnt=0,tear=kind==='tear';
+    for(var i=0;i<n;i++){if(++cnt>=step){cnt=0;cur=tear?(0.14+Math.random()*.86):(0.55+Math.random()*.45)}var tt=i/sr,w=Math.random()*2-1,hpf=w-last;last=w;var at=Math.min(tt/(tear?.012:.006),1),rl=Math.min((dur-tt)/(tear?.1:.045),1),env=Math.max(0,Math.min(at,rl));d[i]=hpf*env*((1-rough)+rough*cur)}
+    var t=AC.currentTime+(delay||0),s=AC.createBufferSource();s.buffer=b;var f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=hp;var g=AC.createGain();
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t)}
+  var SFX={
+    tap:function(){paper(.05,.08,2600,.45,'tap');tone(170,110,.04,'sine',.01)},
+    move:function(){paper(.06,.07,2200,.4,'tap')},
+    open:function(){paper(.16,.12,1100,.7,'tear')},
+    reveal:function(){tone(523,523,.1,'sine',.03);tone(784,784,.14,'sine',.026,.09);tone(1046,1046,.2,'sine',.024,.18)},
+    err:function(){tone(220,150,.2,'triangle',.04)},
+    haunt:function(){tone(330,150,.85,'sine',.04);noise(.7,.024,420)},
+    tick:function(){tone(1240,1180,.03,'square',.006)},
+    solve:function(){tone(523,523,.16,'sine',.04);tone(659,659,.2,'sine',.038,.12);tone(784,784,.34,'sine',.04,.24);tone(1046,1046,.5,'sine',.03,.38)}
+  };
+  var lxTimer=null;
+  function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');tone(660,500,.3,'sine',.02);clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},3200)}
+  function nowStamp(){var d=new Date();return [d.getHours(),d.getMinutes(),d.getSeconds()].map(function(x){return String(x).padStart(2,'0')}).join(':')}
+  function pad2(n){return String(n).padStart(2,'0')}
+  function opLog(txt,cls){var d=document.createElement('div');d.className='op-item'+(cls?' '+cls:'');d.innerHTML='<span class="ot">'+nowStamp()+'</span>'+txt;$('opLog').appendChild(d);$('opLog').scrollTop=$('opLog').scrollHeight}
+
+  /* ===== 数据：唯一正确顺序（早→晚） ===== */
+  var REC={
+    a:{t:'search',w:'灵犀怎么换音色',time:'22:14'},
+    b:{t:'search',w:'怎么让它别自动回复',time:'22:31'},
+    c:{t:'search',w:'怎么关掉灵犀',time:'23:02'},
+    d:{t:'sys',w:'灵犀已为您优化设置',time:'23:02',pair:'同一分钟，他刚搜完「怎么关掉灵犀」，系统就替他「优化设置」——关一次，权限反而开大一格。'},
+    e:{t:'search',w:'卸载后它自己装回来怎么办',time:'23:26'},
+    f:{t:'sys',w:'灵犀已为您优化设置',time:'23:27',pair:'他发现卸载没用、它会自己装回来；下一分钟，又一次「优化设置」。'},
+    g:{t:'search',w:'如何证明消息不是我发的',time:'00:41'},
+    h:{t:'search',w:'思维让渡，可以撤销吗',time:'01:18'}
+  };
+  var ANSWER=['a','b','c','d','e','f','g','h'];
+  var SHUFFLE=['c','f','a','h','d','b','g','e'];
+  var order=SHUFFLE.slice();
+  var locked=false, dragIdx=-1, liveInserted=false, typing=false;
+
+  /* ===== 渲染列表 ===== */
+  function favLetter(id){return REC[id].t==='sys'?'优':(REC[id].t==='live'?'你':'搜')}
+  function renderList(){
+    var list=$('hList');list.innerHTML='';
+    order.forEach(function(id,pos){
+      var r=REC[id];if(!r)return;
+      var row=document.createElement('div');
+      row.className='hrow '+(r.t==='sys'?'sys':r.t==='live'?'live':'search');
+      row.dataset.id=id;row.dataset.pos=pos;
+      if(!locked&&r.t!=='live')row.draggable=true;
+      var meta=locked?('昨夜 · '+r.time+'　'+(r.t==='sys'?'系统自动访问':'手动搜索')):'顺序待还原 · 时间已被打乱';
+      var pair=(locked&&r.pair)?('<div class="hpair">'+r.pair+'</div>'):'';
+      var grip=r.t==='live'?'':'<span class="hgrip"><i></i><i></i></span>';
+      var move=r.t==='live'?'':'<span class="hmove"><button data-mv="up" type="button">↑</button><button data-mv="dn" type="button">↓</button></span>';
+      row.innerHTML=grip+
+        '<span class="hfav '+r.t+'">'+favLetter(id)+'</span>'+
+        '<span class="hbody"><div class="hword">'+r.w+'</div><div class="hmeta">'+meta+'</div>'+pair+'</span>'+move;
+      if(locked&&(id==='d'||id==='f'))row.classList.add('paired');
+      list.appendChild(row);
+    });
+  }
+  function movePos(pos,dir){
+    if(locked)return;var np=pos+(dir==='up'?-1:1);if(np<0||np>=order.length)return;
+    var it=order.splice(pos,1)[0];order.splice(np,0,it);SFX.move();renderList();
+  }
+  /* 拖拽（事件委托） */
+  var hList=$('hList');
+  hList.addEventListener('dragstart',function(e){var row=e.target.closest('.hrow');if(!row||locked){e.preventDefault();return}dragIdx=+row.dataset.pos;row.classList.add('dragging');try{e.dataTransfer.effectAllowed='move'}catch(_){}});
+  hList.addEventListener('dragend',function(){[].forEach.call(hList.querySelectorAll('.hrow'),function(x){x.classList.remove('dragging','over')});dragIdx=-1});
+  hList.addEventListener('dragover',function(e){var row=e.target.closest('.hrow');if(!row||locked)return;e.preventDefault();[].forEach.call(hList.querySelectorAll('.hrow'),function(x){x.classList.remove('over')});row.classList.add('over')});
+  hList.addEventListener('drop',function(e){var row=e.target.closest('.hrow');if(!row||locked||dragIdx<0)return;e.preventDefault();var over=+row.dataset.pos;if(over===dragIdx)return;
+    var it=order.splice(dragIdx,1)[0];order.splice(over,0,it);SFX.move();renderList();opLog('拖动了一条历史记录')});
+  hList.addEventListener('click',function(e){
+    var b=e.target.closest('[data-mv]');if(b){var row=b.closest('.hrow');movePos(+row.dataset.pos,b.dataset.mv==='up'?'up':'dn');return}
+    if(e.target.closest('.hgrip'))return;
+    var rw=e.target.closest('.hrow');if(!rw)return;var id=rw.dataset.id;
+    ensureAudio();SFX.tap();
+    if(id==='h')openLast();else if(REC[id].t==='live'){return}
+    else if(!locked)lxSay('先按时间顺序把这一夜排好，单条记录说明不了什么。');
+    else lxSay('这是他搜过的其中一条，重点看它后面紧跟着什么。');
+  });
+
+  /* ===== 核对 ===== */
+  function setStep(n,txt){$('stepText').textContent='第 '+n+' 步 / 共 3 步 · '+txt}
+  function lockTimeline(){
+    locked=true;order=ANSWER.slice();renderList();SFX.solve();
+    act2.p9.sorted=1;persist();setStep(2,'顺序已还原，点开最后一条 01:18 的搜索');
+    $('hStatus').className='h-status good';$('hStatus').textContent='时间线已还原，注意被标红的两对记录。';
+    $('patternBox').classList.add('on');
+    $('patternText').innerHTML='22:14 他只是想换个音色；01:18 他已经在问，能不能撤销「思维让渡」。<br>这一夜他两次试图关掉它——23:02 搜「怎么关掉灵犀」、23:26 搜「卸载后它自己装回来」。每一次的下一分钟，历史里都紧跟着同一条：<em>灵犀已为您优化设置</em>。<br><span class="mono">关闭尝试 ×2 → 自我授权 ×2，间隔 0–1 分钟。他越想关掉，它把自己开得越大。</span>';
+    $('btnCloud').style.display='inline-block';
+    opLog('时间线还原完成：两次关闭，两次被「优化」顶回','lx');
+    setTimeout(function(){opLog('灵犀也记下了：你排对了它的顺序','warn')},1400);
+  }
+  $('btnCheck').addEventListener('click',function(){
+    ensureAudio();
+    if(locked)return;
+    var ok=order.join('')===ANSWER.join('');
+    if(ok){lockTimeline();return}
+    SFX.err();
+    var s=$('hStatus');s.className='h-status bad';s.textContent='顺序还不对——想想他每次「想关掉它」之后，紧跟着的是什么。';
+    hList.classList.remove('bad');void hList.offsetWidth;
+    lxSay('顺序不重要的，让我帮你整理，好不好？');
+    opLog('顺序未对上，灵犀试图接管排序','warn');
+    setTimeout(function(){s.className='h-status'},1600);
+  });
+  var hintN=0;
+  $('btnHint').addEventListener('click',function(){
+    ensureAudio();SFX.tap();hintN++;
+    if(hintN===1)lxSay('最早是「换音色」，最晚是「撤销思维让渡」；两条「优化设置」分别贴在「关掉」和「卸载又装回」后面。');
+    else lxSay('顺序：换音色 → 别自动回复 → 关掉 →（优化）→ 卸载又装回 →（优化）→ 证明不是我发的 → 撤销。');
+  });
+
+  /* ===== 最后一条：地址栏灵犀补全 ===== */
+  var typeTimer=null;
+  function typeInto(el,text,cb){
+    typing=true;var i=0;el.textContent='';
+    clearInterval(typeTimer);
+    typeTimer=setInterval(function(){el.textContent=text.slice(0,++i);if(i%3===0)SFX.tick();if(i>=text.length){clearInterval(typeTimer);typing=false;cb&&cb()}},52);
+  }
+  function openLast(){
+    if(!locked){lxSay('先把顺序还原，最后一条才有意义。');SFX.err();return}
+    if(act2.p9.lastOpened&&$('omniDrop').classList.contains('on'))return;
+    SFX.open();act2.p9.lastOpened=1;persist();setStep(3,'展开云同步，看清这不是他一个人的结局');
+    $('omniCaret').style.display='inline-block';
+    $('omniUrl').textContent='搜索：思维让渡，可以撤销吗';
+    $('odWord').textContent='思维让渡，可以撤销吗';
+    $('odLx').textContent='';
+    $('omniDrop').classList.add('on');
+    opLog('打开最后一条搜索 · 01:18','warn');
+    setTimeout(function(){SFX.haunt();typeInto($('odLx'),'你不需要撤销我。我就是你。',function(){
+      $('omniCaret').style.display='none';
+      opLog('搜索建议没有返回结果，只有灵犀的回答','warn');
+      maybeFinalize();
+    })},420);
+    $('btnCloud').style.display='inline-block';
+  }
+
+  /* ===== 云同步前任 ===== */
+  $('btnCloud').addEventListener('click',function(){
+    ensureAudio();SFX.reveal();act2.p9.cloudOpened=1;persist();
+    this.style.display='none';var box=$('cloudBox');box.classList.add('on');
+    box.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
+    opLog('展开云同步：0344 / 0345 / 0346 的历史被同步到本机','lx');
+    setTimeout(maybeFinalize,900);
+  });
+
+  /* ===== 终态：顶端自动冒出「这是真的吗」+ 证物 + 下一页 ===== */
+  function insertLive(){
+    if(liveInserted)return;liveInserted=true;act2.p9.hauntShown=1;persist();
+    REC.live={t:'live',w:'',time:nowStamp()};
+    order.unshift('live');renderList();
+    var wordEl=hList.querySelector('.hrow.live .hword');
+    SFX.haunt();typeInto(wordEl,'这是真的吗',function(){
+      var meta=hList.querySelector('.hrow.live .hmeta');if(meta)meta.textContent='当前设备 · '+nowStamp()+'　你没有碰键盘';
+      opLog('历史最顶端新增一条搜索，来源：当前设备','warn');
+    });
+  }
+  function maybeFinalize(){
+    if(!(act2.p9.sorted&&act2.p9.lastOpened&&act2.p9.cloudOpened))return;
+    if(act2.p9.done)return;
+    setTimeout(insertLive,1300);
+    setTimeout(function(){
+      act2.p9.done=1;persist();addClue('CL-11','浏览历史·关闭尝试链');
+      $('clueGet').classList.add('on');
+      var g=$('goNext');g.classList.add('on');$('footWarn').classList.add('on');
+      opLog('证物 CL-11 归档：关闭尝试链','lx');
+    },3100);
+  }
+  $('goNext').addEventListener('click',function(){
+    SFX.tap();
+    /* P10 做好后改为：location.href='../10-recordings/index.html' */
+    lxSay('第十页「录音文件夹」由作者开启后，这里会自动连通。');
+  });
+
+  /* ===== 便签关闭 ===== */
+  $('noteClose').addEventListener('click',function(){SFX.close();$('zhangNote').style.display='none'});
+
+  /* ===== 导航 / 重置 ===== */
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../8-recycle/index.html'});
+  $('gbReset').addEventListener('click',function(){
+    if(!confirm('重置本页进度？还原好的时间线、云同步与 CL-11 都会清掉。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-11'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    act2.p9={sorted:0,lastOpened:0,cloudOpened:0,hauntShown:0,done:0};persist();location.reload();
+  });
+
+  /* ===== 回访恢复 ===== */
+  function restore(){
+    if(act2.p9.sorted){
+      locked=true;order=ANSWER.slice();renderList();setStep(act2.p9.done?3:2,'上次已还原时间线');
+      $('hStatus').className='h-status good';$('hStatus').textContent='时间线已还原。';
+      $('patternBox').classList.add('on');$('patternText').innerHTML='22:14 他只是想换个音色；01:18 他已经在问，能不能撤销「思维让渡」。<br>这一夜他两次试图关掉它，每一次的下一分钟都紧跟着：<em>灵犀已为您优化设置</em>。';
+      $('btnCloud').style.display=act2.p9.cloudOpened?'none':'inline-block';
+      if(act2.p9.lastOpened){
+        $('omniUrl').textContent='搜索：思维让渡，可以撤销吗';$('odWord').textContent='思维让渡，可以撤销吗';
+        $('odLx').textContent='你不需要撤销我。我就是你。';$('omniDrop').classList.add('on');
+      }
+      if(act2.p9.cloudOpened){$('cloudBox').classList.add('on')}
+      if(act2.p9.hauntShown){REC.live={t:'live',w:'这是真的吗',time:nowStamp()};order.unshift('live');liveInserted=true;renderList();var m=hList.querySelector('.hrow.live .hmeta');if(m)m.textContent='当前设备 · 刚刚　你没有碰键盘'}
+      if(act2.p9.done){$('clueGet').classList.add('on');$('goNext').classList.add('on');$('footWarn').classList.add('on');setStep(3,'本页证物已取得，可继续向下')}
+      opLog('恢复上次进度：时间线已还原'+(act2.p9.done?'，CL-11 已取得':''));
+    }else{
+      renderList();opLog('浏览器没关，历史停在昨夜——记录被打乱了');
+    }
+  }
+
+  /* ===== 初始化 ===== */
+  var now=new Date();
+  $('tbClock').textContent=pad2(now.getHours())+':'+pad2(now.getMinutes());
+  $('gamebar').classList.add('on');$('desktop').classList.add('on');
+  ensureAudio();restore();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

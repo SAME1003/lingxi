@@ -695,8 +695,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   $('goNext').addEventListener('click',function(){
     if(this.dataset.unlocked){
       SFX.tap();
-      /* P9 做好后改为：location.href='../9-history/index.html' */
-      lxSay('第九页「浏览历史」由作者开启后，这里会自动连通。');
+      location.href='../9-history/index.html';
       return;
     }
     SFX.err();lxSay('先点开最底下那张几秒前的截图，解开张宏宇留下的数独。');
