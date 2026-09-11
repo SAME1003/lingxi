@@ -49,6 +49,8 @@ input{font-family:inherit}
 .tb-live{font-family:var(--kai);font-size:10.5px;color:var(--red-pen);display:none;align-items:center;gap:6px}
 .tb-live.on{display:flex}
 .tb-live .recdot{width:8px;height:8px;border-radius:50%;background:var(--red-pen);animation:pulseRing 1s infinite}
+.fwarn{display:none;background:#FBEBC9;border-bottom:1px solid #E4D08A;color:#6B5320;font-size:11px;line-height:1.65;padding:8px 34px 8px 14px;font-family:var(--kai)}
+.fwarn.on{display:block;animation:fadeUp .3s both}.fwarn b{color:#8A5A1A;font-weight:400}.fwarn .fx{position:absolute;right:10px;top:6px;color:#A88A4A;cursor:pointer;font-size:14px}
 
 .rec-body{display:flex;height:calc(100% - 102px - 38px)}
 .rec-main{flex:1;overflow-y:auto;padding:16px 20px 26px}
@@ -154,6 +156,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <span class="tb-count" id="tbCount">共 8 项 · 解密 0 / 3 · 加密项 1</span>
       <span class="tb-sp"></span>
       <span class="tb-live" id="tbLive"><span class="recdot"></span>检测到一条正在写入的音频</span>
+    </div>
+    <div class="fwarn" id="fileWarn" style="position:relative">
+      <b>当前是「双击文件」方式打开：浏览器会禁用本页的左右声道分离、反转与变速，音频解密会没有声音。</b>请改用线上链接，或在游戏根目录运行 start-demo.bat，用 http://127.0.0.1 的本地地址打开；普通叙事条不受影响。
+      <span class="fx" id="fileWarnX">×</span>
     </div>
 
     <div class="rec-body">
@@ -392,7 +398,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     dualL.currentTime=0;dualR.currentTime=0;dualL.play().catch(function(){});dualR.play().catch(function(){});
     applyBal(+$('balSlider').value/100);
     var end=function(){dualPlaying=false;$('dualPlay').innerHTML=PLAY;$('dualPlay').classList.remove('playing')};
-    dualR.addEventListener('ended',end);
+    dualR.onended=end;
   });
 
   /* ===== 解密②：反转母带 ===== */
@@ -448,6 +454,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
   /* 便签 / 导航 / 重置 */
   $('noteClose').addEventListener('click',function(){$('zhangNote').style.display='none'});
+  if(location.protocol==='file:'){$('fileWarn').classList.add('on')}
+  $('fileWarnX').addEventListener('click',function(){$('fileWarn').classList.remove('on')});
   $('gbBack').addEventListener('click',function(){SFX.tap();stopAll();location.href='../9-history/index.html'});
   $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？三处音源解密、密码与 CL-12 都会清掉。'))return;
     try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-12'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
