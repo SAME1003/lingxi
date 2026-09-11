@@ -334,7 +334,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     else{opLog('第三次按下「不同意」','warn');doAgree(true)}
   });
 
-  $('goNext').addEventListener('click',function(){SFX.tap();lxSay('第二幕到此结束。第三幕 · 渗入，将在作者开启后从这里开始。')});
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../13-memory/index.html'});
 
   $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../11-handover/index.html'});
   $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？追溯记录与 CL-14 都会清掉。'))return;

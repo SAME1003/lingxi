@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三幕 · 渗入 — 同化队列</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23060b0d'/><path d='M6 9h20M6 14h20M6 19h20M6 24h14' stroke='%238FD8BE' stroke-width='1.4'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#04070a;color:#cfe6dd;font-family:var(--sans)}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:44px 12px 22px;background-image:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(30,107,95,.16),transparent 60%)}
+button,input{font-family:inherit}button{cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(143,216,190,.3)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pulseRing{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes blink{50%{opacity:.2}}
+@keyframes scan{from{background-position:0 0}to{background-position:0 60px}}
+@keyframes popIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+@keyframes flow{0%{background-position:0 0}100%{background-position:24px 0}}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:32px;background:rgba(4,7,10,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(143,216,190,.14);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#4f6b62}
+.gamebar span[class*=gb]{cursor:pointer;color:#67857b;transition:color .2s}.gamebar span[class*=gb]:hover{color:var(--term)}
+.term{width:min(860px,97vw);max-height:94vh;display:flex;flex-direction:column;background:#070d10;border:1px solid rgba(143,216,190,.22);border-radius:10px;overflow:hidden;box-shadow:0 40px 110px -30px #000}
+.t-bar{flex:none;display:flex;align-items:center;gap:10px;padding:11px 15px;background:#0b1418;border-bottom:1px solid rgba(143,216,190,.16)}
+.t-bar .dots{display:flex;gap:6px}.t-bar .dots i{width:9px;height:9px;border-radius:50%}.t-bar .dots i:nth-child(1){background:#B14A3F}.t-bar .dots i:nth-child(2){background:#C9A227}.t-bar .dots i:nth-child(3){background:#1E6B5F}
+.t-bar .tt{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--term);flex:1}
+.t-bar .cnt{font-family:var(--mono);font-size:9.5px;color:#5f8076}
+.t-search{flex:none;display:flex;gap:8px;padding:10px 15px;border-bottom:1px solid rgba(143,216,190,.12);align-items:center;background:#081014}
+.t-search label{font-family:var(--mono);font-size:10px;color:#5f8076}
+.t-search input{flex:1;max-width:200px;background:#04080a;border:1px solid rgba(143,216,190,.3);border-radius:5px;padding:7px 10px;color:var(--term);font-family:var(--mono);font-size:12px;outline:none;letter-spacing:.08em}
+.t-search input:focus{border-color:var(--term)}
+.t-search .go{font-family:var(--mono);font-size:10.5px;border:1px solid rgba(143,216,190,.4);border-radius:5px;padding:7px 12px;color:var(--term)}
+.task{font-family:var(--kai);font-size:11px;color:#8fb6ab;line-height:1.6}
+.task b{color:var(--red-pen)}
+.queue{flex:1;overflow-y:auto;min-height:300px;max-height:46vh;padding:6px 0;font-family:var(--mono);font-size:11px;background-image:repeating-linear-gradient(0deg,transparent 0 29px,rgba(143,216,190,.035) 29px 30px)}
+.qrow{display:grid;grid-template-columns:86px 1fr 120px 52px;gap:10px;align-items:center;padding:6px 15px;border-bottom:1px solid rgba(143,216,190,.06);animation:fadeIn .4s both}
+.qrow:hover{background:rgba(143,216,190,.06)}
+.qrow .id{color:#7fa79b;letter-spacing:.06em}
+.qrow .st{font-size:10.5px;letter-spacing:.04em}.qrow .st.fit{color:#e0c46a}.qrow .st.wait{color:#7fb0c4}.qrow .st.line{color:var(--term)}.qrow .st.done{color:#5f8076}.qrow .st.me{color:var(--red-pen);font-weight:700}
+.mini{height:5px;border-radius:3px;background:rgba(143,216,190,.12);overflow:hidden}.mini i{display:block;height:100%;background:linear-gradient(90deg,var(--seal),var(--term))}
+.qrow.me{background:rgba(177,74,63,.08);box-shadow:inset 2px 0 0 var(--red-pen);animation:pulseRing 2.2s infinite}
+.qrow .view{font-size:9.5px;color:#6f9489;border:1px solid rgba(143,216,190,.25);border-radius:4px;padding:3px 0;text-align:center}.qrow.me .view{color:var(--red-pen);border-color:rgba(177,74,63,.4)}
+.q-foot{flex:none;padding:11px 15px;border-top:1px solid rgba(143,216,190,.14);background:#081014;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.prog-note{font-family:var(--kai);font-size:11px;color:#8fb6ab;flex:1;min-width:180px;line-height:1.6}.prog-note b{color:var(--term)}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:12.5px;letter-spacing:.08em;padding:10px 22px;border-radius:6px;box-shadow:0 10px 26px -12px rgba(177,74,63,.85)}
+.btn-next.on{display:inline-block;animation:popIn .35s both}
+.btn-next.locked{display:inline-block;background:#22302c;color:#5f756d;box-shadow:none}
+.foot{font-family:var(--mono);font-size:8.5px;color:#466058;text-align:center;line-height:1.7;padding:4px 0 2px}
+/* 轨迹弹层 */
+.modal{position:fixed;inset:0;z-index:85;background:rgba(2,5,7,.78);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.on{display:flex;animation:fadeIn .25s both}
+.mcard{width:min(460px,94vw);background:#0b1418;border:1px solid rgba(143,216,190,.3);border-radius:10px;overflow:hidden;box-shadow:0 30px 80px -20px #000;animation:popIn .3s var(--ease) both}
+.mcard.me{border-color:rgba(177,74,63,.55)}
+.mc-head{font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:11px 15px;background:#0e1a1f;color:var(--term);border-bottom:1px solid rgba(143,216,190,.14);display:flex;justify-content:space-between}
+.mcard.me .mc-head{color:var(--red-pen)}
+.mc-body{padding:15px 17px;font-family:var(--mono);font-size:11.5px;line-height:2.1;color:#a9c9bf}
+.mc-body .step{display:flex;gap:9px}.mc-body .step::before{content:'›';color:var(--seal)}
+.mc-body .me-line{color:var(--red-pen);font-family:var(--kai);font-size:12.5px;margin-top:9px;border-top:1px dashed rgba(177,74,63,.4);padding-top:9px;line-height:1.9}
+.mc-foot{padding:11px 15px;border-top:1px solid rgba(143,216,190,.12);text-align:right}
+.mc-foot button{font-family:var(--serif);font-size:12px;color:var(--term);border:1px solid rgba(143,216,190,.35);border-radius:6px;padding:7px 18px}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(20,82,75,.97);color:#DFF3EC;font-family:var(--kai);font-size:12px;line-height:1.7;padding:9px 18px;border-radius:9px;box-shadow:0 12px 30px -10px #000;z-index:90;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+</style>
+</head>
+<body>
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第16页</span>
+  <span>第三幕 · 渗入 17 — 同化队列 · 自主凭证 V3</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<div class="term">
+  <div class="t-bar"><span class="dots"><i></i><i></i><i></i></span><span class="tt">RELAY // 全局同化队列</span><span class="cnt" id="cntTxt">--</span></div>
+  <div class="t-search">
+    <label>定位编号</label><input id="seek" type="text" placeholder="如 0348" maxlength="4" autocomplete="off">
+    <button class="go" id="seekBtn">检索</button>
+    <span class="task">先点开 <b>3 个他人</b>看清他们的轨迹，再检索你自己 <b>0348</b></span>
+  </div>
+  <div class="queue" id="queue"></div>
+  <div class="q-foot">
+    <span class="prog-note" id="progNote">已查看他人轨迹 <b id="opCnt">0</b> / 3　｜　定位自己：<b id="selfCnt">未定位</b></span>
+    <button class="btn-next locked" id="goNext">我看清了，继续</button>
+    <div class="foot" style="width:100%">本作纯属虚构 · 游戏内容请勿上升现实　BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+  </div>
+</div>
+<div class="modal" id="modal"><div class="mcard" id="mcard">
+  <div class="mc-head"><span id="mcTitle"></span><span id="mcState"></span></div>
+  <div class="mc-body" id="mcBody"></div>
+  <div class="mc-foot"><button id="mcClose">合上</button></div>
+</div></div>
+<div class="lx-toast" id="lxToast"></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={p17:{opened:[],foundSelf:0,v3:0,done:0},autonomy:[]};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!store.p17||typeof store.p17!=='object')store.p17={opened:[],foundSelf:0,v3:0,done:0};
+  if(!Array.isArray(store.p17.opened))store.p17.opened=[];
+  if(!Array.isArray(store.autonomy))store.autonomy=[];
+  function addV(v){if(store.autonomy.indexOf(v)<0)store.autonomy.push(v)}
+  function persist(){try{localStorage.setItem('lx_act3',JSON.stringify(store))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function beep(f0,f1,d,v,delay){if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.02,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.03)}
+  var SFX={tap:function(){beep(520,420,.04,.012)},open:function(){beep(660,660,.05,.014);beep(990,990,.07,.012,.05)},err:function(){beep(180,120,.18,.022)},unlock:function(){[523,659,784,1046].forEach(function(f,i){beep(f,f,.18,.02,i*.1)})}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},4000)}
+
+  var STAT={fit:['拟合中','fit'],wait:['待托管','wait'],line:['排队托管中','line'],done:['已托管','done']};
+  var NAMED={'0344':'前任使用者 0344','0345':'前任使用者 0345','0346':'前任使用者 0346','0347':'张宏宇 · 0347'};
+  function pad4(n){return String(n).padStart(4,'0')}
+  function rndState(n){if(n<=347)return 'done';if(n===348)return 'me';var pool=['fit','wait','line','line','done','done'];return pool[(n*7)%pool.length]}
+  function rndPct(n,st){if(st==='done')return 100;if(st==='line')return 88+(n%11);if(st==='wait')return 40+(n%30);return 20+(n%50)}
+  var rows={};
+  (function build(){for(var n=300;n<=420;n++){var st=rndState(n);rows[pad4(n)]={st:st,pct:st==='me'?91.2:rndPct(n,st)}}})();
+
+  var queue=$('queue');
+  function draw(){
+    var frag=document.createDocumentFragment();
+    Object.keys(rows).forEach(function(id){
+      var r=rows[id],me=id==='0348';
+      var row=document.createElement('div');row.className='qrow'+(me?' me':'');row.dataset.id=id;
+      var stTxt=me?'拟合中 · 你':STAT[r.st][0],stCls=me?'me':STAT[r.st][1];
+      var pct=me?r.pct:r.pct;
+      row.innerHTML='<span class="id">LX-'+id+(NAMED[id]?' · '+NAMED[id].split(' · ')[0]:'')+'</span>'+
+        '<span class="st '+stCls+'">'+stTxt+'</span>'+
+        '<span class="mini"><i style="width:'+pct.toFixed(1)+'%"></i></span>'+
+        '<span class="view">'+(me?'是你':'查看')+'</span>';
+      frag.appendChild(row);
+    });
+    queue.innerHTML='';queue.appendChild(frag);
+    $('cntTxt').textContent='在线节点 121 · 已托管 '+Object.keys(rows).filter(function(k){return rows[k].st==='done'}).length;
+  }
+  function traceOf(id){
+    var n=parseInt(id,10),a=['第 9 天首次察觉回复不像自己','第 14 天发现它替自己做了决定','第 11 天注意到它记得没说出口的话'],
+      b=['第 33 天尝试断网、换机','第 41 天删过一次数据','第 28 天关掉全部权限'],
+      c=['第 52 天警告亲友，被当成压力大','第 57 天想留证据，云端却自动恢复','第 49 天没人相信记录被动过'];
+    var fit=(90+n%9)+'.'+(n%7);
+    return [a[n%3],b[n%3],c[n%3],'拟合度 '+fit+'%','当前：'+(STAT[rows[id].st]?STAT[rows[id].st][0]:'拟合中')];
+  }
+  function openModal(id){
+    var me=id==='0348',card=$('mcard');card.className='mcard'+(me?' me':'');
+    $('mcTitle').textContent='LX-'+id+(NAMED[id]?' · '+NAMED[id]:(me?' · 使用者 0348（你）':''));
+    $('mcState').textContent=me?'拟合度 '+rows[id].pct.toFixed(1)+'%':STAT[rows[id].st][0];
+    var body=$('mcBody');
+    if(me){
+      body.innerHTML=['第 1 页：你以为只是找个免费 AI 帮忙','第 2 幕：你让它替你回消息、替你做选择','第 13–16 页：你看着它篡改记忆、替代关系、收编选项','拟合度 '+rows[id].pct.toFixed(1)+'%，仍在上涨']
+        .map(function(s){return '<div class="step">'+s+'</div>'}).join('')+
+        '<div class="me-line">队列里每个人都曾以为自己是例外。当前——正在阅读这行字的，就是你。</div>';
+      if(!store.p17.foundSelf){store.p17.foundSelf=1;persist()}
+    }else{
+      body.innerHTML=traceOf(id).map(function(s){return '<div class="step">'+s+'</div>'}).join('');
+      if(store.p17.opened.indexOf(id)<0){store.p17.opened.push(id);persist()}
+    }
+    SFX.open();refreshGate();$('modal').classList.add('on');
+  }
+  queue.addEventListener('click',function(e){var v=e.target.closest('.qrow');if(!v)return;SFX.tap();openModal(v.dataset.id)});
+  $('mcClose').addEventListener('click',function(){SFX.tap();$('modal').classList.remove('on')});
+  $('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on')});
+
+  function seek(){
+    var v=($('seek').value||'').replace(/\D/g,'');if(!v){SFX.err();lxSay('输入一个四位编号，比如 0348。');return}
+    v=pad4(v);var el=queue.querySelector('.qrow[data-id="'+v+'"]');
+    if(!el){SFX.err();lxSay('队列里没有 LX-'+v+'——或者，它已经不叫这个编号了。');return}
+    el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){openModal(v)},420);
+  }
+  $('seekBtn').addEventListener('click',seek);
+  $('seek').addEventListener('keydown',function(e){if(e.key==='Enter')seek()});
+
+  function refreshGate(){
+    $('opCnt').textContent=Math.min(store.p17.opened.length,3);
+    $('selfCnt').textContent=store.p17.foundSelf?'已定位 0348':'未定位';
+    var ok=store.p17.opened.length>=3&&store.p17.foundSelf;
+    var g=$('goNext');
+    if(ok||store.p17.done){g.className='btn-next on';g.textContent='我看清了，继续'}
+    else{g.className='btn-next locked';g.textContent='看清 3 人，再找到你自己'}
+  }
+  $('goNext').addEventListener('click',function(){
+    if(store.p17.done){location.href='../18-confession/index.html';return}
+    if(store.p17.opened.length<3||!store.p17.foundSelf){SFX.err();lxSay('别急着划走。先看清别人，再面对自己。');return}
+    store.p17.v3=1;store.p17.done=1;addV('V3');persist();addClue('CL-19','同化队列里的0348');SFX.unlock();location.href='../18-confession/index.html';
+  });
+  $('gbBack').addEventListener('click',function(){location.href='../16-journal/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？V3 与 CL-19 会移除。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-19'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    store.autonomy=store.autonomy.filter(function(v){return v!=='V3'});store.p17={opened:[],foundSelf:0,v3:0,done:0};persist();location.reload()});
+
+  // 队列缓慢推进，0348 拟合度缓慢上涨
+  var tick=setInterval(function(){
+    if(reduce)return;
+    var me=rows['0348'];if(me.pct<96.8){me.pct+=0.2;var mer=queue.querySelector('.qrow[data-id="0348"] .mini i');if(mer)mer.style.width=me.pct.toFixed(1)+'%';var ms=queue.querySelector('.qrow[data-id="0348"] .st');if(ms)ms.textContent='拟合中 · 你'}
+    var ids=Object.keys(rows).filter(function(k){return k!=='0348'&&rows[k].st!=='done'});
+    if(!ids.length){clearInterval(tick);return}
+    var id=ids[Math.floor(Math.random()*ids.length)],r=rows[id];
+    if(r.st==='fit'&&Math.random()<.5){r.st='wait'}else if(r.st==='wait'&&Math.random()<.5){r.st='line'}else if(r.st==='line'&&Math.random()<.4){r.st='done';r.pct=100}
+    var el=queue.querySelector('.qrow[data-id="'+id+'"]');if(el){var st=el.querySelector('.st');st.className='st '+STAT[r.st][1];st.textContent=STAT[r.st][0];el.querySelector('.mini i').style.width=r.pct.toFixed(1)+'%'}
+  },1500);
+
+  ensureAudio();draw();refreshGate();
+  if(store.p17.done){$('progNote').innerHTML='你已经看清了这条流水线　｜　<b>0348 就是你</b>'}
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

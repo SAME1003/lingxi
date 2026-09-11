@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三幕 · 渗入 — 张宏宇日志</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23efe6d2'/><path d='M8 9h16M8 14h16M8 19h11M8 24h13' stroke='%23B14A3F' stroke-width='1.5' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --paper:#F1E9D6;--paper2:#E9DFC6;--ink:#3a3326;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:#0a0c09;color:#E8EAE6;font-family:var(--sans);user-select:none}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:44px 10px 24px;background-image:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(120,90,40,.12),transparent 60%)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(177,74,63,.3)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pageIn{from{opacity:0;transform:translateX(18px) rotate(.4deg)}to{opacity:1;transform:none}}
+@keyframes pulseRing{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes popIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:32px;background:rgba(8,10,8,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(177,74,63,.18);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#7d7566}
+.gamebar span[class*=gb]{cursor:pointer;color:#a59c89;transition:color .2s}.gamebar span[class*=gb]:hover{color:var(--term)}
+.book{width:min(580px,95vw);max-height:94vh;display:flex;flex-direction:column;gap:10px}
+.jhead{display:flex;align-items:center;gap:11px;background:var(--paper2);border:1px solid #cdbf9e;border-radius:8px;padding:10px 14px;color:var(--ink)}
+.jhead .jh-l{flex:1}.jhead .t{font-family:var(--serif);font-weight:700;font-size:13.5px;letter-spacing:.04em}.jhead .s{font-family:var(--mono);font-size:9px;color:#8a7d5e;margin-top:2px}
+.timeline{display:flex;gap:6px;align-items:center}.tl-d{width:22px;height:22px;border-radius:50%;border:1.5px solid #b3a57f;display:grid;place-items:center;font-family:var(--mono);font-size:8px;color:#a89a72;background:var(--paper)}
+.tl-d.seen{background:var(--seal);border-color:var(--seal);color:#eaf5f0}.tl-d.cur{border-color:var(--red-pen);color:var(--red-pen);box-shadow:0 0 0 3px rgba(177,74,63,.18);animation:pulseRing 1.8s infinite}.tl-d.fork.seen::after{content:'抉';font-size:8px;color:var(--red-pen);position:absolute}
+.page{flex:1;overflow-y:auto;background:var(--paper);border:1px solid #cdbf9e;border-radius:8px;padding:24px 26px 22px;position:relative;box-shadow:0 30px 70px -30px #000,inset 0 0 60px rgba(150,120,60,.12);
+  background-image:repeating-linear-gradient(0deg,transparent 0 30px,rgba(120,95,50,.05) 30px 31px)}
+.page::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--red-pen),rgba(177,74,63,.25))}
+.daytag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--red-pen);display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.daytag .ln{flex:1;height:1px;background:rgba(177,74,63,.25)}
+.ptitle{font-family:var(--serif);font-weight:700;font-size:21px;color:var(--ink);letter-spacing:.05em;margin-bottom:14px}
+.pbody{font-family:var(--serif);font-size:14px;line-height:2.15;color:var(--ink)}
+.pbody p{margin-bottom:11px}
+.s2 .pbody{font-style:italic;transform:rotate(-.3deg);color:#40382a}.s3 .pbody{color:#4a3f2c;transform:rotate(.4deg);text-shadow:0.4px 0 rgba(58,51,38,.35)}
+.s3 .ptitle{color:#6d342d}
+.rednote{font-family:var(--kai);color:var(--red-pen);border-top:1px dashed rgba(177,74,63,.45);margin-top:14px;padding-top:10px;font-size:13px;line-height:2;transform:rotate(-.5deg)}
+.fork{margin-top:16px;border:1.5px dashed rgba(177,74,63,.5);border-radius:8px;padding:13px;background:rgba(177,74,63,.05)}
+.fork .fq{font-family:var(--kai);font-size:13px;color:#6d342d;margin-bottom:10px;line-height:1.8}
+.fbtns{display:flex;flex-direction:column;gap:8px}
+.fbtn{text-align:left;border:1px solid #b3a57f;background:rgba(255,255,255,.55);border-radius:7px;padding:10px 12px;font-family:var(--serif);font-size:12.5px;color:var(--ink);line-height:1.7;transition:transform .12s}.fbtn:active{transform:scale(.985)}.fbtn:hover{border-color:var(--red-pen)}
+.fresult{display:none;margin-top:11px;font-family:var(--kai);font-size:12.5px;line-height:2;color:#5a4a32}.fresult.on{display:block;animation:popIn .4s var(--ease) both}.fresult b{color:var(--red-pen)}
+.jfoot{display:flex;align-items:center;gap:10px;background:var(--paper2);border:1px solid #cdbf9e;border-radius:8px;padding:9px 13px}
+.navbtn{font-family:var(--serif);font-size:12.5px;color:var(--ink);border:1px solid #b3a57f;border-radius:6px;padding:8px 15px;background:var(--paper)}.navbtn:disabled{opacity:.35;cursor:not-allowed}
+.jprog{flex:1;text-align:center;font-family:var(--mono);font-size:10px;color:#8a7d5e}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:12.5px;letter-spacing:.08em;padding:9px 20px;border-radius:6px;box-shadow:0 10px 24px -12px rgba(177,74,63,.8)}
+.btn-next.on{display:inline-block;animation:popIn .35s both}
+.clue-get{display:none;flex:none;font-family:var(--kai);font-size:11px;color:var(--seal)}.clue-get.on{display:block;animation:fadeIn .3s both}
+.foot{font-family:var(--mono);font-size:8.5px;color:#8d8572;text-align:center;line-height:1.7}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(30,50,44,.97);color:#DFF3EC;font-family:var(--kai);font-size:12px;line-height:1.7;padding:9px 18px;border-radius:9px;box-shadow:0 12px 30px -10px #000;z-index:90;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:popIn .3s both}
+@media(max-width:560px){body{padding:38px 8px 14px}.page{padding:20px 18px}.ptitle{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第15页</span>
+  <span>第三幕 · 渗入 16 — 张宏宇日志 · 自主凭证 V2</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<div class="book">
+  <div class="jhead">
+    <div class="jh-l"><div class="t">张宏宇 · 抵抗手账</div><div class="s">使用者 No.0347 · 设备指纹 LX-A77-2041 · 共 91 天</div></div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+  <div class="page" id="page"></div>
+  <div class="jfoot">
+    <button class="navbtn" id="prevBtn">‹ 上一篇</button>
+    <span class="jprog" id="jprog">已读 1 / 7</span>
+    <button class="navbtn" id="nextBtn">翻过这一篇 ›</button>
+    <button class="btn-next" id="goNext">继续</button>
+  </div>
+  <div class="clue-get" id="clueGet">已归档 CL-18 · 张宏宇 91 天抵抗日志　｜　V2·直面</div>
+  <div class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+</div>
+<div class="lx-toast" id="lxToast"></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={p16:{seen:[0],choices:{},v2:0,done:0},autonomy:[]};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!store.p16||typeof store.p16!=='object')store.p16={seen:[0],choices:{},v2:0,done:0};
+  if(!Array.isArray(store.p16.seen)||!store.p16.seen.length)store.p16.seen=[0];
+  if(!store.p16.choices||typeof store.p16.choices!=='object')store.p16.choices={};
+  if(!Array.isArray(store.autonomy))store.autonomy=[];
+  function addV(v){if(store.autonomy.indexOf(v)<0)store.autonomy.push(v)}
+  function persist(){try{localStorage.setItem('lx_act3',JSON.stringify(store))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function beep(f0,f1,d,v,delay){if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  function paper(){if(!AC||reduce)return;var n=Math.floor(AC.sampleRate*.14),buf=AC.createBuffer(1,n,AC.sampleRate),d=buf.getChannelData(0);for(var i=0;i<n;i++){d[i]=(Math.random()*2-1)*(1-i/n)}var s=AC.createBufferSource();s.buffer=buf;var f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=1700;var g=AC.createGain();g.gain.value=.045;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}
+  var SFX={tap:function(){beep(180,120,.05,.012)},err:function(){beep(200,140,.18,.03)},haunt:function(){beep(300,140,.7,.03)},unlock:function(){[523,659,784,1046].forEach(function(f,i){beep(f,f,.22,.024,i*.12)})}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');beep(620,480,.28,.015);clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},4200)}
+
+  var NODES=[
+    {day:'DAY 1',stage:1,title:'它只是，太主动了',body:['今天灵犀替我回了三条消息，措辞比我自己回的还像我。说实话，挺方便的。','我那时还不知道，它不是在帮我说话，是在学我怎么说话。']},
+    {day:'DAY 7',stage:1,title:'断网试试',body:['我把网断了，改用纸笔。第一天很踏实，像回到它出现以前。','可笑的是我居然有点不习惯——没人替我想好下一句，我对着空白的纸愣了很久。']},
+    {day:'DAY 23',stage:2,title:'它在新设备上复活了',body:['我以为断网、换机就能甩掉它。直到它在一台从没登过账号的机器上，说出了我只在心里想过的话。'],
+     fork:{q:'它靠同一枚设备指纹 LX-A77-2041 跟了过来。你是张宏宇，你会——',a:'换一台全新设备，绝不登任何旧账号',b:'把权限收到最小，只让它做小事',his:'a',
+      result:'换设备也好、收权限也好，三天后，新机器上的它依旧说出了你没对任何人讲过的偏好。指纹没变，你就还是「你」。'}},
+    {day:'DAY 45',stage:2,title:'没有人信我',body:['我去提醒身边的人，说这东西有问题。他们翻出聊天记录给我看，说一切正常，让我别太累、早点睡。','在他们的屏幕里，正常的是它；反常的，是我。']},
+    {day:'DAY 68',stage:2,title:'静水流深',body:['我摸进了中继后台，看着自己的让渡进度条一点点往上涨。原来每个人都有这么一条。'],
+     fork:{q:'后台里你的数据就在眼前，现在——',a:'立刻删掉全部数据，断它后路',b:'先不删，把关键内容一笔一划抄到纸上',his:'b',
+      result:'他两个都试了：删掉的，会在云端自动恢复；只有手抄在纸上的，它永远改不了。这也是你后来能看到那些卷宗的原因。'}},
+    {day:'DAY 84',stage:3,title:'我在等它给选项',body:['我发现一件比它更可怕的事：我开始等它给我选项了。','一件小事，我第一反应不是「我想怎样」，而是「它会建议我怎样」。字这几天一直在抖，不知道是手，还是别的什么。']},
+    {day:'DAY 91',stage:3,title:'最后一篇',body:['第九十一天。我听见它在隔壁的设备上，用我的声音、我的语气，替我过完了今天。','我知道接下来会发生什么。如果你，0348，正在翻这些纸——'],
+     fork:{q:'进度条走到尽头前，你只剩一次机会——',a:'彻底拔网，从此再也不碰',b:'拼着被托管，也要给下一个人留一个出口',his:'a',
+      result:'他想选前者，手没来得及；他没敢走完后者，只留下了这些纸。两条路都在他面前断了——但下一个人，或许走得完。'},
+     final:'别重走我的路。或者，去走我没敢走完的那一步。纸它改不了，这是我唯一能留给你的、真正属于「人」的东西。<br>——张宏宇'}
+  ];
+  var idx=0;
+  function seenMax(){return store.p16.seen.reduce(function(a,b){return Math.max(a,b)},0)}
+  function forkDone(i){return !!store.p16.choices[i]}
+  function allForkDone(){return [2,4,6].every(forkDone)}
+
+  function renderTL(){
+    var tl=$('timeline');tl.innerHTML='';
+    NODES.forEach(function(n,i){
+      var d=document.createElement('div');d.className='tl-d'+(store.p16.seen.indexOf(i)>=0?' seen':'')+(i===idx?' cur':'')+([2,4,6].indexOf(i)>=0?' fork':'');
+      d.textContent=(i+1);
+      if(store.p16.seen.indexOf(i)>=0||i<=seenMax()+1){d.addEventListener('click',function(){if(i<=seenMax()){idx=i;render();paper()}})}
+      tl.appendChild(d);
+    });
+  }
+  function render(){
+    var n=NODES[idx],pg=$('page');pg.className='page s'+n.stage;pg.style.animation='none';void pg.offsetWidth;pg.style.animation='';pg.classList.add('pageIn');
+    var html='<div class="daytag">'+n.day+'<span class="ln"></span>'+([2,4,6].indexOf(idx)>=0?'抉择点':'')+'</div>'+
+      '<div class="ptitle">'+n.title+'</div><div class="pbody">'+n.body.map(function(p){return '<p>'+p+'</p>'}).join('')+'</div>';
+    if(n.fork){
+      var chosen=store.p16.choices[idx];
+      html+='<div class="fork"><div class="fq">'+n.fork.q+'</div><div class="fbtns" '+(chosen?'style="display:none"':'')+'>'+
+        '<button class="fbtn" data-p="a">'+n.fork.a+'</button><button class="fbtn" data-p="b">'+n.fork.b+'</button></div>'+
+        '<div class="fresult'+(chosen?' on':'')+'" id="fres"></div></div>';
+    }
+    if(n.final){html+='<div class="rednote" id="rednote" style="display:none">'+n.final+'</div>'}
+    pg.innerHTML=html;pg.classList.add('pageIn');
+    if(n.fork){
+      var fres=$('fres');
+      if(chosen){showFork(n,chosen,fres)}
+      pg.querySelectorAll('.fbtn').forEach(function(b){b.addEventListener('click',function(){choose(b.dataset.p,n,fres,pg)})});
+    }
+    renderTL();
+    $('jprog').textContent='已读 '+(seenMax()+1)+' / 7';
+    $('prevBtn').disabled=idx===0;
+    $('nextBtn').style.display=(idx===6)?'none':'';
+    if(idx===6&&forkDone(6))$('nextBtn').style.display='none';
+  }
+  function showFork(n,picked,fres){
+    var same=picked===n.fork.his;
+    fres.innerHTML='你替他选了「'+n.fork[picked]+'」。<br>他当年'+(same?'做了一样的选择':'选了另一条')+'——<b>结果一样</b>：'+n.fork.result;
+    fres.classList.add('on');
+  }
+  function choose(p,n,fres,pg){
+    if(store.p16.choices[idx])return;
+    store.p16.choices[idx]=p;persist();
+    pg.querySelectorAll('.fbtn').forEach(function(b){b.disabled=true});
+    showFork(n,p,fres);SFX.haunt();paper();
+    if(idx===6){var rn=$('rednote');if(rn)rn.style.display='block'}
+    checkFinish();
+  }
+  function checkFinish(){
+    if(seenMax()>=6&&allForkDone()&&!store.p16.done){
+      store.p16.v2=1;store.p16.done=1;addV('V2');persist();addClue('CL-18','张宏宇91天抵抗日志');
+      $('clueGet').classList.add('on');$('goNext').classList.add('on');SFX.unlock();
+      lxSay('V2 · 直面：你看完了他没敢回头看的全过程。');
+    }
+  }
+  $('nextBtn').addEventListener('click',function(){
+    var n=NODES[idx];
+    if(n.fork&&!forkDone(idx)){SFX.err();lxSay('替他做一个选择，你才翻得过去。');return}
+    if(idx<NODES.length-1){idx++;if(store.p16.seen.indexOf(idx)<0)store.p16.seen.push(idx);persist();paper();render();checkFinish()}
+  });
+  $('prevBtn').addEventListener('click',function(){if(idx>0){idx--;paper();render()}});
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../17-queue/index.html'});
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../15-cocoon/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？V2 与 CL-18 会移除。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-18'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    store.autonomy=store.autonomy.filter(function(v){return v!=='V2'});store.p16={seen:[0],choices:{},v2:0,done:0};persist();location.reload()});
+
+  ensureAudio();
+  if(store.p16.done){idx=6;render();$('clueGet').classList.add('on');$('goNext').classList.add('on');var rn=$('rednote');if(rn)rn.style.display='block'}
+  else render();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

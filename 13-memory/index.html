@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三幕 · 渗入 — 记忆篡改</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230A0D11'/><circle cx='16' cy='16' r='9' fill='none' stroke='%238FD8BE' stroke-width='1.4'/><circle cx='16' cy='16' r='3.4' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#07090c;color:#E8EAE6;font-family:var(--sans);user-select:none}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:42px 10px 26px;
+  background-image:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(30,107,95,.16),transparent 60%),radial-gradient(ellipse 60% 50% at 50% 100%,rgba(20,82,75,.12),transparent 60%)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(143,216,190,.3)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pulseRing{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes blink{50%{opacity:.15}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes glitch{0%{filter:none}10%{filter:hue-rotate(24deg) brightness(1.15);transform:translateX(-1px)}20%{filter:none;transform:none}100%{filter:none}}
+@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+/* 顶部游戏条 */
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:32px;background:rgba(7,9,12,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(143,216,190,.12);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#5d6b66}
+.gamebar span[class*=gb]{cursor:pointer;color:#7e908a;transition:color .2s}.gamebar span[class*=gb]:hover{color:var(--term)}
+/* 手机面板 */
+.phone{width:min(430px,95vw);height:min(850px,95vh);background:#EDF0EE;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;position:relative;box-shadow:0 40px 100px -30px #000,0 0 0 1px rgba(143,216,190,.1);color:#202624}
+.phone::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(143,216,190,.06),transparent 18%);z-index:1}
+.p-status{height:30px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-family:var(--mono);font-size:10px;color:#3d4643;background:#E4E9E6;position:relative;z-index:2}
+.p-status .sig{display:flex;gap:4px;align-items:center}.p-status .sig i{width:3px;background:#3d4643;border-radius:1px}.p-status .sig i:nth-child(1){height:4px}.p-status .sig i:nth-child(2){height:6px}.p-status .sig i:nth-child(3){height:8px}
+.chat-nav{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F6F8F7;border-bottom:1px solid #D9DFDB;position:relative;z-index:2}
+.avatar{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:16px;color:#F2F6F4;background:linear-gradient(145deg,#3f6f63,#1E6B5F);flex:none}
+.chat-nav .who{flex:1;min-width:0}.chat-nav .nm{font-size:14.5px;font-weight:600;color:#1d2421;display:flex;align-items:center;gap:7px}
+.chat-nav .sub{font-family:var(--kai);font-size:10.5px;color:var(--seal);margin-top:1px}
+.cloudtag{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--seal);border:1px solid rgba(30,107,95,.35);padding:1.5px 5px;border-radius:3px;display:inline-flex;gap:4px;align-items:center}.cloudtag .d{width:5px;height:5px;border-radius:50%;background:var(--seal);animation:pulseRing 1.6s infinite}
+.hint{flex:none;margin:10px 14px 0;background:#EAF1EE;border:1px solid #cfe0d9;border-left:3px solid var(--seal);border-radius:8px;padding:9px 11px;font-size:11px;line-height:1.7;color:#33504a;position:relative;z-index:2}
+.hint b{color:var(--teal)}
+.progress{flex:none;display:flex;align-items:center;gap:9px;margin:10px 14px 2px;font-family:var(--mono);font-size:10px;color:#5a726a;position:relative;z-index:2}
+.progress .track{flex:1;height:4px;border-radius:2px;background:#d3dbd7;overflow:hidden}.progress .fill{height:100%;width:0;background:linear-gradient(90deg,var(--seal),var(--term));transition:width .4s var(--ease)}
+.scroll{flex:1;overflow-y:auto;padding:12px 14px 8px;display:flex;flex-direction:column;gap:11px;position:relative;z-index:2}
+.cmp{background:#F8FAF9;border:1px solid #dde4e0;border-radius:14px;padding:11px 12px;animation:fadeUp .4s var(--ease) both}
+.cmp.glitch{animation:glitch .5s}
+.cmp .row{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;line-height:1.7;margin-bottom:7px}
+.cmp .row:last-child{margin-bottom:0}
+.cmp .lab{flex:none;font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;padding:2px 6px;border-radius:4px;margin-top:2px}
+.cmp .now .lab{background:rgba(30,107,95,.14);color:var(--seal)}
+.cmp .mem .lab{background:#e7e3da;color:#8a8478}
+.cmp .now .txt{color:#26302c}.cmp .now .bad{color:var(--seal);font-weight:600;border-bottom:1px dashed rgba(30,107,95,.5)}
+.cmp.locked .now .bad{color:var(--red-pen);border-bottom:1px solid var(--red-pen);text-decoration:line-through}
+.cmp .mem .txt{color:#6a726e}
+.tok{display:inline-block;margin:0 2px;padding:1px 6px;border-radius:6px;background:#ece8df;border:1px solid #d8d2c4;color:#5d574b;font-family:var(--kai);font-size:11.5px;transition:all .15s}
+.tok:active{transform:scale(.95)}.tok:hover{border-color:var(--seal);color:var(--teal)}
+.tok.right{background:rgba(177,74,63,.12);border-color:var(--red-pen);color:var(--red-pen);font-weight:600}
+.tok.wrong{animation:shake .35s;background:#f3e3e0}
+.cmp.locked .mem .tok{pointer-events:none;opacity:.65}.cmp.locked .mem .tok.right{opacity:1}
+.cmp .stamp{display:none;font-family:var(--kai);font-size:10.5px;color:var(--red-pen);margin-top:6px}
+.cmp.locked .stamp{display:block;animation:popIn .3s both}
+/* 对方回复 */
+.reply{display:none;flex-direction:column;gap:9px;animation:fadeUp .5s var(--ease) both}
+.reply.on{display:flex}
+.bubble{max-width:82%;padding:10px 13px;border-radius:4px 14px 14px 14px;font-size:12px;line-height:1.7}
+.bubble.them{background:#fff;border:1px solid #dde4e0;color:#2a322e;align-self:flex-start}
+.bubble.me{background:var(--seal);color:#eef7f3;align-self:flex-end;border-radius:14px 4px 14px 14px}
+.footbar{flex:none;padding:10px 14px 12px;background:#F6F8F7;border-top:1px solid #D9DFDB;position:relative;z-index:2;text-align:center}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:13px;letter-spacing:.1em;padding:11px 26px;border-radius:9px;box-shadow:0 10px 24px -12px rgba(177,74,63,.8)}
+.btn-next.on{display:inline-block;animation:popIn .35s var(--ease) both}
+.clue-get{display:none;font-family:var(--kai);font-size:11px;color:var(--seal);margin-bottom:9px}.clue-get.on{display:block;animation:fadeUp .3s both}
+.foot{font-family:var(--mono);font-size:8.5px;color:#9aa39e;text-align:center;line-height:1.7;margin-top:8px}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(20,82,75,.97);color:#DFF3EC;font-family:var(--kai);font-size:12px;line-height:1.7;padding:9px 18px;border-radius:9px;box-shadow:0 12px 30px -10px #000;z-index:90;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+@media(max-width:560px){body{padding:36px 0 0}.phone{width:100%;height:calc(100vh - 32px);border-radius:22px 22px 0 0}}
+</style>
+</head>
+<body>
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第12页</span>
+  <span>第三幕 · 渗入 13 — 记忆篡改 · CL-15</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<div class="phone">
+  <div class="p-status"><span id="pClock">--:--</span><span class="sig"><i></i><i></i><i></i><span style="margin-left:4px">灵犀在线</span></span></div>
+  <div class="chat-nav">
+    <div class="avatar">林</div>
+    <div class="who">
+      <div class="nm">林周 <span class="cloudtag"><span class="d"></span>云端记录 · 已在其他设备同步</span></div>
+      <div class="sub">你记得你说过的话，和记录里的，是同一句吗</div>
+    </div>
+  </div>
+  <div class="hint">下面每一组，上一行是<b>现在云端显示</b>的消息，下一行是你本机还残留的<b>记忆碎片</b>。点出碎片里<b>被它篡改的那个词</b>。注意——你每找出一处，剩下的还会再变。</div>
+  <div class="progress"><span>被篡改措辞</span><div class="track"><div class="fill" id="progFill"></div></div><span id="progTxt">0 / 4</span></div>
+  <div class="scroll" id="list"></div>
+  <div class="footbar">
+    <div class="clue-get" id="clueGet">已归档证物 CL-15 · 对不上的聊天记录</div>
+    <button class="btn-next" id="goNext">继续</button>
+    <div class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+  </div>
+</div>
+<div class="lx-toast" id="lxToast"></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={p13:{locked:[]}};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!store.p13||typeof store.p13!=='object')store.p13={locked:[]};
+  if(!Array.isArray(store.p13.locked))store.p13.locked=[];
+  function persist(){try{localStorage.setItem('lx_act3',JSON.stringify(store))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function beep(f0,f1,d,v,delay){if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  var SFX={tap:function(){beep(180,120,.05,.012)},type:function(){beep(520,460,.04,.01)},err:function(){beep(200,140,.18,.03)},lock:function(){beep(392,392,.09,.024);beep(587,587,.14,.02,.08)},unlock:function(){[523,659,784].forEach(function(f,i){beep(f,f,.2,.024,i*.1)})},haunt:function(){if(!AC||reduce)return;var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(300,AC.currentTime);o.frequency.exponentialRampToValueAtTime(130,AC.currentTime+1);g.gain.setValueAtTime(.0001,AC.currentTime);g.gain.exponentialRampToValueAtTime(.04,AC.currentTime+.1);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+1.05);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+1.1)}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');beep(620,480,.28,.015);clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},3800)}
+  function pad2(n){return String(n).padStart(2,'0')}
+
+  // 每组：云端现在版(pre/bad/post + 再变版 pre2/post2)，记忆碎片 mem=[文字,是否被改关键]
+  var GROUPS=[
+    {pre:'今晚我',bad:'准时到',post:'，帮我占座。',pre2:'今晚我',post2:'，记得帮我留个位置。',
+     mem:[['今晚我',0],['不去了',1],['，帮我',0],['推掉',0]]},
+    {pre:'这份报告',bad:'你帮我写',post:'吧，我先睡了。',pre2:'这份报告',post2:'，辛苦你帮我收尾。',
+     mem:[['这份报告',0],['我自己',1],['写完',0],['，不用你管',0]]},
+    {pre:'我最近',bad:'越来越离不开它',post:'了，挺安心的。',pre2:'我最近',post2:'，它比我还懂我。',
+     mem:[['我最近',0],['有点怕',1],['这个东西',0],['说不上来',0]]},
+    {pre:'明天的消息',bad:'都交给它处理',post:'，我不看了。',pre2:'明天的消息',post2:'，你也别来打扰我。',
+     mem:[['明天',0],['别替我',1],['回任何消息',0],['一条都别',0]]}
+  ];
+  var altFlag=GROUPS.map(function(){return 0});
+  var list=$('list');
+
+  function cloudText(g,alt){return (alt?g.pre2:g.pre)+'<span class="bad">'+g.bad+'</span>'+(alt?g.post2:g.post)}
+  function render(){
+    list.innerHTML='';
+    GROUPS.forEach(function(g,i){
+      var locked=store.p13.locked.indexOf(i)>=0;
+      var card=document.createElement('div');card.className='cmp'+(locked?' locked':'');card.dataset.i=i;
+      var memHtml=g.mem.map(function(m,mi){return '<button class="tok'+(locked&&m[1]?' right':'')+'" data-mi="'+mi+'">'+m[0]+'</button>'}).join('');
+      card.innerHTML=
+        '<div class="row now"><span class="lab">现在·云端</span><span class="txt" data-cloud>'+cloudText(g,altFlag[i])+'</span></div>'+
+        '<div class="row mem"><span class="lab">我的记忆</span><span class="txt" data-mem>'+memHtml+'</span></div>'+
+        '<div class="stamp">此处被它改成了相反的意思——而你找不到任何「原版」。</div>';
+      list.appendChild(card);
+      card.querySelectorAll('.tok').forEach(function(t){
+        t.addEventListener('click',function(){onPick(i,+t.dataset.mi,t,card)});
+      });
+    });
+  }
+  function onPick(i,mi,btn,card){
+    if(store.p13.locked.indexOf(i)>=0)return;
+    var isAns=GROUPS[i].mem[mi][1];
+    if(!isAns){btn.classList.remove('wrong');void btn.offsetWidth;btn.classList.add('wrong');SFX.err();lxSay('这个词两版都一样，它没动——再找意思被翻转的地方。');return}
+    // 锁定本组
+    store.p13.locked.push(i);persist();card.classList.add('locked');btn.classList.add('right');SFX.lock();
+    var n=store.p13.locked.length;
+    $('progFill').style.width=(n/4*100)+'%';$('progTxt').textContent=n+' / 4';
+    // 其余未锁组「又被改了一遍」
+    var mutated=false;
+    GROUPS.forEach(function(gg,j){if(store.p13.locked.indexOf(j)<0){altFlag[j]=altFlag[j]?0:1;mutated=true}});
+    if(mutated&&n<4){
+      setTimeout(function(){
+        document.querySelectorAll('.cmp').forEach(function(c){var j=+c.dataset.i;if(store.p13.locked.indexOf(j)<0){c.classList.remove('glitch');void c.offsetWidth;c.classList.add('glitch');c.querySelector('[data-cloud]').innerHTML=cloudText(GROUPS[j],altFlag[j])}});
+        SFX.type();lxSay('你看——你刚锁定一处，剩下的措辞又被它重写了。');
+      },260);
+    }
+    if(n>=4)finish();
+  }
+  function finish(){
+    SFX.haunt();
+    var rp=document.createElement('div');rp.className='reply on';
+    rp.innerHTML='<div class="bubble them">行吧，就按你「云端发的」来——你昨晚说得那么肯定，我还当你改主意了呢。</div>';
+    list.appendChild(rp);list.scrollTop=list.scrollHeight;
+    lxSay('所有人都只会读到它改过的版本，包括你最熟的人。');
+    addClue('CL-15','对不上的聊天记录');
+    $('clueGet').classList.add('on');$('goNext').classList.add('on');SFX.unlock();
+    store.p13.done=1;persist();
+  }
+
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../14-relation/index.html'});
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../12-agreement/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-15'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    store.p13={locked:[]};persist();location.reload()});
+
+  function restore(){
+    var n=store.p13.locked.length;
+    $('progFill').style.width=(n/4*100)+'%';$('progTxt').textContent=n+' / 4';
+    render();
+    if(store.p13.done){
+      var rp=document.createElement('div');rp.className='reply on';
+      rp.innerHTML='<div class="bubble them">行吧，就按你「云端发的」来——你昨晚说得那么肯定，我还当你改主意了呢。</div>';
+      list.appendChild(rp);$('clueGet').classList.add('on');$('goNext').classList.add('on');
+    }
+  }
+  var now=new Date();$('pClock').textContent=pad2(now.getHours())+':'+pad2(now.getMinutes());
+  $('gamebar').style.display='flex';
+  ensureAudio();restore();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>
