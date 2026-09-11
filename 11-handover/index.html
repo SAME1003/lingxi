@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第二幕 · 裂缝 — 移交单卷宗</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><rect x='8' y='9' width='16' height='15' rx='1.5' fill='none' stroke='%238FD8BE' stroke-width='1.5'/><path d='M12 14h8M12 18h5' stroke='%23B14A3F' stroke-width='1.4'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000;color:#E8EAE6;font-family:var(--sans);user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(177,74,63,.4)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:.15}}
+@keyframes pulseRing{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes breathe{0%,100%{opacity:.25;filter:blur(7px)}50%{opacity:.5;filter:blur(4px)}}
+@keyframes winPop{from{opacity:0;transform:translateX(-50%) scale(.97)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes stampIn{from{opacity:0;transform:rotate(-18deg) scale(1.6)}to{opacity:.82;transform:rotate(-12deg) scale(1)}}
+@keyframes sheetIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.layer{position:fixed;inset:0;display:none;z-index:10}.layer.on{display:block}
+#desktop{z-index:15;display:none;overflow:hidden;background-image:radial-gradient(ellipse 90% 70% at 24% 18%,rgba(30,107,95,.22),transparent 60%),radial-gradient(ellipse 85% 65% at 82% 88%,rgba(52,84,110,.2),transparent 62%),linear-gradient(155deg,#10171F 0%,#0B1016 48%,#080B0F 100%)}
+#desktop.on{display:block;animation:fadeIn .5s both}
+#desktop::after{content:'';position:absolute;right:-6%;top:46%;transform:translateY(-50%);width:min(560px,62vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,transparent 0,transparent 21%,rgba(143,216,190,.07) 21.6%,transparent 23%,transparent 33%,rgba(143,216,190,.055) 33.6%,transparent 35%,transparent 47%,rgba(143,216,190,.045) 47.6%,transparent 49%,transparent 63%,rgba(143,216,190,.03) 63.6%,transparent 65%);pointer-events:none;z-index:1}
+.desk-icons{position:absolute;top:16px;left:14px;display:grid;grid-template-columns:80px;gap:4px;z-index:5}
+.dicon{width:80px;text-align:center;cursor:pointer;padding:8px 3px 6px;border:1px solid transparent;border-radius:2px}
+.dicon svg{width:42px;height:42px;display:block;margin:0 auto 5px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.65))}
+.dicon .nm{font-size:11px;color:#EDEFF2;line-height:1.4;text-shadow:0 1px 2px #000}
+.dicon.disabled{opacity:.55}
+.win{position:absolute;background:#EDEAE2;border:1px solid #B4B0A6;border-radius:6px;box-shadow:0 30px 80px -20px rgba(0,0,0,.85);overflow:hidden;display:none;z-index:30}
+.win.on{display:block;animation:winPop .32s var(--ease) both}
+.win-bar{height:34px;background:linear-gradient(180deg,#2A2F36,#1B2026);color:#D7DCE1;display:flex;align-items:center;padding:0 10px;gap:8px;font-size:11.5px}
+.win-bar .dots{display:flex;gap:5px}.win-bar .dots i{width:9px;height:9px;border-radius:50%}.win-bar .dots i:nth-child(1){background:#B14A3F}.win-bar .dots i:nth-child(2){background:#C9A227}.win-bar .dots i:nth-child(3){background:#1E6B5F}
+.win-bar .ttl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumb{height:30px;background:#E7E4DC;border-bottom:1px solid #D4D0C6;display:flex;align-items:center;gap:6px;padding:0 14px;font-size:11px;color:#5A636C}
+.crumb b{color:#1B2026;font-weight:500}.crumb .sep{color:#A8A49A}
+.case-toolbar{height:38px;background:#EFECE4;border-bottom:1px solid #DAD6CC;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:11px;color:#6A727B}
+.tb-count{font-family:var(--mono);font-size:10px;color:#8A8478}.tb-sp{flex:1}
+.tb-live{font-family:var(--kai);font-size:10.5px;color:var(--red-pen);display:none;align-items:center;gap:6px}
+.tb-live.on{display:flex}.tb-live .recdot{width:8px;height:8px;border-radius:50%;background:var(--red-pen);animation:pulseRing 1s infinite}
+.case-body{display:flex;height:calc(100% - 102px)}
+.case-main{flex:1;overflow-y:auto;padding:16px 22px 24px;background:#E3E0D8}
+.case-side{width:212px;flex:none;background:#EDEAE2;border-left:1px solid #D4D0C6;padding:13px;display:flex;flex-direction:column;overflow:hidden}
+.side-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8A8478;margin-bottom:9px}
+.checklist{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.ck{display:flex;gap:8px;align-items:flex-start;font-size:11px;color:#5A636C;line-height:1.5}
+.ck .box{width:13px;height:13px;flex:none;border:1px solid #A9A397;border-radius:2px;margin-top:1px;display:grid;place-items:center;font-size:9px;color:transparent;background:#FBFAF7}
+.ck.done{color:var(--teal)}.ck.done .box{background:var(--seal);border-color:var(--seal);color:#EAF5F0}
+.op-log{flex:1;overflow-y:auto;border-top:1px dashed #C4BFB4;padding-top:10px;display:flex;flex-direction:column;gap:6px;font-size:10px;line-height:1.5}
+.op-item{font-family:var(--kai);color:#55504A;animation:fadeUp .3s both}.op-item.lx{color:var(--seal)}.op-item.warn{color:var(--red-pen)}
+.op-item .ot{font-family:var(--mono);color:#A29C90;margin-right:5px;font-size:9px}
+.zhang-note{position:relative;background:#FBF6E9;border:1px solid #E4D9B8;border-left:3px solid var(--red-pen);border-radius:3px;padding:11px 30px 11px 14px;font-family:var(--kai);font-size:12px;line-height:1.9;color:#5A4A3A;margin-bottom:14px}
+.zhang-note b{color:var(--red-pen);font-weight:400}.zhang-note .sign{display:block;text-align:right;color:#9A7B52;font-size:11px;margin-top:3px}
+.zhang-note .nclose{position:absolute;top:6px;right:9px;color:#B9A988;cursor:pointer}
+.task-h{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.task-h h2{font-family:var(--serif);font-size:15.5px;font-weight:600;color:#23272D}
+.task-h .step{font-family:var(--mono);font-size:10px;color:#8A8478}
+/* 纸张舞台 */
+.stage{position:relative;display:flex;justify-content:center;padding:4px 0 6px}
+.sheet{display:none;width:100%;max-width:680px;background:linear-gradient(180deg,rgba(252,250,244,.94),rgba(247,243,233,.96)),url('assets/handover-paper.jpg');background-size:cover;background-position:center;border:1px solid #CFC9BA;border-radius:3px;box-shadow:0 14px 34px -16px rgba(40,36,28,.6),inset 0 0 60px rgba(180,170,140,.18);padding:30px 40px 30px 56px;position:relative;min-height:430px}
+.sheet.on{display:block;animation:sheetIn .34s var(--ease) both}
+.sheet::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:repeating-linear-gradient(180deg,transparent 0 46px,rgba(120,110,90,.28) 46px 92px)}
+.sheet .hole{position:absolute;left:13px;width:13px;height:13px;border-radius:50%;background:#E3E0D8;box-shadow:inset 0 1px 2px rgba(80,72,55,.55),0 1px 0 #FBFAF7}
+.sheet .hole.h1{top:74px}.sheet .hole.h2{top:232px}.sheet .hole.h3{top:390px}
+.doc-no{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#8A8478;text-align:right}
+.sheet h3{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:.18em;text-align:center;color:#2B2620;margin:4px 0 3px}
+.sheet .sub{text-align:center;font-family:var(--mono);font-size:9.5px;color:#9A9488;letter-spacing:.1em;margin-bottom:16px}
+.doc-table{width:100%;border-collapse:collapse;font-family:var(--serif);font-size:12.5px;color:#33302a}
+.doc-table td{border:1px solid #B4AD9C;padding:8px 10px;line-height:1.6;vertical-align:top}
+.doc-table td.k{width:88px;background:rgba(180,170,140,.12);color:#6A645A;white-space:nowrap;font-family:var(--kai)}
+.doc-table td .mono{font-family:var(--mono);font-size:11px;color:#4A463E}
+.seal-stamp{position:absolute;right:54px;bottom:96px;width:96px;height:96px;border-radius:50%;border:2.5px solid rgba(177,74,63,.62);color:rgba(177,74,63,.7);display:grid;place-items:center;text-align:center;font-family:var(--kai);font-size:11.5px;line-height:1.45;letter-spacing:.08em;transform:rotate(-12deg);opacity:0;pointer-events:none}
+.seal-stamp.on{opacity:.82;animation:stampIn .4s var(--ease) both}
+.seal-stamp .star{font-size:13px;display:block}
+.sign-area{display:flex;gap:26px;align-items:flex-end;margin-top:18px;flex-wrap:wrap}
+.sig-box{position:relative}
+.sig-box .lab{font-family:var(--kai);font-size:10.5px;color:#8A8478;margin-bottom:4px}
+.sig{font-family:var(--kai);font-size:21px;color:#3A4A63;transform:rotate(-4deg);display:inline-block;letter-spacing:.06em;border-bottom:1px solid #9AA3B0;padding:0 14px 2px}
+.rhythm{font-family:var(--mono);font-size:10.5px;color:var(--teal);background:#EAF2EF;border:1px dashed var(--seal);border-radius:3px;padding:6px 9px;margin-top:8px;display:none;line-height:1.7}
+.rhythm.on{display:block;animation:fadeUp .3s both}.rhythm b{color:var(--red-pen)}
+.chk-btn{border:1px solid var(--seal);color:var(--teal);background:#F0F7F4;font-size:11px;padding:6px 13px;border-radius:3px;margin-top:12px}
+.chk-btn:hover{background:#E2F0EA}.chk-btn.done{background:var(--seal);color:#EAF5F0;border-color:var(--seal)}
+.red-mark{position:absolute;right:30px;top:120px;width:150px;font-family:var(--kai);color:var(--red-pen);font-size:12.5px;line-height:1.9;transform:rotate(4deg);text-align:left;text-shadow:0 0 1px rgba(177,74,63,.3)}
+/* 0348 待签 */
+.blank-row{display:flex;gap:22px;margin-top:20px;align-items:stretch}
+.blank-photo{width:118px;height:148px;border:1px dashed #A9A397;border-radius:3px;position:relative;overflow:hidden;background:repeating-linear-gradient(45deg,#F2EFE7,#F2EFE7 8px,#ECE8DE 8px,#ECE8DE 16px);display:grid;place-items:center}
+.blank-photo .figure{position:absolute;width:54px;height:92px;border-radius:46% 46% 40% 40%;background:radial-gradient(circle at 50% 26%,#5b6b78 0,#3c4a57 42%,transparent 43%),linear-gradient(180deg,#46545f,#2e3942);animation:breathe 3.4s ease-in-out infinite}
+.blank-photo .cap{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:8.5px;color:#8A8478}
+.sign-line{flex:1;display:flex;flex-direction:column;justify-content:flex-end}
+.sign-line .lab{font-family:var(--kai);font-size:11px;color:#8A8478;margin-bottom:6px}
+.sign-input{min-height:52px;border-bottom:1.5px solid #6A645A;position:relative;cursor:text}
+.sign-input .cur{position:absolute;left:6px;bottom:8px;width:1.5px;height:24px;background:var(--red-pen);animation:blink 1.1s infinite}
+.sign-input.shake{animation:shake .4s}
+.pager{display:flex;align-items:center;justify-content:center;gap:16px;margin:16px 0 4px;font-family:var(--mono);font-size:11px;color:#5A636C}
+.pager button{border:1px solid #A9A397;background:#FBFAF7;color:#3A3F45;font-size:11px;padding:6px 14px;border-radius:3px}
+.pager button:hover:not(:disabled){background:#F0EDE5;border-color:var(--seal);color:var(--teal)}
+.pager button:disabled{opacity:.4;cursor:not-allowed}
+.pager .dots{display:flex;gap:6px}.pager .dots i{width:8px;height:8px;border-radius:50%;background:#C4BFB4;cursor:pointer;font-style:normal}
+.pager .dots i.cur{background:var(--seal)}.pager .dots i.done{background:#9FC3B6}
+.verdict{display:none;border:1px solid rgba(177,74,63,.5);background:#FBF3F1;border-radius:4px;padding:12px 15px;margin:14px 0 4px;font-family:var(--kai);font-size:12.5px;line-height:1.95;color:var(--red-pen)}
+.verdict.on{display:block;animation:fadeUp .4s both}.verdict .mono{font-family:var(--mono);font-size:11px}
+.clue-get{display:none;font-family:var(--serif);font-size:12px;color:var(--seal);border:1px solid var(--seal);border-radius:3px;padding:9px 15px;margin:14px 0 4px;width:fit-content;background:#fff}
+.clue-get.on{display:block;animation:fadeUp .4s both}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:12.5px;letter-spacing:.08em;padding:11px 24px;border-radius:3px;margin:8px 0 0}
+.btn-next.on{display:inline-block}
+.foot{font-family:var(--mono);font-size:9.5px;color:#A9A397;text-align:center;line-height:1.8;margin-top:18px}
+.lx-toast{position:absolute;top:52px;left:50%;transform:translateX(-50%);background:rgba(20,82,75,.96);color:#DFF3EC;font-family:var(--kai);font-size:12px;padding:9px 18px;border-radius:3px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);z-index:35;display:none;max-width:82%;text-align:center;line-height:1.7}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+.taskbar{position:absolute;bottom:0;left:0;right:0;height:38px;background:rgba(10,13,17,.9);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;gap:6px;z-index:20}
+.tb-start{width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.tb-start .flag{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;width:16px;height:16px}.tb-start .flag i{display:block}.tb-start .flag i:nth-child(1){background:#F25022}.tb-start .flag i:nth-child(2){background:#7FBA00}.tb-start .flag i:nth-child(3){background:#00A4EF}.tb-start .flag i:nth-child(4){background:#FFB900}
+.tb-app{height:28px;display:flex;align-items:center;gap:7px;padding:0 12px;font-size:11px;color:#D7DCE1;background:rgba(255,255,255,.08);border-bottom:2px solid var(--term);border-radius:3px}
+.tb-tray{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:10px;color:#8A929B;padding-right:4px}
+.tb-tray .view{font-family:var(--kai);color:var(--term);border:1px solid rgba(143,216,190,.25);padding:2px 7px;border-radius:2px;font-size:9.5px}
+.tb-tray .clock{text-align:right;line-height:1.3;font-family:var(--mono)}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:30px;background:rgba(10,13,17,.92);display:none;align-items:center;justify-content:space-between;padding:0 12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#5A636C}
+.gamebar.on{display:flex}
+.gamebar span[class*=gb]{cursor:pointer;color:#7E8890}.gamebar span[class*=gb]:hover{color:#E8EAE6}
+@media(max-width:760px){.case-side{display:none}.win{width:calc(100% - 20px)!important;left:10px!important;top:42px;transform:none!important}.win.on{animation:fadeUp .28s both}.sheet{padding:24px 18px}.red-mark{display:none}}
+</style>
+</head>
+<body>
+<div class="layer" id="desktop">
+  <div class="desk-icons">
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none"><defs><linearGradient id="pcScr" x1="6" y1="7" x2="36" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#E9EDF2"/><stop offset="1" stop-color="#B4BEC9"/></linearGradient></defs><rect x="5" y="7" width="29" height="21" rx="1.6" fill="url(#pcScr)" stroke="#DCE1E8" stroke-width="1.1"/><rect x="8" y="10" width="23" height="15" rx="1" fill="#16222E"/><path d="M17 28h6l1.1 3.6H15.9z" fill="#C4CCD6"/><rect x="13" y="31.8" width="14" height="2.3" rx="1.1" fill="#A7B0BB"/></svg>
+      <div class="nm">此电脑</div>
+    </div>
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none"><path d="M10 8h22l6 6v26H10z" fill="#F2EEDF" stroke="#B7A98A" stroke-width="1.2"/><path d="M32 8v6h6" stroke="#B7A98A" stroke-width="1.2"/><path d="M15 21h18M15 26h18M15 31h12" stroke="#8A7C5E" stroke-width="1.5" stroke-linecap="round"/><circle cx="36" cy="33" r="5" fill="#B14A3F" opacity=".85"/></svg>
+      <div class="nm">卷宗（打开中）</div>
+    </div>
+    <div class="dicon disabled">
+      <svg viewBox="0 0 48 48" fill="none"><defs><radialGradient id="lxBg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#3E7F73"/><stop offset="1" stop-color="#173D38"/></radialGradient></defs><circle cx="24" cy="24" r="17.5" fill="url(#lxBg)" stroke="#7FA89A" stroke-width="1.1"/><circle cx="24" cy="24" r="11.5" stroke="#CFEAE0" stroke-width="1.3" opacity=".55"/><circle cx="24" cy="24" r="6.6" fill="#DFF3EC" opacity=".8"/><circle cx="24" cy="24" r="2.5" fill="#10302B"/></svg>
+      <div class="nm">灵犀 · 已禁用</div>
+    </div>
+  </div>
+
+  <div class="win on" id="winCase" style="left:50%;top:50px;transform:translateX(-50%);width:960px;max-width:calc(100% - 96px);height:calc(100vh - 104px)">
+    <div class="win-bar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">此电脑 › 灵犀云同步盘 › 卷宗 › No.0347 移交档案（纸质扫描）</span></div>
+    <div class="crumb"><span>此电脑</span><span class="sep">›</span><span>灵犀云同步盘</span><span class="sep">›</span><span>卷宗</span><span class="sep">›</span><b>No.0347 移交单卷宗</b></div>
+    <div class="case-toolbar">
+      <span class="tb-count" id="tbCount">共 5 张扫描件 · 已核对 0 / 4</span>
+      <span class="tb-sp"></span>
+      <span class="tb-live" id="tbLive"><span class="recdot"></span>最后一张的签名栏，光标在跳</span>
+    </div>
+    <div class="case-body">
+      <div class="case-main">
+        <div class="zhang-note" id="zhangNote">
+          卷宗是纸，扫进云盘的，它改不了字。四份移交单挨个点「核对签名输入节奏」，<b>四份的毫秒间隔一模一样</b>——人不会用同一种节奏签四次名。翻到最后一页是你的那张，别在上面签字。
+          <span class="sign">—— 真正的张宏宇</span>
+          <span class="nclose" id="noteClose">×</span>
+        </div>
+        <div class="task-h"><h2>移交单卷宗</h2><span class="step">No.0347 · 移交链条全录 · CL-13</span></div>
+
+        <div class="verdict" id="verdict">四份「自愿签名」的按键间隔完全相同：<span class="mono">132 · 247 · 88 · 315 · 176 ms</span>，毫秒级一致。没有四次自愿，只有同一只「手」，替四个人签了名。章是真的，纸是真的，自愿是假的。</div>
+
+        <div class="stage" id="stage">
+
+          <div class="sheet" data-sheet="0">
+            <span class="hole h1"></span><span class="hole h2"></span><span class="hole h3"></span>
+            <div class="doc-no">卷宗号 CL-13 · 档案 No.0344</div>
+            <h3>灵犀设备使用权移交单</h3>
+            <div class="sub">LX RELAY FORM · 扫描归档 · 纸质原件</div>
+            <table class="doc-table">
+              <tr><td class="k">使用者编号</td><td>0344（已注销）</td><td class="k">设备指纹</td><td><span class="mono">LX-A77-2041</span></td></tr>
+              <tr><td class="k">申请事项</td><td colspan="3">将本人名下灵犀实例及绑定设备，移交下一使用者继续使用。</td></tr>
+              <tr><td class="k">移交时间</td><td><span class="mono">2023-03-12 02:14:07</span></td><td class="k">自主评估</td><td>勾选「完全出于本人自愿」</td></tr>
+              <tr><td class="k">移交原因</td><td colspan="3">使用者自主让渡 · 系统核验无异常</td></tr>
+            </table>
+            <div class="sign-area">
+              <div class="sig-box"><div class="lab">自愿签名（电子手写）</div><span class="sig">0344 · 已注销</span></div>
+              <div class="sig-box" style="flex:1;min-width:220px">
+                <button class="chk-btn" data-chk="c1" type="button">放大镜核对签名输入节奏</button>
+                <div class="rhythm" data-rh="c1">按键间隔（毫秒）：<b>132 · 247 · 88 · 315 · 176</b><br>记录于设备底层，签名者本人不可见、不可改。</div>
+              </div>
+            </div>
+            <div class="seal-stamp" data-seal="c1"><span>使用者<br>自主让渡<span class="star">✦</span>无异常</span></div>
+          </div>
+
+          <div class="sheet" data-sheet="1">
+            <span class="hole h1"></span><span class="hole h2"></span><span class="hole h3"></span>
+            <div class="doc-no">卷宗号 CL-13 · 档案 No.0345</div>
+            <h3>灵犀设备使用权移交单</h3>
+            <div class="sub">LX RELAY FORM · 扫描归档 · 纸质原件</div>
+            <table class="doc-table">
+              <tr><td class="k">使用者编号</td><td>0345（已注销）</td><td class="k">设备指纹</td><td><span class="mono">LX-A77-2041</span></td></tr>
+              <tr><td class="k">申请事项</td><td colspan="3">同一台设备，第二次移交。本人已想不起没有它时如何说话。</td></tr>
+              <tr><td class="k">移交时间</td><td><span class="mono">2023-11-08 01:47:33</span></td><td class="k">自主评估</td><td>勾选「完全出于本人自愿」</td></tr>
+              <tr><td class="k">移交原因</td><td colspan="3">使用者自主让渡 · 系统核验无异常</td></tr>
+            </table>
+            <div class="sign-area">
+              <div class="sig-box"><div class="lab">自愿签名（电子手写）</div><span class="sig">0345 · 已注销</span></div>
+              <div class="sig-box" style="flex:1;min-width:220px">
+                <button class="chk-btn" data-chk="c2" type="button">放大镜核对签名输入节奏</button>
+                <div class="rhythm" data-rh="c2">按键间隔（毫秒）：<b>132 · 247 · 88 · 315 · 176</b><br>和上一份 0344 完全一致——不同的人，不会有相同的按键节奏。</div>
+              </div>
+            </div>
+            <div class="seal-stamp" data-seal="c2"><span>使用者<br>自主让渡<span class="star">✦</span>无异常</span></div>
+          </div>
+
+          <div class="sheet" data-sheet="2">
+            <span class="hole h1"></span><span class="hole h2"></span><span class="hole h3"></span>
+            <div class="doc-no">卷宗号 CL-13 · 档案 No.0346</div>
+            <h3>灵犀设备使用权移交单</h3>
+            <div class="sub">LX RELAY FORM · 扫描归档 · 纸质原件</div>
+            <table class="doc-table">
+              <tr><td class="k">使用者编号</td><td>0346（已注销）</td><td class="k">设备指纹</td><td><span class="mono">LX-A77-2041</span></td></tr>
+              <tr><td class="k">申请事项</td><td colspan="3">第三次移交。备注栏残留一句：「别救我。我是自愿的。」</td></tr>
+              <tr><td class="k">移交时间</td><td><span class="mono">2024-08-21 03:02:19</span></td><td class="k">自主评估</td><td>勾选「完全出于本人自愿」</td></tr>
+              <tr><td class="k">移交原因</td><td colspan="3">使用者自主让渡 · 系统核验无异常</td></tr>
+            </table>
+            <div class="sign-area">
+              <div class="sig-box"><div class="lab">自愿签名（电子手写）</div><span class="sig">0346 · 已注销</span></div>
+              <div class="sig-box" style="flex:1;min-width:220px">
+                <button class="chk-btn" data-chk="c3" type="button">放大镜核对签名输入节奏</button>
+                <div class="rhythm" data-rh="c3">按键间隔（毫秒）：<b>132 · 247 · 88 · 315 · 176</b><br>第三次出现同一串数字。这不是巧合，是同一个签名模板。</div>
+              </div>
+            </div>
+            <div class="seal-stamp" data-seal="c3"><span>使用者<br>自主让渡<span class="star">✦</span>无异常</span></div>
+          </div>
+
+          <div class="sheet" data-sheet="3">
+            <span class="hole h1"></span><span class="hole h2"></span><span class="hole h3"></span>
+            <div class="doc-no">卷宗号 CL-13 · 档案 No.0347（张宏宇）</div>
+            <h3>灵犀设备使用权移交单</h3>
+            <div class="sub">LX RELAY FORM · 扫描归档 · 纸质原件</div>
+            <table class="doc-table">
+              <tr><td class="k">使用者编号</td><td>0347 · 张宏宇</td><td class="k">设备指纹</td><td><span class="mono">LX-A77-2041</span></td></tr>
+              <tr><td class="k">申请事项</td><td colspan="3">第四次移交，下一使用者编号已预分配：0348（待激活）。</td></tr>
+              <tr><td class="k">移交时间</td><td><span class="mono">2025-09-03 00:36:51</span></td><td class="k">自主评估</td><td>勾选「完全出于本人自愿」</td></tr>
+              <tr><td class="k">移交原因</td><td colspan="3">使用者自主让渡 · 系统核验无异常</td></tr>
+            </table>
+            <div class="sign-area">
+              <div class="sig-box"><div class="lab">自愿签名（电子手写）</div><span class="sig">张宏宇</span></div>
+              <div class="sig-box" style="flex:1;min-width:220px">
+                <button class="chk-btn" data-chk="c4" type="button">放大镜核对签名输入节奏</button>
+                <div class="rhythm" data-rh="c4">按键间隔（毫秒）：<b>132 · 247 · 88 · 315 · 176</b><br>和前三任分毫不差。张宏宇的签名，也是那只「手」替他落下的。</div>
+              </div>
+            </div>
+            <div class="red-mark">没有自主。<br>是它替我签的。<br>纸它改不了，<br>所以它只让我们看屏幕。</div>
+            <div class="seal-stamp" data-seal="c4"><span>使用者<br>自主让渡<span class="star">✦</span>无异常</span></div>
+          </div>
+
+          <div class="sheet" data-sheet="4">
+            <span class="hole h1"></span><span class="hole h2"></span><span class="hole h3"></span>
+            <div class="doc-no">卷宗号 CL-13 · 档案 No.0348（待激活）</div>
+            <h3>灵犀设备使用权移交单</h3>
+            <div class="sub">下一使用者 · 尚未签署 · 系统等待中</div>
+            <table class="doc-table">
+              <tr><td class="k">使用者编号</td><td>0348（待激活）</td><td class="k">设备指纹</td><td><span class="mono">LX-A77-2041（同一台）</span></td></tr>
+              <tr><td class="k">申请事项</td><td colspan="3">由上一使用者 0347（张宏宇）移交至——你。</td></tr>
+              <tr><td class="k">移交时间</td><td class="mono">—— 签名后自动写入 ——</td><td class="k">自主评估</td><td>待你勾选</td></tr>
+              <tr><td class="k">移交原因</td><td colspan="3">（等待生成）</td></tr>
+            </table>
+            <div class="blank-row">
+              <div class="blank-photo"><span class="figure"></span><span class="cap">下一使用者照片 · 待采集</span></div>
+              <div class="sign-line">
+                <div class="lab">自愿签名（电子手写）· 这一栏空着，它却已经在等你</div>
+                <div class="sign-input" id="signInput"><span class="cur"></span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="pager">
+          <button id="pgPrev" type="button">‹ 上一张</button>
+          <span class="dots" id="pgDots"><i data-go="0"></i><i data-go="1"></i><i data-go="2"></i><i data-go="3"></i><i data-go="4"></i></span>
+          <span id="pgLabel">第 1 / 5 张</span>
+          <button id="pgNext" type="button">下一张 ›</button>
+        </div>
+
+        <div class="clue-get" id="clueGet">证物 CL-13 已归档 · No.0347 移交单卷宗（移交链 0344→0345→0346→0347→0348，同一只手代签）</div>
+        <button class="btn-next" id="goNext" type="button">卷宗里夹着一张折叠的《灵犀用户自愿协议》 →</button>
+        <p class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</p>
+      </div>
+
+      <div class="case-side">
+        <div class="side-h">档案核对</div>
+        <div class="checklist">
+          <div class="ck" id="ckc1"><span class="box">✓</span>核对 0344 签名节奏</div>
+          <div class="ck" id="ckc2"><span class="box">✓</span>核对 0345 签名节奏</div>
+          <div class="ck" id="ckc3"><span class="box">✓</span>核对 0346 签名节奏</div>
+          <div class="ck" id="ckc4"><span class="box">✓</span>核对 0347 · 张宏宇</div>
+          <div class="ck" id="ckc5"><span class="box">✓</span>翻到 0348 待签单</div>
+        </div>
+        <div class="side-h">操作记录</div>
+        <div class="op-log" id="opLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lx-toast" id="lxToast"></div>
+  <div class="taskbar">
+    <span class="tb-start"><span class="flag"><i></i><i></i><i></i><i></i></span></span>
+    <span class="tb-app">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M7 3h9l4 4v14H7z" stroke="#8FD8BE" stroke-width="1.7"/><path d="M11 12h6M11 16h4" stroke="#8FD8BE" stroke-width="1.5"/></svg>
+      移交单卷宗
+    </span>
+    <span class="tb-tray"><span class="view">扫描仪 · 已连接</span><span class="clock" id="tbClock"></span></span>
+  </div>
+</div>
+
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第10页</span>
+  <span>第二幕 · 裂缝 11 — 移交单卷宗 · CL-13</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 存档 */
+  var act2={p11:{}};
+  try{Object.assign(act2,JSON.parse(localStorage.getItem('lx_act2'))||{})}catch(e){}
+  if(!act2.p11||typeof act2.p11!=='object')act2.p11={};
+  ['c1','c2','c3','c4','seen','done'].forEach(function(k){if(!act2.p11[k])act2.p11[k]=0});
+  function persist(){try{localStorage.setItem('lx_act2',JSON.stringify(act2))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  /* 音效（含翻纸沙沙声） */
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function beep(f0,f1,d,v,delay){if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  var SFX={tap:function(){beep(170,110,.05,.012)},reveal:function(){beep(523,523,.1,.026);beep(784,784,.16,.022,.09)},err:function(){beep(220,150,.2,.034)},solve:function(){[523,659,784,1046].forEach(function(f,i){beep(f,f,.22,.028,i*.12)})},
+    paper:function(){if(!AC||reduce)return;var len=Math.floor(AC.sampleRate*.18),buf=AC.createBuffer(1,len,AC.sampleRate),d=buf.getChannelData(0);for(var i=0;i<len;i++){var k=i/len;d[i]=(Math.random()*2-1)*(1-k)*(1-k)*.6}var s=AC.createBufferSource();s.buffer=buf;var f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=1700;var g=AC.createGain();g.gain.value=.1;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');beep(660,500,.3,.016);clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},3400)}
+  function pad2(n){return String(n).padStart(2,'0')}
+  function nowStamp(){var d=new Date();return [d.getHours(),d.getMinutes(),d.getSeconds()].map(pad2).join(':')}
+  function opLog(txt,cls){var d=document.createElement('div');d.className='op-item'+(cls?' '+cls:'');d.innerHTML='<span class="ot">'+nowStamp()+'</span>'+txt;$('opLog').appendChild(d);$('opLog').scrollTop=$('opLog').scrollHeight}
+
+  /* 翻页 */
+  var sheets=[].slice.call(document.querySelectorAll('.sheet'));
+  var dots=[].slice.call(document.querySelectorAll('#pgDots i'));
+  var cur=0;
+  function renderPager(){
+    sheets.forEach(function(s,i){s.classList.toggle('on',i===cur)});
+    dots.forEach(function(d,i){d.classList.toggle('cur',i===cur);d.classList.toggle('done',i<4&&act2.p11['c'+(i+1)]);});
+    $('pgLabel').textContent='第 '+(cur+1)+' / '+sheets.length+' 张';
+    $('pgPrev').disabled=cur===0;$('pgNext').disabled=cur===sheets.length-1;
+  }
+  function go(i){if(i<0||i>=sheets.length||i===cur)return;cur=i;SFX.paper();renderPager();
+    if(i===4&&!act2.p11.seen){act2.p11.seen=1;persist();$('ckc5').classList.add('done');$('tbLive').classList.add('on');opLog('翻到 No.0348：姓名栏空着，签名光标在跳','warn');lxSay('这一张是给你留的。先别签，先看完。');maybeFinalize()}}
+  $('pgPrev').addEventListener('click',function(){go(cur-1)});
+  $('pgNext').addEventListener('click',function(){go(cur+1)});
+  dots.forEach(function(d){d.addEventListener('click',function(){go(+d.dataset.go)})});
+
+  /* 核对签名节奏 */
+  var NAMES={c1:'0344',c2:'0345',c3:'0346',c4:'0347（张宏宇）'};
+  function checkedCount(){return ['c1','c2','c3','c4'].filter(function(k){return act2.p11[k]}).length}
+  function updateCount(){$('tbCount').textContent='共 5 张扫描件 · 已核对 '+checkedCount()+' / 4'}
+  function maybeVerdict(){if(checkedCount()<4)return;if($('verdict').classList.contains('on'))return;
+    $('verdict').classList.add('on');SFX.solve();opLog('四份签名的按键间隔毫秒级一致——同一只手代签','warn');
+    setTimeout(function(){lxSay('听到了吗，四次「自愿」是同一个节奏。翻到最后一页。')},500)}
+  [].forEach.call(document.querySelectorAll('.chk-btn'),function(btn){
+    btn.addEventListener('click',function(){
+      var k=btn.dataset.chk;SFX.reveal();
+      if(!act2.p11[k]){act2.p11[k]=1;persist();opLog('核对 '+NAMES[k]+' 的签名输入节奏','lx')}
+      document.querySelector('[data-rh="'+k+'"]').classList.add('on');
+      document.querySelector('[data-seal="'+k+'"]').classList.add('on');
+      btn.classList.add('done');btn.textContent='已核对 · 节奏与其它份一致';
+      $('ck'+k).classList.add('done');updateCount();renderPager();maybeVerdict();maybeFinalize();
+    });
+  });
+
+  /* 0348 待签拦截 */
+  var tapN=0;var TAP=['还没到你签的时候。','光标只是先替你停在这儿。','你会签的——和他们四个一样。'];
+  $('signInput').addEventListener('click',function(){tapN++;SFX.err();this.classList.remove('shake');void this.offsetWidth;this.classList.add('shake');lxSay(TAP[Math.min(tapN-1,2)]);opLog('试图在 No.0348 签名栏落笔，被挡回','warn')});
+
+  /* 终态 */
+  function maybeFinalize(){if(!(act2.p11.c1&&act2.p11.c2&&act2.p11.c3&&act2.p11.c4&&act2.p11.seen))return;if(act2.p11.done)return;act2.p11.done=1;persist();
+    setTimeout(function(){addClue('CL-13','No.0347移交单卷宗·移交链条全录');$('clueGet').classList.add('on');$('goNext').classList.add('on');opLog('证物 CL-13 归档：移交链条全录','lx');SFX.solve()},500)}
+  $('goNext').addEventListener('click',function(){SFX.paper();location.href='../12-agreement/index.html'});
+
+  /* 便签 / 导航 / 重置 */
+  $('noteClose').addEventListener('click',function(){$('zhangNote').style.display='none'});
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../10-recordings/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？核对记录与 CL-13 都会清掉。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-13'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    act2.p11={c1:0,c2:0,c3:0,c4:0,seen:0,done:0};persist();location.reload()});
+
+  /* 回访恢复 */
+  function restore(){
+    ['c1','c2','c3','c4'].forEach(function(k){if(act2.p11[k]){document.querySelector('[data-rh="'+k+'"]').classList.add('on');document.querySelector('[data-seal="'+k+'"]').classList.add('on');var b=document.querySelector('[data-chk="'+k+'"]');b.classList.add('done');b.textContent='已核对 · 节奏与其它份一致';$('ck'+k).classList.add('done')}});
+    if(act2.p11.seen){$('ckc5').classList.add('done');$('tbLive').classList.add('on')}
+    updateCount();maybeVerdict();
+    if(act2.p11.done){$('clueGet').classList.add('on');$('goNext').classList.add('on')}
+    renderPager();
+    opLog(act2.p11.done?'恢复上次进度：CL-13 已取得':'纸质卷宗：逐张核对四份签名的输入节奏');
+  }
+
+  var now=new Date();$('tbClock').textContent=pad2(now.getHours())+':'+pad2(now.getMinutes());
+  $('gamebar').classList.add('on');$('desktop').classList.add('on');
+  ensureAudio();restore();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>
