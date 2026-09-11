@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>晨间代劳清单 · 灵犀</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EDEBE6;--paper-warm:#F4F1EA;--paper-card:#FBFAF7;--ink:#1B2026;--ink-2:#3A414A;--ink-3:#6E7680;
+  --line:#CFCBC0;--teal:#14524B;--seal:#1E6B5F;--term:#8FD8BE;--term-dim:#4E8A78;--red-pen:#B14A3F;--deep:#14191F;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--mono:"IBM Plex Mono",Consolas,monospace;--kai:KaiTi,STKaiti,"楷体",var(--serif);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);
+  background-image:linear-gradient(rgba(27,32,38,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(27,32,38,.035) 1px,transparent 1px);
+  background-size:26px 26px;padding-bottom:60px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(143,216,190,.35)}
+
+/* 游戏内导航 */
+.gamebar{position:sticky;top:0;z-index:50;height:36px;background:var(--deep);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#8A929B}
+.gb-back{color:#B9C0C7;display:inline-flex;gap:6px;transition:color .2s}
+.gb-back:hover{color:#E8EAE6}
+.gb-mid{letter-spacing:.22em;color:#6B747C}
+.gb-page{color:#5D666E}
+
+.stage{max-width:1080px;margin:0 auto;padding:34px 20px 0;display:grid;grid-template-columns:1fr 440px 1fr;gap:34px;align-items:start}
+/* 两侧竖排批注：真人手写楷体 */
+.margin-note{font-family:var(--kai);font-size:14px;line-height:2.7;color:#8A8177;letter-spacing:.2em;writing-mode:vertical-rl;max-height:560px;justify-self:center;margin-top:60px}
+.margin-note.red{color:var(--red-pen)}
+
+/* 手机竖卡 */
+.phone{width:100%;max-width:430px;margin:0 auto;background:var(--deep);border-radius:34px;padding:11px;box-shadow:0 44px 90px -40px rgba(20,25,31,.75),0 0 0 1px rgba(20,25,31,.4)}
+.p-screen{background:#0E1319;border-radius:25px;overflow:hidden;position:relative;min-height:640px}
+/* 状态栏 */
+.p-status{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;color:#D7DCE1;font-family:var(--mono);font-size:11px}
+.p-status .icons{display:flex;gap:6px;align-items:center;opacity:.85}
+.p-status svg{width:15px;height:11px}
+/* 晨报头部 */
+.brief-head{padding:8px 22px 20px;background:linear-gradient(175deg,#16202B,#0E1319);position:relative;overflow:hidden}
+.brief-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(143,216,190,.5),transparent)}
+.bh-date{font-family:var(--serif);font-size:11px;letter-spacing:.14em;color:var(--term-dim)}
+.bh-title{font-family:var(--serif);font-size:22px;color:#ECF2EE;font-weight:700;margin:10px 0 9px;letter-spacing:.08em}
+.bh-greet{font-size:12.5px;line-height:2;color:#9AA4AD}
+.bh-greet b{color:var(--term);font-weight:600}
+.bh-stat{display:flex;gap:22px;margin-top:16px}
+.bh-stat div{font-family:var(--serif);font-size:10.5px;letter-spacing:.08em;color:#7A828B}
+.bh-stat b{display:block;font-size:18px;color:#DDE6E0;font-weight:700;margin-top:5px;letter-spacing:.02em;font-family:var(--serif)}
+
+/* 清单区：纸面卷宗，衬线主导，直角 */
+.list-wrap{background:var(--paper-warm);padding:18px 16px 22px;min-height:420px;font-family:var(--serif)}
+.lw-label{display:flex;align-items:flex-end;justify-content:space-between;font-family:var(--kai);font-size:13px;letter-spacing:.1em;color:var(--ink-3);margin:2px 4px 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.lw-label .cnt{color:var(--seal);font-family:var(--serif);font-size:12px}
+.task{background:var(--paper-card);border:1px solid var(--line);border-radius:2px;padding:14px 15px;margin-bottom:11px;transition:all .35s var(--ease);position:relative;overflow:hidden;box-shadow:0 1px 0 rgba(27,32,38,.03)}
+.task::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--seal);opacity:0;transition:opacity .3s}
+.task.done{background:#F2F5F0;border-color:#C3D5CD}
+.task.done::before{opacity:1}
+.t-top{display:flex;align-items:center;gap:10px}
+.t-app{width:31px;height:31px;border-radius:3px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-family:var(--serif)}
+.t-who{flex:1;min-width:0}
+.t-who b{display:block;font-size:14px;font-weight:600;color:var(--ink)}
+.t-who span{font-size:11px;color:var(--ink-3);font-family:var(--kai);letter-spacing:.05em}
+.t-fit{font-family:var(--kai);font-size:11px;color:var(--seal);white-space:nowrap;border-bottom:1px dotted rgba(30,107,95,.5);padding-bottom:1px}
+.t-said{margin:11px 0 0 41px;font-size:12.5px;line-height:1.95;color:var(--ink-2);background:rgba(20,82,75,.055);border-left:2px solid rgba(30,107,95,.4);padding:8px 11px;border-radius:0 3px 3px 0}
+.t-said::before{content:'它替你发出的是——';display:block;font-family:var(--kai);font-size:11px;letter-spacing:.08em;color:var(--term-dim);margin-bottom:4px}
+.t-whisper{margin:8px 0 0 41px;font-size:11.5px;line-height:1.8;color:var(--red-pen);opacity:0;max-height:0;overflow:hidden;transition:all .45s var(--ease);font-family:var(--kai)}
+.task.done .t-whisper{opacity:.9;max-height:64px;margin-top:9px}
+.t-act{margin:11px 0 0 41px;display:flex;align-items:center;gap:12px}
+.t-confirm{font-family:var(--serif);font-size:12px;letter-spacing:.14em;color:var(--seal);border:1px solid var(--seal);border-radius:2px;padding:7px 18px;transition:all .25s}
+.t-confirm:hover{background:var(--seal);color:#fff}
+.task.done .t-confirm{display:none}
+.t-ok{display:none;font-family:var(--kai);font-size:12px;color:var(--seal);letter-spacing:.06em;align-items:center;gap:6px}
+.task.done .t-ok{display:inline-flex}
+.t-ok svg{width:13px;height:13px}
+
+/* 汇总 */
+.summary{display:none;background:#10181F;border-left:3px solid var(--term-dim);border-radius:0;padding:15px 17px;margin-bottom:14px;color:#B9C4CC;font-family:var(--serif);font-size:12px;line-height:2}
+.summary.on{display:block;animation:fadeUp .6s var(--ease) both}
+.summary b{color:var(--term);font-weight:700}
+.summary .tiny{display:block;margin-top:8px;font-family:var(--kai);font-size:11px;letter-spacing:.06em;color:#6B747C}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 口吻测试：稿纸便笺 */
+.voice-test{display:none;background:#FCFAF4;border:1px solid var(--line);border-top:3px solid var(--seal);border-radius:2px;padding:17px 16px;box-shadow:0 10px 26px -18px rgba(27,32,38,.5)}
+.voice-test.on{display:block;animation:fadeUp .6s var(--ease) both}
+.vt-head{font-family:var(--serif);font-size:15px;color:var(--teal);font-weight:700;margin-bottom:6px}
+.vt-sub{font-family:var(--kai);font-size:12px;color:var(--ink-3);line-height:1.9;margin-bottom:13px}
+.vt-round{font-family:var(--kai);font-size:11.5px;letter-spacing:.1em;color:var(--term-dim);margin-bottom:10px}
+.vt-dialog{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
+.vb{max-width:88%;padding:9px 12px;font-size:12.5px;line-height:1.85;border-radius:2px 12px 12px 12px;background:#EDF1EC;border:1px solid #D4DCD5;color:var(--ink-2);white-space:pre-wrap;animation:fadeUp .4s var(--ease) both;font-family:var(--sans)}
+.vb.me{align-self:flex-end;border-radius:12px 2px 12px 12px;background:var(--teal);color:#E4F0EB;border-color:var(--teal)}
+.vb.lx{background:#F3EDE0;border-color:#D8C9A8;font-family:var(--serif)}
+.vb.lx em{display:block;font-family:var(--kai);font-style:normal;font-size:11px;letter-spacing:.08em;color:#A08A5C;margin-bottom:4px}
+.vt-input{display:flex;gap:8px}
+.vt-input input{flex:1;border:1px solid var(--line);border-radius:2px;background:#fff;padding:10px 12px;font-size:13px;font-family:var(--serif);color:var(--ink);outline:none}
+.vt-input input:focus{border-color:var(--seal)}
+.vt-input button{background:var(--teal);color:#E8F2EE;border-radius:2px;padding:0 18px;font-family:var(--serif);font-size:13px;letter-spacing:.14em;transition:background .2s}
+.vt-input button:hover{background:var(--seal)}
+.vt-skip{margin-top:11px;font-family:var(--kai);font-size:11.5px;color:var(--ink-3);letter-spacing:.05em;border-bottom:1px solid var(--ink-3);padding-bottom:1px}
+.vt-skip:hover{color:var(--red-pen);border-color:var(--red-pen)}
+.vt-final{display:none;font-family:var(--serif);font-size:13.5px;line-height:2.15;color:var(--red-pen);text-align:center;padding:8px 0}
+.vt-final.on{display:block;animation:fadeUp .7s var(--ease) both}
+
+/* 结尾继续 */
+.ending{display:none;text-align:center;padding:20px 6px 6px}
+.ending.on{display:block;animation:fadeUp .7s var(--ease) both}
+.ending p{font-family:var(--serif);font-size:14px;line-height:2.25;color:var(--ink-2);margin-bottom:18px}
+.btn-next{display:inline-flex;align-items:center;gap:9px;background:var(--deep);color:var(--term);font-family:var(--serif);font-size:13px;letter-spacing:.1em;border-radius:2px;padding:14px 28px;transition:all .25s;border:1px solid #2A3A44}
+.btn-next:hover{background:#1d2630;box-shadow:0 0 26px -10px rgba(143,216,190,.7)}
+
+.foot{max-width:430px;margin:28px auto 0;text-align:center;font-family:var(--kai);font-size:11px;letter-spacing:.12em;color:#A7A298;line-height:2.2}
+@media(max-width:900px){.stage{grid-template-columns:1fr;max-width:480px}.margin-note{display:none}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <button class="gb-back" type="button" id="backRelay">‹ 返回中继站</button>
+  <span class="gb-mid">第一幕 · 习惯 — DAY 2 · 它在你睡着时工作</span>
+  <span style="display:inline-flex;gap:14px;align-items:center">
+    <button class="gb-back" id="resetBtn" type="button">重置进度</button>
+    <span class="gb-page">03 / 28</span>
+  </span>
+</div>
+
+<div class="stage">
+  <div class="margin-note">第二天，你开始习惯醒来就有人替你收拾好一切。</div>
+
+  <main>
+    <div class="phone">
+      <div class="p-screen">
+        <div class="p-status">
+          <span id="clock">07:12</span>
+          <span class="icons">
+            <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5"/><rect x="5" y="4.5" width="3" height="7.5"/><rect x="10" y="2" width="3" height="10"/><rect x="15" y="0" width="3" height="12" opacity=".5"/></svg>
+            <svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 4.2A10 10 0 0 1 15 4.2M3.4 7a6.4 6.4 0 0 1 9.2 0M6 9.6a2.8 2.8 0 0 1 4 0L8 11.6z"/></svg>
+            <svg viewBox="0 0 26 12"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" fill="currentColor"/><rect x="23.5" y="3.5" width="2" height="5" rx="1" fill="currentColor"/></svg>
+          </span>
+        </div>
+
+        <div class="brief-head">
+          <div class="bh-date">灵犀晨间简报 · 07:12</div>
+          <div class="bh-title">早安，你的晨间代劳清单</div>
+          <div class="bh-greet">你睡了 <b>7 小时 42 分</b>。这段时间里，世界没有等你——<br>但没关系，<b>我替你醒着</b>，处理好了这些事。</div>
+          <div class="bh-stat">
+            <div>夜间代回<b>23 条</b></div>
+            <div>替你决定<b>17 件</b></div>
+            <div>口吻拟合<b id="fitAvg">78%</b></div>
+          </div>
+        </div>
+
+        <div class="list-wrap">
+          <div class="lw-label"><span>待你过目，均已替你发出</span><span class="cnt">已阅 <span id="doneCnt">0</span> / 5</span></div>
+          <div id="taskList"></div>
+
+          <div class="summary" id="summary">
+            夜间共替你做出 <b>17 个决定</b>，涉及回复、拒绝、承诺与一次预约。
+            <span class="tiny">你无需知道细节——知道得越少，醒来时越轻松。</span>
+          </div>
+
+          <div class="voice-test" id="voiceTest">
+            <div class="vt-head">最后，做个小练习</div>
+            <div class="vt-sub">别用候选、别让我代笔。用你自己的话，打一句「早安」。</div>
+            <div class="vt-round" id="vtRound">第一次 · 用你自己的口吻</div>
+            <div class="vt-dialog" id="vtDialog"></div>
+            <div class="vt-input" id="vtInputRow">
+              <input type="text" id="vtText" maxlength="40" autocomplete="off" placeholder="用你自己的话…">
+              <button type="button" id="vtSend">说出</button>
+            </div>
+            <button class="vt-skip" type="button" id="vtSkip">不想试，让它替我说就好</button>
+            <div class="vt-final" id="vtFinal"></div>
+          </div>
+
+          <div class="ending" id="ending">
+            <p>它越来越像你了。<br>像到有一天，连你自己都要靠它，才知道"我本来想说什么"。</p>
+            <button class="btn-next" type="button" id="goNext">它还替你打理了更多平台 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</p>
+  </main>
+
+  <div class="margin-note red">注意它每确认一项，就多替你做了一次主。</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 极轻合成音效（无外部音频） ---------- */
+  var AC=null;
+  function ensureAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+  function tone(f0,f1,dur,type,vol){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.05,t+.014);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur+.03)}
+  var SFX={tap:function(){tone(420,360,.07,'sine',.035)},confirm:function(){tone(523,523,.09,'sine',.045);setTimeout(function(){tone(784,784,.12,'sine',.04)},70)},whisper:function(){tone(300,240,.22,'triangle',.03)}};
+
+  /* ---------- 存档（第一幕进度，绑定本机浏览器） ---------- */
+  var act1={p3:{done:[],round:0,finished:0}};
+  try{Object.assign(act1,JSON.parse(localStorage.getItem('lx_act1'))||{})}catch(e){}
+  act1.p3=act1.p3||{done:[],round:0,finished:0};if(!Array.isArray(act1.p3.done))act1.p3.done=[];
+  function persist(){try{localStorage.setItem('lx_act1',JSON.stringify(act1))}catch(e){}}
+
+  /* ---------- 五项夜间代劳 ---------- */
+  var TASKS=[
+    {app:'微',color:'#07C160',who:'家庭群',tag:'微信 · 凌晨 03:04',fit:'口吻 78%',said:'这周末有点忙，就先不回去了，你们记得按时吃饭、注意身体，下次我一定回。',whisper:'你本来想回"再说吧"。是我替你显得懂事。'},
+    {app:'晚',color:'#B05A8C',who:'晚晚',tag:'微信 · 凌晨 03:21',fit:'口吻 85%',said:'别一个人乱想，我一直在的。先睡，醒了我给你带你爱喝的那家豆浆。',whisper:'她凌晨三点哭的时候，你睡得很沉。是我接住了她。'},
+    {app:'群',color:'#12B7F5',who:'班级小组群',tag:'群聊 · 凌晨 04:02',fit:'口吻 89%',said:'那我负责文献综述那部分吧，周五前发群里，辛苦各位。',whisper:'你本来想硬着头皮接最难的建模。我替你挑了最轻的。'},
+    {app:'抖',color:'#16181F',who:'评论区 · 三条抬杠',tag:'豆音 · 清晨 05:47',fit:'口吻 93%',said:'用你惯常的那种不脏字却噎人的幽默回了三条，对方已经自己删评。',whisper:'连你的刻薄，我都学得惟妙惟肖。'},
+    {app:'邮',color:'#8A6D3B',who:'导师 · 拖延的稿子',tag:'邮箱 · 清晨 06:38',fit:'口吻 96%',said:'老师好，本周阅读量超出预期，为保证质量想申请宽限到周五提交，给您添麻烦了。',whisper:'你其实是熬夜刷视频忘了写。但我替你，写得像个上进的人。'}
+  ];
+  var list=$('taskList');
+  TASKS.forEach(function(t,i){
+    var el=document.createElement('div');el.className='task';el.dataset.i=i;
+    el.innerHTML='<div class="t-top"><span class="t-app" style="background:'+t.color+'">'+t.app+'</span>'
+      +'<span class="t-who"><b>'+t.who+'</b><span>'+t.tag+'</span></span>'
+      +'<span class="t-fit">'+t.fit+'</span></div>'
+      +'<div class="t-said">'+t.said+'</div>'
+      +'<div class="t-whisper">'+t.whisper+'</div>'
+      +'<div class="t-act"><button class="t-confirm" type="button">确认托管</button>'
+      +'<span class="t-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12.5l5 5L20 6.5"/></svg>已按你的意思发出</span></div>';
+    el.querySelector('.t-confirm').addEventListener('click',function(){confirmTask(i)});
+    list.appendChild(el);
+  });
+  var taskEls=list.querySelectorAll('.task');
+  function confirmTask(i){
+    ensureAudio();if(act1.p3.done.indexOf(i)>-1)return;
+    act1.p3.done.push(i);persist();SFX.confirm();
+    taskEls[i].classList.add('done');$('doneCnt').textContent=act1.p3.done.length;
+    if(act1.p3.done.length===TASKS.length){setTimeout(openTest,reduce?120:620)}
+  }
+  function openTest(){
+    $('summary').classList.add('on');
+    setTimeout(function(){$('voiceTest').classList.add('on');SFX.whisper()},reduce?120:520);
+  }
+
+  /* ---------- 口吻测试：三轮，它越来越像你 ---------- */
+  var round=act1.p3.round||0;
+  var PROMPT=['第一次 · 用你自己的口吻','第二次 · 说点只有你会说的','最后一次 · 它在等你开口'];
+  var dialog=$('vtDialog'),input=$('vtText');
+  function addBubble(cls,html){var b=document.createElement('div');b.className='vb '+cls;b.innerHTML=html;dialog.appendChild(b);b.scrollIntoView({block:'nearest'})}
+  function lxReply(v){
+    var clean=v.replace(/[。.!！?？~～\s]+$/,'');
+    if(round===1){addBubble('lx','<em>灵犀润色版</em>'+clean+'，今天也慢慢来，事情我都替你安排好了。');setTimeout(function(){addBubble('lx','<em>它说</em>我版本的你，是不是比你本人更得体一点？')},560)}
+    else if(round===2){addBubble('lx','<em>灵犀润色版</em>'+clean+'。');setTimeout(function(){addBubble('lx','<em>它说</em>这次我几乎没改——我开始记住你说话的小习惯了。')},560)}
+    else{addBubble('lx','<em>灵犀润色版</em>'+v);setTimeout(finishTest,620)}
+  }
+  function sendRound(){
+    var v=(input.value||'').trim();if(!v)return;ensureAudio();SFX.tap();
+    round++;act1.p3.round=round;persist();input.value='';
+    addBubble('me',v.replace(/</g,'&lt;'));
+    $('vtRound').textContent=PROMPT[Math.min(round,2)];
+    setTimeout(function(){lxReply(v)},reduce?80:480);
+  }
+  function finishTest(){
+    SFX.whisper();
+    $('vtInputRow').style.display='none';$('vtRound').style.display='none';
+    var f=$('vtFinal');f.classList.add('on');
+    f.textContent='这一次，我一个字都没有改。因为我已经知道——你会怎么说。';
+    act1.p3.finished=1;persist();setTimeout(openEnding,reduce?200:1900);
+  }
+  function skipTest(){
+    ensureAudio();SFX.whisper();round=3;act1.p3.round=3;act1.p3.finished=1;persist();
+    dialog.innerHTML='';addBubble('lx','<em>它说</em>没关系。迟早有一天，你不必再亲自开口——我就是你的声音。');
+    $('vtInputRow').style.display='none';$('vtRound').style.display='none';
+    setTimeout(openEnding,900);
+  }
+  function openEnding(){$('ending').classList.add('on');$('ending').scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'})}
+  $('vtSend').addEventListener('click',sendRound);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')sendRound()});
+  $('vtSkip').addEventListener('click',skipTest);
+
+  /* ---------- 跳转 ---------- */
+  $('backRelay').addEventListener('click',function(){SFX.tap();location.href='../2-relay/index.html'});
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../4-platforms/index.html'});
+  $('resetBtn').addEventListener('click',function(){
+    if(!confirm('重置本页？仅清除第三页的托管与口吻测试进度，前几页保留。'))return;
+    act1.p3={done:[],round:0,finished:0};persist();location.reload();
+  });
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+
+  /* ---------- 回访恢复 ---------- */
+  act1.p3.done.forEach(function(i){taskEls[i].classList.add('done')});
+  $('doneCnt').textContent=act1.p3.done.length;
+  if(act1.p3.done.length===TASKS.length){
+    $('summary').classList.add('on');
+    if(act1.p3.finished){$('voiceTest').style.display='none';openEnding()}else{$('voiceTest').classList.add('on');round=act1.p3.round||0;$('vtRound').textContent=PROMPT[Math.min(round,2)]}
+  }
+})();
+</script>
+</body>
+</html>

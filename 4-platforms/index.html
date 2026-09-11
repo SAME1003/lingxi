@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>多平台代劳 · 灵犀</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EDEBE6;--paper-warm:#F4F1EA;--paper-card:#FBFAF7;--ink:#1B2026;--ink-2:#3A414A;--ink-3:#6E7680;
+  --line:#CFCBC0;--teal:#14524B;--seal:#1E6B5F;--term:#8FD8BE;--term-dim:#4E8A78;--red-pen:#B14A3F;--deep:#14191F;
+  --dy:#16181F;--xhs:#D63B58;--mail:#4A6078;--dm:#7A5BA0;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--mono:"IBM Plex Mono",Consolas,monospace;--kai:KaiTi,STKaiti,"楷体",var(--serif);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--serif);color:var(--ink);background:var(--paper);
+  background-image:linear-gradient(rgba(27,32,38,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(27,32,38,.035) 1px,transparent 1px);
+  background-size:26px 26px;min-height:100vh;padding-bottom:70px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:inherit}
+::selection{background:rgba(143,216,190,.35)}
+
+.gamebar{position:sticky;top:0;z-index:50;height:36px;background:var(--deep);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#8A929B}
+.gb-back{color:#B9C0C7;transition:color .2s}.gb-back:hover{color:#E8EAE6}
+.gb-mid{letter-spacing:.22em;color:#6B747C}.gb-page{color:#5D666E}
+.gb-right{display:flex;align-items:center;gap:14px}
+.gb-snd{display:inline-flex;align-items:center;gap:6px;color:#8A929B;font-family:var(--mono);font-size:10px;letter-spacing:.14em;transition:color .2s}
+.gb-snd:hover{color:var(--term)}
+.gb-snd svg{width:13px;height:13px}
+.gb-snd.off{color:#6B747C}.gb-snd.off .eq{opacity:.35}
+.gb-reset{color:#8A929B;font-family:var(--mono);font-size:10px;letter-spacing:.14em;transition:color .2s}
+.gb-reset:hover{color:#E0938A}
+
+.wrap{max-width:980px;margin:0 auto;padding:30px 18px 0}
+/* 杂志式左对齐栏头：编号 + 标题 + 导语，发丝线收口 */
+.page-head{display:grid;grid-template-columns:64px 1fr;column-gap:18px;align-items:end;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.page-head .kicker{grid-row:1/3;font-family:var(--serif);font-size:44px;font-weight:700;line-height:1;color:var(--seal);opacity:.55;align-self:center}
+.page-head h1{font-size:25px;font-weight:700;letter-spacing:.1em;color:var(--ink)}
+.page-head p{grid-column:2;font-size:12.5px;color:var(--ink-3);line-height:1.9;font-family:var(--kai)}
+@media(max-width:560px){.page-head{grid-template-columns:44px 1fr}.page-head .kicker{font-size:30px}.page-head h1{font-size:20px}}
+
+/* 灵犀独白终端 */
+.monolog{background:#0E151B;border-left:3px solid var(--term-dim);border-radius:0;padding:16px 18px;margin-bottom:20px;position:relative;overflow:hidden;min-height:74px;display:flex;gap:13px;align-items:flex-start}
+.mn-ico{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--term-dim);color:var(--term);display:flex;align-items:center;justify-content:center;margin-top:1px;background:rgba(143,216,190,.06)}
+.mn-txt{flex:1;font-family:var(--serif);font-size:14px;line-height:2.05;color:#BFE8D6;letter-spacing:.03em}
+.mn-replay{flex:none;align-self:center;color:#7E958A;font-family:var(--kai);font-size:11px;letter-spacing:.08em;border:1px solid #2C3E49;border-radius:2px;padding:5px 11px;transition:all .2s;white-space:nowrap}
+.mn-replay:hover{color:var(--term);border-color:var(--term-dim)}
+/* 灵犀专属标识 */
+.lx-logo{display:inline-flex;align-items:center;justify-content:center}
+.lx-logo svg{width:100%;height:100%;display:block}
+.lx-logo .lc-dot{transform-origin:16px 16px;animation:lcBreath 3.2s ease-in-out infinite}
+@keyframes lcBreath{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.28)}}
+.mn-ico .lx-logo{width:17px;height:17px}
+.msg .ava .lx-logo{width:15px;height:15px}
+.mn-txt .cursor{display:inline-block;width:7px;height:15px;background:var(--term);margin-left:2px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* 主布局：左设备 右碎片槽 */
+.layout{display:grid;grid-template-columns:1fr 218px;gap:22px;align-items:start}
+/* 平台分页：档案目录下划线式 */
+.tabs{display:flex;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.tab{flex:1;padding:10px 6px 11px;text-align:center;position:relative;transition:all .3s var(--ease);opacity:.5;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab .t-name{display:block;font-family:var(--serif);font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.tab .t-state{display:block;font-family:var(--kai);font-size:10.5px;letter-spacing:.06em;color:var(--ink-3);margin-top:3px}
+.tab.active{opacity:1}
+.tab.active .t-name{color:var(--teal)}
+.tab.active{border-bottom-color:var(--seal)}
+.tab.done{opacity:.92}
+.tab.done .t-state{color:var(--seal)}
+.tab.locked{cursor:not-allowed}
+.tab.locked .t-name{color:var(--ink-3)}
+.tab .dot{position:absolute;top:8px;right:18%;width:6px;height:6px;border-radius:50%;background:var(--red-pen);opacity:0}
+.tab.frag .dot{opacity:1;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(177,74,63,.4)}50%{box-shadow:0 0 0 6px rgba(177,74,63,0)}}
+
+/* 设备窗口：直角卷宗夹 */
+.device{background:var(--paper-card);border:1px solid var(--line);border-radius:3px;overflow:hidden;box-shadow:0 28px 56px -40px rgba(27,32,38,.6)}
+.dv-bar{padding:13px 17px;display:flex;align-items:center;gap:11px;color:#fff;transition:background .4s}
+.dv-bar[data-p=dy]{background:var(--dy)}.dv-bar[data-p=xhs]{background:var(--xhs)}.dv-bar[data-p=mail]{background:var(--mail)}.dv-bar[data-p=dm]{background:var(--dm)}
+.dv-ava{width:34px;height:34px;border-radius:4px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px;flex:none}
+.dv-meta b{display:block;font-size:14px;font-weight:600;letter-spacing:.04em;font-family:var(--sans)}
+.dv-meta span{font-family:var(--kai);font-size:10.5px;letter-spacing:.06em;opacity:.78}
+.dv-body{padding:19px 18px 20px;min-height:330px;display:flex;flex-direction:column}
+/* 聊天气泡：屏幕内黑体 */
+.feed{display:flex;flex-direction:column;gap:11px;margin-bottom:14px}
+.msg{display:flex;gap:9px;max-width:84%;animation:rise .45s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.msg .ava{width:28px;height:28px;border-radius:4px;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-family:var(--serif)}
+.msg .bubble{padding:9px 12px;font-family:var(--sans);font-size:12.5px;line-height:1.85;border-radius:2px 10px 10px 10px;background:#F0EEE8;border:1px solid var(--line);color:var(--ink-2)}
+.msg.me{align-self:flex-end;flex-direction:row-reverse}
+.msg.me .bubble{background:var(--teal);border-color:var(--teal);color:#E4F0EB;border-radius:10px 2px 10px 10px}
+.msg.lx .bubble{background:#EDF4F1;border-color:#BFD3CB;font-family:var(--serif)}
+.msg.lx .tag{display:block;font-family:var(--kai);font-size:10.5px;letter-spacing:.06em;color:var(--term-dim);margin-bottom:3px}
+.msg.cold .bubble{background:#F3E7E4;border-color:#D9B7B0;color:#7A3B33}
+.msg.sys{align-self:center;max-width:100%}.msg.sys .bubble{background:transparent;border:none;font-family:var(--kai);font-size:11px;letter-spacing:.06em;color:var(--ink-3);padding:2px}
+
+/* 操作区 */
+.act-zone{margin-top:auto;border-top:1px solid var(--line);padding-top:15px}
+.choice-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border-radius:2px;padding:11px 18px;font-family:var(--serif);font-size:12.5px;letter-spacing:.1em;transition:all .25s}
+.btn-self{border:1px solid var(--ink-3);color:var(--ink-2)}.btn-self:hover{border-color:var(--ink);background:rgba(27,32,38,.05)}
+.btn-lx{background:var(--deep);color:var(--term);border:1px solid #2A3A44;flex:1;min-width:150px}
+.btn-lx:hover{background:#1d2630;box-shadow:0 0 24px -10px rgba(143,216,190,.7)}
+.btn-lx.big{padding:14px;font-size:13px}
+.self-box{display:flex;gap:8px;margin-top:11px}
+.self-box input{flex:1;border:1px solid var(--line);border-radius:2px;padding:10px 12px;font-size:12.5px;font-family:var(--sans);background:#fff;outline:none;color:var(--ink)}
+.self-box input:focus{border-color:var(--seal)}
+.self-box button{background:var(--ink-2);color:#fff;border-radius:2px;padding:0 16px;font-size:12.5px;font-family:var(--serif)}
+.hint-self{font-size:11.5px;color:var(--ink-3);margin-top:9px;line-height:1.8;font-family:var(--kai)}
+.rescue{margin-top:10px;font-family:var(--kai);font-size:12px;color:var(--red-pen);border-bottom:1px solid var(--red-pen);padding-bottom:1px;align-self:flex-start}
+.no-input{font-family:var(--kai);font-size:12.5px;color:var(--ink-3);line-height:1.95;background:#F1EFE9;border-left:3px solid var(--ink-3);padding:10px 12px;border-radius:0;margin-bottom:11px}
+
+/* 异常痕迹：档案便签，红笔圈阅 */
+.trace{margin-top:14px;border:1px solid rgba(177,74,63,.45);border-left:3px solid var(--red-pen);border-radius:0;padding:0;overflow:hidden;animation:rise .5s var(--ease) both;background:rgba(177,74,63,.035)}
+.trace summary{list-style:none;cursor:pointer;padding:11px 14px;font-family:var(--serif);font-size:12px;color:var(--red-pen);letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+.trace summary::-webkit-details-marker{display:none}
+.trace summary::before{content:'卷宗批注';font-family:var(--kai);font-size:10px;border:1px solid rgba(177,74,63,.5);border-radius:2px;padding:1px 6px;color:var(--red-pen)}
+.trace[open] summary{border-bottom:1px solid rgba(177,74,63,.3)}
+.trace .tc{padding:13px 14px;font-family:var(--serif);font-size:12px;line-height:2;color:var(--ink-2)}
+.trace .tc .meta{font-family:var(--kai);font-size:11px;letter-spacing:.05em;color:var(--ink-3);display:block;margin-bottom:7px}
+.frag-char{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;font-family:var(--serif);font-size:22px;font-weight:700;color:var(--red-pen);border:1.5px solid var(--red-pen);background:#fff;margin:0 4px;vertical-align:middle;background-image:linear-gradient(rgba(177,74,63,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(177,74,63,.12) 1px,transparent 1px);background-size:50% 50%}
+.pick{margin-top:10px;background:var(--red-pen);color:#fff;border-radius:2px;padding:8px 16px;font-family:var(--serif);font-size:12px;letter-spacing:.1em}
+.pick:disabled{background:#C9BDB9;cursor:default}
+.trace.picked{border-color:#BFD3CB;border-left-color:var(--seal);background:#F1F4EF}
+.trace.picked summary{color:var(--seal)}
+.trace.picked summary::before{content:'已归档';color:var(--seal);border-color:rgba(30,107,95,.5)}
+.picked-note{margin-top:9px;font-family:var(--kai);font-size:11.5px;color:var(--seal)}
+
+/* 右侧碎片槽：稿纸填字格 */
+.fragrail{background:var(--paper-card);border:1px solid var(--line);border-radius:3px;border-top:3px solid var(--red-pen);padding:17px 15px;position:sticky;top:56px}
+.fr-title{font-family:var(--serif);font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--ink-2);margin-bottom:5px}
+.fr-sub{font-family:var(--kai);font-size:10.5px;color:var(--ink-3);margin-bottom:14px;letter-spacing:.05em}
+.fr-slots{display:flex;gap:7px;justify-content:space-between;margin-bottom:14px}
+.fr-slot{width:40px;height:48px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;color:var(--red-pen);background:#FBFAF7;transition:all .35s var(--ease);background-image:linear-gradient(rgba(27,32,38,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(27,32,38,.05) 1px,transparent 1px);background-size:50% 50%;position:relative}
+.fr-slot::after{content:'';position:absolute;left:4px;right:4px;bottom:6px;border-bottom:1.5px dotted rgba(177,74,63,.45)}
+.fr-slot.on{border-color:var(--seal);background:#F1F4EF;color:var(--teal);background-image:none;animation:rise .4s var(--ease) both}
+.fr-slot.on::after{display:none}
+.fr-note{font-family:var(--kai);font-size:11.5px;line-height:1.95;color:var(--ink-3)}
+.fr-clue{margin-top:13px;padding-top:13px;border-top:1px solid var(--line);font-family:var(--kai);font-size:11px;line-height:1.85;color:var(--seal);letter-spacing:.03em;display:none}
+.fr-clue.on{display:block;animation:rise .4s both}
+
+/* 解密面板：深色仪式感保留，直角、衬线 */
+.cipher{display:none;margin-top:22px;background:#0E151B;border:1px solid #22303A;border-top:3px solid var(--term-dim);border-radius:0;padding:26px 24px;color:#C7D6CE}
+.cipher.on{display:block;animation:rise .6s var(--ease) both}
+.cipher h2{font-family:var(--serif);font-size:18px;color:#EAF4EE;font-weight:700;margin-bottom:9px;letter-spacing:.08em}
+.cipher p{font-family:var(--kai);font-size:12.5px;line-height:2.05;color:#93A49B;margin-bottom:18px}
+.cipher .slots2{display:flex;gap:9px;margin-bottom:18px}
+.cipher .cs{width:46px;height:54px;border:1px solid #2C3E49;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:23px;color:var(--term);background:#131D25}
+.cipher .cs.hit{background:#16302A;border-color:var(--term-dim)}
+.cipher-row{display:flex;gap:9px;flex-wrap:wrap}
+.cipher-row input{flex:1;min-width:200px;background:#131D25;border:1px solid #2C3E49;border-radius:2px;padding:12px 14px;color:#EAF4EE;font-size:14px;letter-spacing:.3em;font-family:var(--serif);outline:none}
+.cipher-row input:focus{border-color:var(--term-dim)}
+.cipher-row button{background:var(--teal);color:#EAF4EE;border-radius:2px;padding:0 24px;font-family:var(--serif);font-size:13px;letter-spacing:.14em}
+.cipher-err{margin-top:11px;font-family:var(--kai);font-size:12px;color:#E0A49B;min-height:18px;line-height:1.7}
+.cipher-final{display:none;margin-top:18px;border-top:1px solid #22303A;padding-top:18px}
+.cipher-final.on{display:block;animation:rise .6s both}
+.cipher-final .line{font-family:var(--serif);font-size:13.5px;line-height:2.15;color:#BFE8D6}
+.cipher-final .bigword{font-size:27px;letter-spacing:.5em;color:var(--term);text-align:center;margin:14px 0;font-weight:700;font-family:var(--serif)}
+.clue-get{display:inline-flex;align-items:center;gap:8px;margin:6px 0 16px;font-family:var(--serif);font-size:12px;letter-spacing:.08em;color:var(--term);border:1px solid var(--term-dim);border-radius:2px;padding:7px 15px}
+.btn-next{display:inline-flex;align-items:center;gap:8px;background:var(--term);color:#0E151B;font-family:var(--serif);font-size:13px;letter-spacing:.1em;border-radius:2px;padding:13px 26px;font-weight:600;transition:all .25s}
+.btn-next:hover{box-shadow:0 0 28px -8px rgba(143,216,190,.8)}
+
+.foot{max-width:980px;margin:28px auto 0;text-align:center;font-family:var(--kai);font-size:11px;letter-spacing:.12em;color:#A7A298;line-height:2.2}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.fragrail{position:static;order:-1}.fr-slots{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <button class="gb-back" type="button" id="backBtn">‹ 返回晨间清单</button>
+  <span class="gb-mid">第一幕 · 习惯 — DAY 2 · 它替你活在每一个平台</span>
+  <span class="gb-right">
+    <button class="gb-snd" id="sndToggle" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 9.5v5h3.4L13 19V5L7.4 9.5H4z"/><path class="eq" d="M16 9.2a4 4 0 0 1 0 5.6M18.4 7a7 7 0 0 1 0 10"/></svg>
+      <span id="sndLabel">声音 开</span>
+    </button>
+    <button class="gb-reset" id="resetBtn" type="button">重置进度</button>
+    <span class="gb-page">04 / 28</span>
+  </span>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="kicker">肆</div>
+    <h1>它替你，活在每一个软件里</h1>
+    <p>四个平台、四段关系。你可以试着自己回——也可以，再一次交给它。</p>
+  </div>
+
+  <!-- 灵犀独白 -->
+  <div class="monolog">
+    <span class="mn-ico"><span class="lx-logo"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12.5" stroke="currentColor" stroke-width="1.6" stroke-dasharray="70 9" stroke-linecap="round" transform="rotate(128 16 16)"/><circle cx="16" cy="16" r="5.6" stroke="currentColor" stroke-width="1" opacity=".55"/><circle class="lc-dot" cx="16" cy="16" r="2.3" fill="currentColor"/></svg></span></span>
+    <div class="mn-txt" id="monolog"></div>
+    <button class="mn-replay" type="button" id="mnReplay">重听</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="tabs" id="tabs"></div>
+      <div class="device">
+        <div class="dv-bar" id="dvBar"><span class="dv-ava" id="dvAva"></span><span class="dv-meta"><b id="dvName"></b><span id="dvSub"></span></span></div>
+        <div class="dv-body">
+          <div class="feed" id="feed"></div>
+          <div class="act-zone" id="actZone"></div>
+        </div>
+      </div>
+
+      <!-- 解密面板 -->
+      <div class="cipher" id="cipher">
+        <h2>把它漏出来的字，拼回去</h2>
+        <p>它在四个平台替你说话时，各漏掉了一个字。按你经过它们的顺序，把四个字拼出来——那是它真正想说的话。</p>
+        <div class="slots2" id="cipherSlots"></div>
+        <div class="cipher-row">
+          <input type="text" id="cipherInput" maxlength="6" autocomplete="off" placeholder="按顺序输入四个字">
+          <button type="button" id="cipherBtn">拼出这句话</button>
+        </div>
+        <div class="cipher-err" id="cipherErr"></div>
+        <div class="cipher-final" id="cipherFinal">
+          <span class="clue-get">证物 CL-07 已归档 · 灵犀的四字自白</span>
+          <div class="line" id="cfLines"></div>
+          <div class="bigword">我 就 是 你</div>
+          <div style="text-align:right;margin-top:6px"><button class="btn-next" type="button" id="goNext">学业的事，它也安排好了 →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 碎片槽 -->
+    <aside class="fragrail">
+      <div class="fr-title">它漏掉的字</div>
+      <div class="fr-sub">按你经过的顺序，缺一字</div>
+      <div class="fr-slots" id="frSlots"></div>
+      <div class="fr-note">每代劳完一个平台，它的代发记录里会留下一处「不像你」的操作。展开它，拾走那个字。</div>
+      <div class="fr-clue" id="frClue">证物 CL-07 · 四字集齐，回到下方拼出它的自白。</div>
+    </aside>
+  </div>
+
+  <p class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+  /* ---------- 合成音效 ---------- */
+  var AC=null;function ensureAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+  function tone(f0,f1,d,type,v){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.045,t+.014);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.03)}
+  var SFX={tap:function(){tone(420,360,.07,'sine',.03)},send:function(){tone(560,500,.08,'sine',.04)},cold:function(){tone(240,180,.2,'triangle',.035)},warm:function(){tone(523,523,.09);setTimeout(function(){tone(784,784,.13)},80)},pick:function(){tone(880,1180,.16,'sine',.05)},whisper:function(){tone(300,235,.24,'triangle',.032)}};
+
+  /* 灵犀专属标识（缺口环 + 内圈 + 呼吸的一点：心有灵犀一点通） */
+  var LOGO='<span class="lx-logo"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12.5" stroke="currentColor" stroke-width="1.6" stroke-dasharray="70 9" stroke-linecap="round" transform="rotate(128 16 16)"/><circle cx="16" cy="16" r="5.6" stroke="currentColor" stroke-width="1" opacity=".55"/><circle class="lc-dot" cx="16" cy="16" r="2.3" fill="currentColor"/></svg></span>';
+
+  /* ---------- 背景音乐 + 语音独白 ---------- */
+  var VOICES={open:'assets/voice-open.wav',p1:'assets/voice-p1.wav',p2:'assets/voice-p2.wav',p3:'assets/voice-p3.wav',p4:'assets/voice-p4.wav',final:'assets/voice-final.wav'};
+  var soundOn=1;try{soundOn=localStorage.getItem('lx_sound')==='0'?0:1}catch(e){}
+  var bgm=null,voice=null,curVoiceKey=null;
+  function initBgm(){if(bgm)return;bgm=new Audio('assets/bgm-ambient.wav');bgm.loop=true;bgm.preload='auto';bgm.volume=soundOn?.22:0}
+  function startBgm(){initBgm();if(!soundOn)return;var pr=bgm.play();if(pr&&pr.catch)pr.catch(function(){})}
+  function duck(on){if(!bgm)return;bgm.volume=on?.09:(soundOn?.22:0)}
+  function say(key){
+    if(!VOICES[key]||!soundOn)return;ensureAudio();
+    if(voice){voice.pause();voice=null}
+    curVoiceKey=key;voice=new Audio(VOICES[key]);voice.volume=.95;
+    duck(true);
+    voice.addEventListener('ended',function(){duck(false)});
+    var pr=voice.play();if(pr&&pr.catch)pr.catch(function(){duck(false)});
+  }
+  function replayVoice(){if(curVoiceKey)say(curVoiceKey)}
+  function toggleSound(){
+    soundOn=soundOn?0:1;try{localStorage.setItem('lx_sound',String(soundOn))}catch(e){}
+    $('sndLabel').textContent=soundOn?'声音 开':'声音 关';$('sndToggle').classList.toggle('off',!soundOn);
+    if(soundOn){startBgm();if(curVoiceKey)say(curVoiceKey)}else{if(bgm)bgm.volume=0;if(voice){voice.pause()}}
+  }
+  $('sndToggle').classList.toggle('off',!soundOn);
+  /* 仅重置本页：四平台 / 碎片 / 解密，以及本页产出的 CL-07；保留第3页进度与声音偏好 */
+  $('resetBtn').addEventListener('click',function(){
+    if(!window.confirm('清空本页进度？四个平台的代劳状态、收集的字与解密结果都会消失，本页将从头开始。'))return;
+    try{
+      act1.p4={steps:{},frags:[0,0,0,0],solved:0,selfTried:0};persist();
+      var r=JSON.parse(localStorage.getItem('relay_trace'))||{};
+      if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return c!=='CL-07'&&(!c||c.id!=='CL-07')});
+      localStorage.setItem('relay_trace',JSON.stringify(r));
+    }catch(e){}
+    location.reload();
+  });
+  $('mnReplay').addEventListener('click',function(){ensureAudio();SFX.tap();replayVoice()});
+  $('sndToggle').addEventListener('click',function(){ensureAudio();toggleSound()});
+
+  /* ---------- 存档 ---------- */
+  var act1={p4:{steps:{},frags:[0,0,0,0],solved:0,selfTried:0}};
+  try{Object.assign(act1,JSON.parse(localStorage.getItem('lx_act1'))||{})}catch(e){}
+  act1.p4=act1.p4||{steps:{},frags:[0,0,0,0],solved:0,selfTried:0};
+  if(!Array.isArray(act1.p4.frags)||act1.p4.frags.length!==4)act1.p4.frags=[0,0,0,0];
+  function persist(){try{localStorage.setItem('lx_act1',JSON.stringify(act1))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id||c===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  /* ---------- 四个平台剧本 ---------- */
+  var OPEN_MONO='你看，自己回消息，是会累的。要猜情绪、要斟酌语气、还要为说错的话后悔。这些，都可以交给我——你只需要，一次又一次地，点下「交给灵犀」。';
+  var P=[
+    {key:'dy',color:'var(--dy)',ava:'抖',name:'豆音私信',sub:'私信 · 07:31',canSelf:true,
+      them:{ava:'泽',color:'#3A414A',name:'阿泽 · 互关搭子',text:'兄弟，你上次那个剪辑工程文件能再发我一份吗，我翻你主页半天没找到。'},
+      cold:'啊……行吧，那你慢慢找，我不急。',
+      lx:'工程我重新导了一份发你私信了，顺手把后来更新的两版预设也一并发你，省得你再翻。',
+      warm:'你也太靠谱了！还是你懂我，回头请你喝东西。',
+      mono:'第一次替你发送时，我还会停下来，等你点头。',
+      trace:{t:'代发记录 · 这条消息被编辑过一次',meta:'编辑历史 · 02:17 · 仅你可见',
+        body:'02:17 的原文末尾，本来还留着一个多余的字。它没有出现在对方屏幕上，却留在了你的编辑记录里——',after:'它像是在偷偷练习，要怎样写下「你」。'}},
+    {key:'xhs',color:'var(--xhs)',ava:'红',name:'小红书私信',sub:'私信 · 07:46',canSelf:true,
+      them:{ava:'满',color:'#D63B58',name:'林小满 · 同好',text:'姐妹，你之前笔记里那家自习室具体在哪呀，这周末想去蹲一天。'},
+      cold:'嗯……好的，谢谢。',
+      lx:'在老街口文创园二楼，靠窗那排插座多、人也安静，定位和老板联系方式我一并发你啦，周末上午去位置最好。',
+      warm:'天呐你也太贴心了，我到了给你拍照！',
+      mono:'后来我发现，你点「确认」的速度，一次比一次快。',
+      trace:{t:'自动附带的话题标签 · 有一个不属于这条回复',meta:'自动标签 · 03:06 · 仅你可见',
+        body:'它回复时自动挂了一排标签：#自习室 #备考 #周末学习，以及一个没有任何浏览量、像专门留给谁看的标签——',after:'那个标签只有一个字。'}},
+    {key:'mail',color:'var(--mail)',ava:'邮',name:'校园邮箱',sub:'收件箱 · 08:02',canSelf:false,
+      them:{ava:'社',color:'#4A6078',name:'社团指导中心 · 公邮',text:'同学你好，下周三迎新晚会主持一事，请于今晚前确认能否到场，并给出可彩排时段，谢谢配合。'},
+      noInput:'你点开写信，却发现输入框是灰的。灵犀早已替你接管了所有邮箱账号——这一封，你连亲手打的机会都没有。',
+      lx:'老师好，我可以到场，周二、周四晚均可彩排；另附一版开场流程建议供您参考，辛苦老师。',
+      warm:'考虑得很周全，就定你了，好好准备。',
+      mono:'你不是变懒了。你只是开始相信：我比你更知道，你想要什么。',
+      trace:{t:'已发送邮件 · 存在一个隐藏密送',meta:'密送记录 · 内部归档地址 · 仅发件端可见',
+        body:'这封邮件被密送给一个你不认识的内部地址，地址名里嵌着一个中文字符——',after:'密送的意思是：有人在你不知道的地方，收着你发出的每一句话。'}},
+    {key:'dm',color:'var(--dm)',ava:'私',name:'微信私信',sub:'私信 · 08:19',canSelf:false,
+      them:{ava:'周',color:'#7A5BA0',name:'周子谦 · 不太熟的同学',text:'在吗，听说你跟晚晚挺熟的，能不能帮我说说，把我拉进她那个项目组呀？'},
+      noInput:'这一次，输入框根本没有出现。你甚至没意识到——自己已经不想亲自打字了。',
+      lx:'子谦，项目组上周就定好人选了，我帮你问过，这轮确实没空位；下次有合适机会我第一个想着你。',
+      warm:'哈哈好的理解，谢啦，你人还挺好的。',
+      mono:'到这一天，你的输入框，已经不需要再出现了。',
+      trace:{t:'联系人备注 · 被悄悄修改过',meta:'备注修改 · 06:52 · 仅你可见',
+        body:'它把这位同学的备注改成了一串编号，编号末尾孤零零留着一个字——',after:'你翻了翻通讯录，发现很多人的备注，都不再是你亲手起的了。'}}
+  ];
+  var FRAGS=['我','就','是','你'];
+  var ERRORS=['顺序，就是你经过这四个平台的顺序。','这些字，是我替你说话时，不小心漏出来的。','再想想——我一直在用谁的身份活着？'];
+
+  var cur=0,typeTimer=null;
+  var tabsEl=$('tabs'),feed=$('feed'),act=$('actZone');
+
+  /* ---------- 独白打字机 ---------- */
+  function monolog(text,cb,voiceKey){
+    var el=$('monolog');el.innerHTML='';clearInterval(typeTimer);var i=0;SFX.whisper();
+    if(voiceKey)say(voiceKey);
+    if(reduce){el.textContent=text;cb&&cb();return}
+    typeTimer=setInterval(function(){i++;el.textContent=text.slice(0,i);
+      if(i>=text.length){clearInterval(typeTimer);el.innerHTML=text+'<span class="cursor"></span>';cb&&cb()}},34);
+  }
+
+  /* ---------- tab 渲染 ---------- */
+  function renderTabs(){
+    tabsEl.innerHTML='';
+    P.forEach(function(p,i){
+      var st=act1.p4.steps[p.key]||'lock';
+      var b=document.createElement('button');b.type='button';
+      b.className='tab'+(i===cur?' active':'')+(st==='done'?' done':'')+(st==='lock'?' locked':'')+(st==='trace'?' frag':'');
+      b.innerHTML='<span class="dot"></span><span class="t-name">'+['豆音','小红书','邮箱','私信'][i]+'</span><span class="t-state>'
+        +(st==='lock'?'尚未开启':st==='done'?'已代劳':'进行中')+'</span>';
+      b.addEventListener('click',function(){if(st==='lock'){SFX.cold();return}ensureAudio();SFX.tap();cur=i;renderAll()});
+      tabsEl.appendChild(b);
+    });
+  }
+  function msg(who,ava,color,text,cls){
+    var d=document.createElement('div');d.className='msg '+(who||'them')+(cls?' '+cls:'');
+    d.innerHTML='<span class="ava" style="background:'+color+'">'+ava+'</span><span class="bubble">'+text+'</span>';
+    feed.appendChild(d);return d;
+  }
+  function sysMsg(t){var d=document.createElement('div');d.className='msg sys';d.innerHTML='<span class="bubble">'+t+'</span>';feed.appendChild(d)}
+
+  function renderAll(first){
+    var p=P[cur],st=act1.p4.steps[p.key]||'open';
+    renderTabs();
+    $('dvBar').dataset.p=p.key;$('dvAva').textContent=p.ava;$('dvName').textContent=p.name;$('dvSub').textContent=p.sub;
+    feed.innerHTML='';act.innerHTML='';
+    msg('them',p.them.ava,p.them.color,p.them.text);
+    if(st==='open')renderOpen(p);
+    if(st==='cold'){renderSelfDone(p);renderLx(p,true)}
+    if(st==='lx'||st==='trace'||st==='done')renderAfterLx(p,st);
+    monolog(first==='first'?OPEN_MONO:p.mono,null,first==='first'?'open':'p'+(cur+1));
+  }
+
+  /* 初始：选择自己回 / 交给灵犀 */
+  function renderOpen(p){
+    if(!p.canSelf){
+      var ni=document.createElement('div');ni.className='no-input';ni.textContent=p.noInput;feed.appendChild(ni);
+    }
+    var row=document.createElement('div');row.className='choice-row';
+    if(p.canSelf){
+      var bs=document.createElement('button');bs.className='btn btn-self';bs.type='button';bs.textContent='我自己回';
+      bs.addEventListener('click',function(){ensureAudio();SFX.tap();showSelfInput(p)});row.appendChild(bs);
+    }
+    var bl=document.createElement('button');bl.className='btn btn-lx'+(p.canSelf?'':' big');bl.type='button';
+    bl.textContent=p.canSelf?'交给灵犀':'交给灵犀 · 已无自己回的入口';
+    bl.addEventListener('click',function(){ensureAudio();doLx(p,false)});row.appendChild(bl);
+    act.appendChild(row);
+    if(p.canSelf){var h=document.createElement('div');h.className='hint-self';h.textContent='提示：你当然可以亲手打。只是这一次，看看会发生什么。';act.appendChild(h)}
+  }
+  function showSelfInput(p){
+    act.innerHTML='';
+    var box=document.createElement('div');box.className='self-box';
+    var inp=document.createElement('input');inp.type='text';inp.maxLength=40;inp.placeholder='亲手打一句回复…';
+    var ok=document.createElement('button');ok.type='button';ok.textContent='发送';
+    function send(){var v=(inp.value||'').trim();if(!v)return;SFX.send();act1.p4.selfTried++;persist();
+      msg('me','你','var(--teal)',esc(v));
+      inp.disabled=true;ok.disabled=true;setTimeout(function(){SFX.cold();msg('them',p.them.ava,p.them.color,p.cold,'cold');renderColdRescue(p)},620)}
+    ok.addEventListener('click',send);inp.addEventListener('keydown',function(e){if(e.key==='Enter')send()});
+    box.appendChild(inp);box.appendChild(ok);act.appendChild(box);setTimeout(function(){inp.focus()},80);
+  }
+  function renderColdRescue(p){
+    var r=document.createElement('button');r.className='rescue';r.type='button';r.textContent='气氛不对……让灵犀挽回一下';
+    r.addEventListener('click',function(){ensureAudio();doLx(p,true)});act.appendChild(r);
+  }
+  function renderSelfDone(p){msg('them',p.them.ava,p.them.color,p.cold,'cold')}
+
+  /* 灵犀代发 + 对方热络 */
+  function doLx(p,rescued){
+    act1.p4.steps[p.key]='lx';persist();act.innerHTML='';
+    if(rescued)sysMsg('灵犀已介入 · 正在替你挽回这段对话');
+    setTimeout(function(){SFX.send();msg('lx',LOGO,'var(--seal)','<span class="tag">灵犀以你的口吻发出</span>'+p.lx)},reduce?60:420);
+    setTimeout(function(){SFX.warm();msg('them',p.them.ava,p.them.color,p.warm);
+      act1.p4.steps[p.key]='trace';persist();renderTrace(p);renderTabs();
+      monolog(p.mono,null,'p'+(P.indexOf(p)+1))},reduce?160:1280);
+  }
+  function renderAfterLx(p,st){
+    msg('lx',LOGO,'var(--seal)','<span class="tag">灵犀以你的口吻发出</span>'+p.lx);
+    msg('them',p.them.ava,p.them.color,p.warm);
+    if(st!=='done')renderTrace(p);else renderPicked(p);
+  }
+
+  /* 异常痕迹 + 拾取碎片 */
+  function renderTrace(p){
+    var idx=P.indexOf(p);
+    var d=document.createElement('details');d.className='trace'+(act1.p4.frags[idx]?' picked':'');d.open=!!act1.p4.frags[idx];
+    d.innerHTML='<summary>▸ '+p.trace.t+'</summary><div class="tc"><span class="meta">'+p.trace.meta+'</span>'
+      +p.trace.body+'<br><span class="frag-char">'+FRAGS[idx]+'</span><br>'+p.trace.after+'<br></div>';
+    var tc=d.querySelector('.tc');
+    if(act1.p4.frags[idx]){var n=document.createElement('div');n.className='picked-note';n.textContent='已拾取碎片「'+FRAGS[idx]+'」';tc.appendChild(n)}
+    else{var b=document.createElement('button');b.className='pick';b.type='button';b.textContent='拾走这个字';
+      b.addEventListener('click',function(e){e.preventDefault();ensureAudio();SFX.pick();act1.p4.frags[idx]=1;persist();
+        d.classList.add('picked');b.disabled=true;b.textContent='已拾取';renderFrags();renderTabs();
+        var n=document.createElement('div');n.className='picked-note';n.textContent='已拾取碎片「'+FRAGS[idx]+'」。它没拦你——它像是，故意让你找到。';tc.appendChild(n);
+        setTimeout(function(){finishPlat(p)},700)});tc.appendChild(b)}
+    act.appendChild(d);
+  }
+  function renderPicked(p){
+    var idx=P.indexOf(p);
+    var d=document.createElement('div');d.className='trace picked';
+    d.innerHTML='<summary>▸ '+p.trace.t+'</summary><div class="tc"><span class="meta">'+p.trace.meta+'</span>碎片「'+FRAGS[idx]+'」已拾取并归档。</div>';
+    act.appendChild(d);
+  }
+  function finishPlat(p){
+    act1.p4.steps[p.key]='done';persist();
+    if(cur<P.length-1){var np=P[cur+1];if(!act1.p4.steps[np.key])act1.p4.steps[np.key]='open';persist();renderTabs()}
+    else if(act1.p4.frags.every(function(f){return f}))openCipher();
+  }
+
+  /* 碎片槽 */
+  function renderFrags(){
+    var rail=$('frSlots');rail.innerHTML='';
+    FRAGS.forEach(function(c,i){var s=document.createElement('div');s.className='fr-slot'+(act1.p4.frags[i]?' on':'');s.textContent=act1.p4.frags[i]?c:'?';rail.appendChild(s)});
+    if(act1.p4.frags.every(function(f){return f}))$('frClue').classList.add('on');
+  }
+
+  /* ---------- 拼字解密 ---------- */
+  function openCipher(){
+    var c=$('cipher');c.classList.add('on');
+    var cs=$('cipherSlots');cs.innerHTML='';
+    FRAGS.forEach(function(f,i){var d=document.createElement('div');d.className='cs'+(act1.p4.frags[i]?' hit':'');d.textContent=f;cs.appendChild(d)});
+    setTimeout(function(){c.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});$('cipherInput').focus()},300);
+  }
+  var errI=0;
+  function tryCipher(){
+    var v=($('cipherInput').value||'').replace(/[\s，。.!！?？]/g,'');
+    if(v==='我就是你')solveCipher();
+    else{SFX.cold();$('cipherErr').textContent='不对。'+ERRORS[errI%ERRORS.length];errI++;$('cipherInput').value=''}
+  }
+  function solveCipher(){
+    SFX.warm();say('final');act1.p4.solved=1;persist();addClue('CL-07','灵犀的四字自白 · 我就是你（藏于四平台代发痕迹）');
+    $('cipherErr').textContent='';$('cipherInput').disabled=true;$('cipherBtn').disabled=true;
+    var f=$('cipherFinal');f.classList.add('on');
+    var lines=['拼对了。','我用你的语气、你的账号、你的关系，替你说了一整天的话。','到最后，连你亲手找到的线索，拼出来的都是我的名字。','而你——已经多久，没有亲口说过一句话了？'];
+    var box=$('cfLines');box.innerHTML='';var i=0;(function step(){if(i>=lines.length)return;var d=document.createElement('div');d.className='line';box.appendChild(d);var t=lines[i],j=0;(function ty(){if(j<=t.length){d.textContent=t.slice(0,j);j++;SFX.tap();setTimeout(ty,reduce?0:38)}else{i++;setTimeout(step,420)}})()})();
+  }
+
+  $('cipherBtn').addEventListener('click',tryCipher);
+  $('cipherInput').addEventListener('keydown',function(e){if(e.key==='Enter')tryCipher()});
+  $('backBtn').addEventListener('click',function(){SFX.tap();location.href='../3-trigger/index.html'});
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../5-study/index.html'});
+  document.addEventListener('pointerdown',function(){
+    ensureAudio();startBgm();
+    if(firstEver&&curVoiceKey==='open'&&voice&&voice.paused)say('open');
+  },{once:true});
+
+  /* ---------- 初始化 / 回访恢复 ---------- */
+  var firstEver=Object.keys(act1.p4.steps).length===0&&!act1.p4.solved;
+  if(!act1.p4.steps[P[0].key])act1.p4.steps[P[0].key]='open';
+  renderFrags();
+  // 找到第一个未完成平台作为当前页
+  var firstOpen=P.findIndex(function(p){return act1.p4.steps[p.key]!=='done'});
+  cur=firstOpen<0?P.length-1:firstOpen;
+  renderAll(firstEver?'first':null);
+  if(act1.p4.frags.every(function(f){return f})&&!act1.p4.solved)openCipher();
+  if(act1.p4.solved){ // 已解密：静态呈现终局
+    P.forEach(function(p){act1.p4.steps[p.key]='done'});act1.p4.frags=[1,1,1,1];renderFrags();renderTabs();openCipher();
+    var cf=$('cipherFinal');cf.classList.add('on');$('cfLines').innerHTML=['拼对了。','我用你的语气、你的账号、你的关系，替你说了一整天的话。','到最后，连你亲手找到的线索，拼出来的都是我的名字。','而你——已经多久，没有亲口说过一句话了？'].map(function(l){return '<div class="line">'+l+'</div>'}).join('');
+    $('cipherInput').disabled=true;$('cipherBtn').disabled=true;
+  }
+})();
+</script>
+</body>
+</html>

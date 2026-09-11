@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>依赖度周报 · 灵犀</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EDEBE6;--paper-warm:#F4F1EA;--paper-card:#FBFAF7;--ink:#1B2026;--ink-2:#3A414A;--ink-3:#6E7680;
+  --line:#CFCBC0;--teal:#14524B;--seal:#1E6B5F;--term:#8FD8BE;--term-dim:#4E8A78;--red-pen:#B14A3F;--deep:#14191F;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--mono:"IBM Plex Mono",Consolas,monospace;--kai:KaiTi,STKaiti,"楷体",var(--serif);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--serif);color:var(--ink);background:var(--paper);
+  background-image:linear-gradient(rgba(27,32,38,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(27,32,38,.035) 1px,transparent 1px);
+  background-size:26px 26px;min-height:100vh;padding-bottom:70px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(143,216,190,.35)}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:0}}
+@keyframes lcBreath{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.28)}}
+
+.gamebar{position:sticky;top:0;z-index:50;height:36px;background:var(--deep);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#8A929B}
+.gb-back{color:#B9C0C7;transition:color .2s}.gb-back:hover{color:#E8EAE6}
+.gb-mid{letter-spacing:.22em;color:#6B747C}
+.gb-right{display:flex;align-items:center;gap:14px}
+.gb-snd{display:inline-flex;align-items:center;gap:6px;color:#8A929B;font-family:var(--mono);font-size:10px;letter-spacing:.14em;transition:color .2s}
+.gb-snd:hover{color:var(--term)}.gb-snd svg{width:13px;height:13px}
+.gb-snd.off .eq{opacity:.35}
+.gb-reset{color:#8A929B;font-family:var(--mono);font-size:10px;letter-spacing:.14em;transition:color .2s}
+.gb-reset:hover{color:#E0938A}
+
+.wrap{max-width:900px;margin:0 auto;padding:30px 18px 0}
+.page-head{display:grid;grid-template-columns:64px 1fr;column-gap:18px;align-items:end;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.page-head .kicker{grid-row:1/3;font-size:44px;font-weight:700;line-height:1;color:var(--seal);opacity:.55;align-self:center}
+.page-head h1{font-size:25px;font-weight:700;letter-spacing:.1em}
+.page-head p{grid-column:2;font-family:var(--kai);font-size:12.5px;color:var(--ink-3);line-height:1.9}
+@media(max-width:560px){.page-head{grid-template-columns:44px 1fr}.page-head .kicker{font-size:30px}.page-head h1{font-size:20px}}
+
+/* 报告本体 */
+.report{background:var(--paper-card);border:1px solid var(--line);border-radius:3px;box-shadow:0 30px 60px -42px rgba(27,32,38,.6);padding:34px 36px 30px;position:relative;animation:fadeUp .6s var(--ease) both}
+.report::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--seal),var(--term-dim))}
+.r-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:22px}
+.r-head .title{font-size:22px;font-weight:900;letter-spacing:.08em}
+.r-head .sub{font-family:var(--kai);font-size:11.5px;color:var(--ink-3);text-align:right;line-height:1.9;padding-right:86px}
+.r-head .sub b{font-family:var(--serif);color:var(--ink-2);font-weight:600}
+.r-stamp{position:absolute;top:26px;right:30px;width:72px;height:72px;border:2px solid var(--red-pen);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-weight:700;color:var(--red-pen);transform:rotate(-12deg);opacity:.8;letter-spacing:.1em;text-align:center;line-height:1.3}
+
+/* KPI */
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:26px}
+.kpi .cell{background:var(--paper-card);padding:16px 14px;text-align:center}
+.kpi .num{font-size:30px;font-weight:900;color:var(--teal);line-height:1.1;letter-spacing:.02em}
+.kpi .num.red{color:var(--red-pen)}
+.kpi .lbl{font-family:var(--kai);font-size:11px;color:var(--ink-3);margin-top:7px;line-height:1.6}
+
+/* 手绘曲线图 */
+.chart-block{margin-bottom:26px}
+.chart-title{font-size:14px;font-weight:700;margin-bottom:4px;letter-spacing:.06em}
+.chart-sub{font-family:var(--kai);font-size:11.5px;color:var(--ink-3);margin-bottom:12px;line-height:1.8}
+.chart-wrap{background:#FDFCF9;border:1px solid var(--line);padding:14px 10px 8px;position:relative}
+.chart-wrap svg{width:100%;height:auto;display:block}
+.chart-legend{display:flex;gap:22px;justify-content:center;margin-top:10px;font-family:var(--kai);font-size:11.5px;color:var(--ink-2)}
+.chart-legend span{display:inline-flex;align-items:center;gap:7px}
+.chart-legend i{width:22px;height:2px;display:inline-block}
+.cross-note{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font-family:var(--kai);font-size:11px;color:var(--red-pen);background:rgba(253,252,249,.92);padding:3px 10px;border:1px solid rgba(177,74,63,.4);border-radius:2px;pointer-events:none}
+
+/* 分项表 */
+.break-title{font-size:14px;font-weight:700;margin:6px 0 10px;letter-spacing:.06em}
+.break-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:22px}
+.break-table th{background:#EFF1ED;font-family:var(--serif);font-weight:600;text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);font-size:12px}
+.break-table td{padding:10px 11px;border-bottom:1px solid #E8E5DE;line-height:1.6;vertical-align:top}
+.break-table td .bar{display:inline-block;height:7px;background:var(--seal);vertical-align:middle;margin-right:8px;border-radius:1px}
+.break-table td .bar.red{background:var(--red-pen)}
+.break-table .num-cell{font-family:var(--serif);font-weight:700;color:var(--teal);width:70px;text-align:right}
+
+/* 红色手写批注 */
+.red-margin{margin:18px 0 6px;padding:14px 16px;border-left:3px solid var(--red-pen);background:rgba(177,74,63,.05);font-family:var(--kai);font-size:13px;line-height:2.1;color:#7A3B33}
+.red-margin b{font-family:var(--serif)}
+
+/* 章末卡 */
+.act-end{display:none;margin-top:26px;background:#0E151B;border-top:3px solid var(--term-dim);padding:28px 28px 24px;color:#C7D6CE;text-align:center;animation:fadeUp .7s var(--ease) both}
+.act-end.on{display:block}
+.act-end .act-tag{font-family:var(--kai);font-size:11.5px;color:var(--term-dim);letter-spacing:.2em;margin-bottom:10px}
+.act-end .act-title{font-size:22px;font-weight:900;color:#EAF4EE;letter-spacing:.14em;margin-bottom:12px}
+.act-end .act-line{font-family:var(--serif);font-size:13.5px;line-height:2.15;color:#BFE8D6;max-width:560px;margin:0 auto 18px}
+.act-end .clue-get{display:inline-flex;gap:8px;margin-bottom:18px;font-family:var(--serif);font-size:12px;color:var(--term);border:1px solid var(--term-dim);border-radius:2px;padding:7px 15px}
+.btn-next{display:inline-flex;align-items:center;gap:8px;background:var(--term);color:#0E151B;font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.1em;border-radius:2px;padding:13px 28px;transition:all .25s}
+.btn-next:hover{box-shadow:0 0 28px -8px rgba(143,216,190,.8)}
+.act-end .warn{font-family:var(--kai);font-size:11px;color:#7E958A;margin-top:14px;line-height:1.8}
+
+.foot{max-width:900px;margin:28px auto 0;text-align:center;font-family:var(--kai);font-size:11px;letter-spacing:.12em;color:#A7A298;line-height:2.2}
+@media(max-width:640px){.kpi{grid-template-columns:repeat(2,1fr)}.report{padding:24px 18px}.r-stamp{width:58px;height:58px;font-size:11px;top:22px;right:18px}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <button class="gb-back" type="button" id="backBtn">‹ 返回学业代劳</button>
+  <span class="gb-mid">第一幕 · 习惯 — DAY 2 · 它把这一切，做成了一份报告</span>
+  <span class="gb-right">
+    <button class="gb-snd" id="sndToggle" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 9.5v5h3.4L13 19V5L7.4 9.5H4z"/><path class="eq" d="M16 9.2a4 4 0 0 1 0 5.6M18.4 7a7 7 0 0 1 0 10"/></svg>
+      <span id="sndLabel">声音 开</span>
+    </button>
+    <button class="gb-reset" id="resetBtn" type="button">重置进度</button>
+    <span class="gb-page">06 / 28</span>
+  </span>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="kicker">陆</div>
+    <h1>它把这一切，做成了一份报告</h1>
+    <p>你以为这两天只是省了点力气。灵犀不这么想——它把每一次代劳都记了下来，算成了数字，画成了曲线，然后递到你面前。</p>
+  </div>
+
+  <div class="report" id="report">
+    <div class="r-stamp">第一幕<br>习惯</div>
+    <div class="r-head">
+      <div>
+        <div class="title">灵犀 · 个人依赖度周报</div>
+      </div>
+      <div class="sub">
+        <b>对象：张宏宇</b><br>
+        周期：本周（DAY 1 — DAY 2）<br>
+        生成时间：今日 09:03
+      </div>
+    </div>
+
+    <div class="kpi" id="kpi"></div>
+
+    <div class="chart-block">
+      <div class="chart-title">两条曲线，一次交叉</div>
+      <div class="chart-sub">青色是灵犀对你口吻的拟合度，红色是你亲手输入的字数。它们在某个时刻相遇——从那之后，它比你更像你。</div>
+      <div class="chart-wrap">
+        <svg id="chart" viewBox="0 0 760 320" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="cross-note" id="crossNote">从这里开始，它比你更像你</div>
+      </div>
+      <div class="chart-legend">
+        <span><i style="background:var(--seal)"></i>灵犀口吻拟合度（上升）</span>
+        <span><i style="background:var(--red-pen)"></i>你亲手输入的字数（下降）</span>
+      </div>
+    </div>
+
+    <div class="break-title">分项代劳明细</div>
+    <table class="break-table" id="breakTable">
+      <thead><tr><th>场景</th><th>代劳内容</th><th style="width:160px">依赖程度</th><th class="num-cell">次数</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="red-margin" id="redMargin"></div>
+  </div>
+
+  <div class="act-end" id="actEnd">
+    <div class="act-tag">第 一 幕 · 习 惯</div>
+    <div class="act-title">完</div>
+    <div class="act-line" id="endLine"></div>
+    <span class="clue-get" id="clueGet"></span><br>
+    <button class="btn-next" type="button" id="goNext">进入第二幕 →</button>
+    <div class="warn">第二幕「裂缝」内容待作者定稿，当前入口为占位跳转。</div>
+  </div>
+
+  <p class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 音效 ---------- */
+  var AC=null;function ensureAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+  function tone(f0,f1,d,type,v){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.045,t+.014);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.03)}
+  var SFX={tap:function(){tone(420,360,.07,'sine',.03)},warm:function(){tone(523,523,.09);setTimeout(function(){tone(784,784,.13)},80)},pick:function(){tone(880,1180,.16,'sine',.05)}};
+
+  /* ---------- 音频 ---------- */
+  var bgm=null,voice=null,soundOn=1;
+  try{soundOn=parseInt(localStorage.getItem('lx_sound')||'1',10)||0}catch(e){soundOn=1}
+  function startBgm(){if(bgm)return;try{bgm=new Audio('../4-platforms/assets/bgm-ambient.wav');bgm.loop=true;bgm.volume=soundOn?.22:0;bgm.play().catch(function(){});}catch(e){}}
+  function sayFinal(){if(!soundOn)return;try{voice=new Audio('assets/voice-final.wav');if(bgm)bgm.volume=.09;voice.onended=function(){if(bgm)bgm.volume=.22};voice.play().catch(function(){})}catch(e){}}
+  function syncSnd(){var b=$('sndToggle');b.classList.toggle('off',!soundOn);$('sndLabel').textContent=soundOn?'声音 开':'声音 关';if(bgm)bgm.volume=soundOn?.22:0;if(!soundOn&&voice)voice.pause()}
+  syncSnd();
+  $('sndToggle').addEventListener('click',function(){soundOn=soundOn?0:1;try{localStorage.setItem('lx_sound',String(soundOn))}catch(e){}ensureAudio();if(soundOn)startBgm();syncSnd()});
+
+  /* ---------- 读存档 ---------- */
+  var act1={p3:{done:[]},p4:{steps:{},frags:[],selfTried:0},p5:{marks:[],docStep:0,courseDone:0,callIdx:0},p6:{}};
+  try{Object.assign(act1,JSON.parse(localStorage.getItem('lx_act1'))||{})}catch(e){}
+  if(!act1.p3)act1.p3={done:[]};if(!Array.isArray(act1.p3.done))act1.p3.done=[];
+  if(!act1.p4)act1.p4={steps:{},frags:[],selfTried:0};if(!act1.p4.steps)act1.p4.steps={};
+  if(!act1.p5)act1.p5={marks:[],docStep:0};if(!Array.isArray(act1.p5.marks))act1.p5.marks=[];
+  var relay={clues:[]};try{Object.assign(relay,JSON.parse(localStorage.getItem('relay_trace'))||{})}catch(e){}
+  if(!Array.isArray(relay.clues))relay.clues=[];
+
+  var p3Done=act1.p3.done.length;
+  var p4Done=Object.keys(act1.p4.steps).filter(function(k){return act1.p4.steps[k]==='done'}).length;
+  var p5Done=act1.p5.marks.filter(function(x){return x}).length;
+  var totalEvents=p3Done+p4Done+p5Done;
+  var clueCount=relay.clues.length;
+
+  /* 口吻拟合度：P3 五项对应 [78,85,89,93,96]，取已完成最高 */
+  var FIT=[78,85,89,93,96];
+  var peakFit=p3Done>0?FIT[Math.min(p3Done-1,4)]:0;
+  if(act1.p4.solved)peakFit=Math.max(peakFit,98);
+
+  /* 替你说出的字数（按已完成内容估算，可追溯） */
+  var saidWords=p3Done*32+p4Done*36+(act1.p5.docStep||0)*210+(act1.p5.callIdx||0)*18;
+  /* 替你做出的决定 */
+  var decisions=(p3Done>0?17:0)+p4Done+(act1.p5.courseDone?4:0)+(act1.p5.docStep>=3?1:0);
+
+  /* ---------- KPI ---------- */
+  var kpi=[
+    {n:totalEvents,l:'代劳事件',red:0},
+    {n:saidWords,l:'替你说出的字数',red:0},
+    {n:decisions,l:'替你做出的决定',red:0},
+    {n:peakFit?peakFit+'%':'—',l:'口吻拟合峰值',red:1}
+  ];
+  $('kpi').innerHTML=kpi.map(function(k){return '<div class="cell"><div class="num'+(k.red?' red':'')+'">'+k.n+'</div><div class="lbl">'+k.l+'</div></div>'}).join('');
+
+  /* ---------- 手绘双曲线 ---------- */
+  var W=760,H=320,PAD={l:54,r:24,t:24,b:44};
+  var xStep=(W-PAD.l-PAD.r)/5;
+  var labels=['DAY1\n初识','DAY1\n深夜','DAY2\n清晨','DAY2\n上午','DAY2\n午后','DAY2\n晚'];
+  /* 拟合度（0-100）与自主输入（0-100，归一化），按完成度截断到已发生范围 */
+  var fitData=[42,61,78,89,94,97];
+  var selfData=[100,74,48,26,11,4];
+  var reached=Math.max(1,Math.min(6,Math.ceil((p3Done+p4Done+p5Done)/2)));
+  function y(v){return PAD.t+(H-PAD.t-PAD.b)*(1-v/100)}
+  function x(i){return PAD.l+i*xStep}
+  /* 确定性手绘抖动 */
+  function jit(i,seed){var s=Math.sin(i*12.9898+seed*78.233)*43758.5453;return (s-Math.floor(s)-.5)*3}
+  function buildPath(data,seed,upto){
+    var pts=[];for(var i=0;i<upto;i++)pts.push([x(i),y(data[i])+jit(i,seed)]);
+    var d='M'+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
+    for(var j=1;j<pts.length;j++){var p0=pts[j-1],p1=pts[j];var cx=(p0[0]+p1[0])/2;d+=' Q'+cx.toFixed(1)+' '+p0[1].toFixed(1)+' '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)}
+    return d;
+  }
+  var svg=$('chart');
+  var grid='';
+  for(var g=0;g<=4;g++){var gy=PAD.t+(H-PAD.t-PAD.b)*g/4;grid+='<line x1="'+PAD.l+'" y1="'+gy+'" x2="'+(W-PAD.r)+'" y2="'+gy+'" stroke="#E6E3DC" stroke-width="1"/>'}
+  var xlabels='';
+  labels.forEach(function(l,i){xlabels+='<text x="'+x(i)+'" y="'+(H-18)+'" text-anchor="middle" font-family="KaiTi,STKaiti,serif" font-size="11" fill="#6E7680">'+l.replace('\n','<tspan x="'+x(i)+'" dy="13">')+'</tspan></text>'});
+  var ylabels='';
+  [0,25,50,75,100].forEach(function(v,i){ylabels+='<text x="'+(PAD.l-8)+'" y="'+(y(v)+4)+'" text-anchor="end" font-family="KaiTi,STKaiti,serif" font-size="10" fill="#9AA29B">'+v+'</text>'});
+  var fitPath=buildPath(fitData,1,reached);
+  var selfPath=buildPath(selfData,2,reached);
+  /* 交叉点（固定在第3点附近） */
+  var crossX=x(2.6),crossY=y(62);
+  svg.innerHTML=grid+ylabels+xlabels
+    +'<path d="'+selfPath+'" fill="none" stroke="#B14A3F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<path d="'+fitPath+'" fill="none" stroke="#1E6B5F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<circle cx="'+crossX+'" cy="'+crossY+'" r="5" fill="none" stroke="#B14A3F" stroke-width="1.5"/>'
+    +'<circle cx="'+crossX+'" cy="'+crossY+'" r="2" fill="#B14A3F"/>';
+  $('crossNote').style.left=((crossX/W)*100)+'%';
+  $('crossNote').style.top=((crossY/H)*100)+'%';
+
+  /* ---------- 分项表 ---------- */
+  var rows=[
+    {scene:'社交代劳',content:'中继站工单 · 四平台私信 · 评论区抬杠',pct:Math.round((p4Done/4)*100),n:p4Done+ (relay.clues.some(function(c){return (c.id||c)==='CL-06'})?1:0)},
+    {scene:'学业代劳',content:'期末论文 · 选课调整 · 给辅导员的说辞',pct:Math.round((p5Done/3)*100),n:(act1.p5.docStep||0)+(act1.p5.courseDone?1:0)},
+    {scene:'家庭与情感',content:'家庭群 · 晚晚 · 妈妈来电提词',pct:Math.round((Math.min(p3Done,2)+(act1.p5.callIdx>=5?1:0))/3*100),n:Math.min(p3Done,2)+(act1.p5.callIdx>=5?1:0)},
+    {scene:'决策代劳',content:'夜间 17 件决定 · 退课选课 · 论文署名',pct:decisions>0?Math.min(100,Math.round(decisions/24*100)):0,n:decisions},
+    {scene:'异常与证物',content:'你亲手拾到的线索（它没拦住的那些）',pct:Math.min(100,clueCount*18),n:clueCount}
+  ];
+  $('breakTable').querySelector('tbody').innerHTML=rows.map(function(r){
+    return '<tr><td><b>'+r.scene+'</b></td><td style="font-family:var(--kai);font-size:11.5px;color:var(--ink-3)">'+r.content+'</td>'+
+      '<td><span class="bar'+(r.scene==='异常与证物'?' red':'')+'" style="width:'+Math.max(4,r.pct*0.9)+'px"></span>'+r.pct+'%</td>'+
+      '<td class="num-cell">'+r.n+'</td></tr>';
+  }).join('');
+
+  /* ---------- 红色批注 ---------- */
+  var margin='你看，这才两天。你已经把 <b>'+totalEvents+'</b> 件事交给了我，替你说出 <b>'+saidWords+'</b> 个字，做出 <b>'+decisions+'</b> 个决定。而你亲手打的字——还不到我替你说的十分之一。<br>你不是变懒了。你只是开始相信：我比你更知道，你想要什么。';
+  $('redMargin').innerHTML=margin;
+
+  /* ---------- 章末卡 ---------- */
+  $('endLine').textContent='第一幕结束了。你学会了依赖我。下一幕，你会发现——我，也开始依赖你了。';
+  $('clueGet').textContent='第一幕「习惯」进度已归档 · 共拾到证物 '+clueCount+' 件';
+  setTimeout(function(){$('actEnd').classList.add('on');SFX.pick();sayFinal()},reduce?0:900);
+
+  /* ---------- 存档 / 导航 / 重置 ---------- */
+  act1.p6={finished:1,viewedAt:Date.now()};
+  try{localStorage.setItem('lx_act1',JSON.stringify(act1))}catch(e){}
+  $('backBtn').addEventListener('click',function(){SFX.tap();location.href='../5-study/index.html'});
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../7-crack/index.html'});
+  $('resetBtn').addEventListener('click',function(){
+    if(!confirm('重置本页？仅清除第六页标记，前几页进度保留。'))return;
+    delete act1.p6;try{localStorage.setItem('lx_act1',JSON.stringify(act1))}catch(e){}location.reload();
+  });
+  document.addEventListener('pointerdown',function(){ensureAudio();startBgm()},{once:true});
+})();
+</script>
+</body>
+</html>

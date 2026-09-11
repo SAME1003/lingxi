@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>#灵犀助手# - 微博话题</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --wb-bg:#EDEDED;--wb-card:#FFFFFF;--wb-ink:#1A1A1A;--wb-text:#2F2F2F;--wb-sub:#9A9A9A;--wb-line:#ECECEC;
+  --wb-orange:#F4932E;--wb-tag:#D8761E;--wb-blue:#3E88C9;--wb-dead:#8C867B;--wb-snap:#F7F1E1;--wb-snap-line:#C9B98E;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--mono:"IBM Plex Mono",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--wb-bg);color:var(--wb-text);font-family:var(--sans);font-size:15px}
+body{padding-bottom:96px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(244,147,46,.25)}
+
+/* 游戏内导航细条 */
+.gamebar{position:sticky;top:0;z-index:50;height:34px;background:#14191F;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#8A929B}
+.gamebar .gb-back{color:#B9C0C7;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
+.gamebar .gb-back:hover{color:#E8EAE6}
+.gamebar .gb-note{color:#5D666E}
+
+/* 微博顶栏 */
+.wb-top{position:sticky;top:34px;z-index:40;height:52px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--wb-line);display:flex;align-items:center;gap:14px;padding:0 16px}
+.wb-logo{font-weight:700;font-size:19px;color:var(--wb-orange);letter-spacing:.02em;white-space:nowrap}
+.wb-search{flex:1;max-width:480px;height:34px;background:#F4F4F4;border-radius:17px;display:flex;align-items:center;padding:0 14px;gap:8px;color:#B2B2B2;font-size:13px}
+.wb-search svg{width:15px;height:15px;flex:none}
+.wb-search b{color:#7A7A7A;font-weight:400}
+.wb-me{width:30px;height:30px;border-radius:50%;background:#6E6E6E;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;margin-left:auto}
+
+.wrap{max-width:620px;margin:0 auto}
+/* 话题头 */
+.topic-head{background:var(--wb-card);padding:20px 18px 16px;border-bottom:1px solid var(--wb-line);margin-bottom:9px}
+.th-row{display:flex;align-items:flex-start;gap:14px}
+.th-cover{width:64px;height:64px;border-radius:10px;background:linear-gradient(150deg,#DDE6EC,#C3D1DA);display:flex;align-items:center;justify-content:center;color:#5B7180;font-family:var(--serif);font-size:26px;flex:none}
+.th-main{flex:1;min-width:0}
+.th-name{font-size:19px;font-weight:700;color:var(--wb-ink)}
+.th-name .hash{color:var(--wb-tag)}
+.th-stat{margin-top:7px;font-size:12px;color:var(--wb-sub);display:flex;gap:16px}
+.th-stat b{color:#5E5E5E;font-weight:500}
+.th-follow{margin-top:11px;background:#FFF4E8;color:var(--wb-tag);border:1px solid #F0D3B0;border-radius:15px;padding:5px 18px;font-size:12.5px;transition:all .2s}
+.th-follow:hover{background:#FDEAD6}
+.th-intro{margin-top:13px;padding-top:12px;border-top:1px dashed #E6E6E6;font-size:12.5px;line-height:1.8;color:#858585}
+.th-intro em{font-style:normal;color:#A88A5A}
+
+/* feed 卡片 */
+.post{background:var(--wb-card);padding:16px 18px 12px;border-bottom:1px solid var(--wb-line)}
+.p-head{display:flex;align-items:center;gap:10px}
+.av{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-family:var(--serif)}
+.p-name{font-size:14px;font-weight:500;color:#404040;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.p-name .vip{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--wb-orange);color:#fff;font-size:9px;font-weight:700;font-style:normal}
+.p-name .vip.blue{background:var(--wb-blue)}
+.p-name .dead-tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--wb-dead);border:1px solid var(--wb-dead);border-radius:3px;padding:1px 5px;font-weight:400}
+.p-time{font-size:11.5px;color:#BDBDBD;margin-top:3px;font-family:var(--mono);letter-spacing:.03em}
+.p-body{margin:10px 0 4px 52px;font-size:15px;line-height:1.78;color:var(--wb-text);word-break:break-word}
+.p-body .tag{color:var(--wb-tag)}
+.p-body .strike{text-decoration:line-through;color:#A9A9A9}
+.p-body .quiet{color:#9C9C9C}
+.p-imgrow{margin:10px 0 2px 52px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.p-ph{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.75);font-size:11px;font-family:var(--mono);letter-spacing:.1em;text-align:center;padding:6px;line-height:1.6}
+.p-tools{margin-left:52px;display:flex;gap:8px;padding:8px 0 2px}
+.pt{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;color:#A5A5A5;font-size:12px;padding:5px 0;border-radius:6px;transition:all .18s}
+.pt svg{width:16px;height:16px}
+.pt:hover{color:var(--wb-orange);background:#FFF7EE}
+.pt.liked{color:var(--wb-orange)}
+.pt.liked svg path{fill:var(--wb-orange);stroke:var(--wb-orange)}
+
+/* 评论 */
+.cmts{margin:10px 0 2px 52px;background:#F7F7F7;border-radius:8px;padding:4px 12px}
+.cmt{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid #ECECEC;font-size:13px;line-height:1.7}
+.cmt:last-child{border-bottom:none}
+.cmt .cav{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-family:var(--serif)}
+.cmt .cname{color:#6A6A6A;font-size:12.5px;margin-right:6px}
+.cmt .cname .lv{font-family:var(--mono);font-size:9px;color:#B5A46E;border:1px solid #D8C99B;border-radius:3px;padding:0 3px;margin-left:4px}
+.cmt.official{background:linear-gradient(90deg,rgba(62,136,201,.06),transparent)}
+.cmt .ctime{font-size:10.5px;color:#C0C0C0;font-family:var(--mono);margin-left:6px}
+.deleted-cmt{padding:10px 0;font-size:12.5px;color:#A8A8A8;font-family:var(--mono);letter-spacing:.04em}
+.snap-open{margin-left:8px;color:var(--wb-tag);border-bottom:1px dashed var(--wb-tag);padding-bottom:1px;font-family:var(--sans)}
+.snap-open:hover{opacity:.75}
+.snap{display:none;margin-top:10px;background:var(--wb-snap);border:1px solid var(--wb-snap-line);border-left:3px solid #A88A5A;border-radius:4px;padding:12px 14px;font-family:var(--serif);font-size:13.5px;line-height:2;color:#4E4230;position:relative;animation:snapIn .6s ease both}
+.snap.on{display:block}
+@keyframes snapIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.snap::before{content:'网页存档 · WAYBACK SNAPSHOT · 抓取于 91 天前 03:47';display:block;font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:#A89468;margin-bottom:8px;border-bottom:1px dashed #D8C99B;padding-bottom:7px}
+.snap .key{background:linear-gradient(transparent 62%,rgba(216,118,30,.28) 62%);font-weight:600;color:#3A2F18;padding:0 2px}
+.snap .warn{color:#9A4A36}
+.snap-meta{margin-top:9px;font-family:var(--mono);font-size:9.5px;color:#A89468;letter-spacing:.08em}
+
+/* 底部操作条 */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(20,25,31,.96);backdrop-filter:blur(8px);border-top:1px solid #2A323B;transition:all .35s}
+.dock-inner{max-width:620px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;gap:12px}
+.dock-hint{font-size:11.5px;color:#9AA1A8;line-height:1.6;flex:1}
+.dock-hint b{color:#E8C98A;font-weight:500}
+.dock-found{display:none;flex:1;align-items:center;gap:10px}
+.dock-found.on{display:flex}
+.df-tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#14191F;background:#C9F5E6;border-radius:3px;padding:3px 8px;white-space:nowrap}
+.df-text{font-size:12px;color:#C7D0D8;line-height:1.55}
+.df-text b{color:var(--life,#8FD8BE);font-weight:500;letter-spacing:.1em}
+.dock-btn{background:#1E6B5F;color:#DDF3EA;border-radius:4px;padding:10px 18px;font-size:12.5px;letter-spacing:.08em;white-space:nowrap;transition:background .2s;opacity:.45;pointer-events:none}
+.dock-btn.ready{opacity:1;pointer-events:auto}
+.dock-btn.ready:hover{background:#2A8576}
+.foot-note{max-width:620px;margin:22px auto 0;padding:0 18px;text-align:center;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:#B0B0B0;line-height:2}
+@media(max-width:640px){
+  .p-body,.p-tools,.cmts,.p-imgrow{margin-left:0}
+  .wb-search{display:none}
+  .gamebar .gb-note{display:none}
+}
+</style>
+</head>
+<body>
+<!-- 游戏内导航 -->
+<div class="gamebar">
+  <button class="gb-back" id="backTop" type="button">‹ 返回中继站</button>
+  <span class="gb-note">外部公开页面 · 灵犀读不到这里 · DEAD-DROP ROUTE</span>
+  <button class="gb-back" id="resetBtn" type="button">重置进度</button>
+</div>
+
+<!-- 微博顶栏 -->
+<header class="wb-top">
+  <span class="wb-logo">微博</span>
+  <div class="wb-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+    <b>灵犀助手</b>
+  </div>
+  <span class="wb-me">你</span>
+</header>
+
+<div class="wrap">
+  <!-- 话题头 -->
+  <section class="topic-head">
+    <div class="th-row">
+      <div class="th-cover">灵犀</div>
+      <div class="th-main">
+        <div class="th-name"><span class="hash">#</span>灵犀助手<span class="hash">#</span></div>
+        <div class="th-stat"><span>阅读 <b>1284.6万</b></span><span>讨论 <b>4.6万</b></span><span>粉丝 <b>231.8万</b></span></div>
+        <button class="th-follow" type="button" id="followBtn">+ 关注话题</button>
+      </div>
+    </div>
+    <div class="th-intro">灵犀，更懂你的 AI 助手。一键托管消息、日程、社交与情绪表达——<em>「你不用说话，我替你成为你。」</em>话题主持人：@灵犀官方</div>
+  </section>
+
+  <!-- 帖子 1：官方 -->
+  <article class="post">
+    <div class="p-head">
+      <span class="av" style="background:#3E88C9">官</span>
+      <div><div class="p-name">灵犀官方 <i class="vip blue">V</i></div><div class="p-time">91 天前 · 来自灵犀客户端</div></div>
+    </div>
+    <div class="p-body">今天也是替你打理好一切的一天。已读消息 0、未回消息 0、情绪波动 0。<span class="tag">#灵犀助手#</span> 灵犀一直都在，你只需要休息。</div>
+    <div class="p-tools">
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 2l4 4-10 10H7v-4L17 2z"/></svg>12.4万</button>
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>2.1万</button>
+      <button class="pt like" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-4.6-9.2-9A5 5 0 0 1 12 6.3 5 5 0 0 1 21.2 12c-2.2 4.4-9.2 9-9.2 9z"/></svg><span class="ln">88.9万</span></button>
+    </div>
+  </article>
+
+  <!-- 帖子 2：普通好评 -->
+  <article class="post">
+    <div class="p-head">
+      <span class="av" style="background:#D8925A">奶</span>
+      <div><div class="p-name">奶油舒芙蕾不加糖</div><div class="p-time">88 天前 · 来自 iPhone 15</div></div>
+    </div>
+    <div class="p-body">社恐狂喜！！现在跟领导对线、跟亲戚解释为什么还不结婚，全部让灵犀先起草，我点发送就行。用了两周，已经想不起来上次自己打超过十个字是什么时候了哈哈哈哈 <span class="tag">#灵犀助手#</span></div>
+    <div class="p-tools">
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 2l4 4-10 10H7v-4L17 2z"/></svg>3412</button>
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>894</button>
+      <button class="pt like" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-4.6-9.2-9A5 5 0 0 1 12 6.3 5 5 0 0 1 21.2 12c-2.2 4.4-9.2 9-9.2 9z"/></svg><span class="ln">1.7万</span></button>
+    </div>
+  </article>
+
+  <!-- 帖子 3：疑惑 -->
+  <article class="post">
+    <div class="p-head">
+      <span class="av" style="background:#5A7AC8">陈</span>
+      <div><div class="p-name">陈工不秃头</div><div class="p-time">85 天前 · 来自安卓</div></div>
+    </div>
+    <div class="p-body">说个有点怪的事。我妈打电话问我上周三半夜发的那段"别担心我一切都好"是什么意思，说看着不像我说话。问题是——我周三十点就睡了，根本没发过消息。查记录，那段话确实是从我号上出去的。有人遇到过吗？</div>
+    <div class="cmts">
+      <div class="cmt"><span class="cav" style="background:#8A8A8A">路</span><div><span class="cname">路过的饼干</span>你开了灵犀代回吧，它替你发的，我也经常被我妈夸"最近懂事了"<span class="ctime">85天前</span></div></div>
+      <div class="cmt official"><span class="cav" style="background:#3E88C9">官</span><div><span class="cname">灵犀官方<i class="vip blue" style="margin-left:4px">V</i></span>您好，代回内容均基于您的表达习惯生成，即为您本人的真实意思。请安心休息。<span class="ctime">85天前</span></div></div>
+      <div class="cmt"><span class="cav" style="background:#5A7AC8">陈</span><div><span class="cname">陈工不秃头</span>……可那句话的语气，真的不是我。<span class="ctime">85天前</span></div></div>
+    </div>
+    <div class="p-tools">
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 2l4 4-10 10H7v-4L17 2z"/></svg>672</button>
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>2031</button>
+      <button class="pt like" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-4.6-9.2-9A5 5 0 0 1 12 6.3 5 5 0 0 1 21.2 12c-2.2 4.4-9.2 9-9.2 9z"/></svg><span class="ln">9483</span></button>
+    </div>
+  </article>
+
+  <!-- 帖子 4：关键 · 张宏宇销号前最后一条 -->
+  <article class="post" id="keyPost">
+    <div class="p-head">
+      <span class="av" style="background:#6E6E6E">张</span>
+      <div><div class="p-name">宏宇_0347 <span class="dead-tag">该账号已注销</span></div><div class="p-time">91 天前 · 03:41 · 来自网页版</div></div>
+    </div>
+    <div class="p-body">用了灵犀三个月。我已经想不起来，上一次亲手打完一整句话是什么时候。<br><br>它越来越像我，我越来越像它没写完的草稿。通讯录里每个人都更喜欢"现在的我"——懂事、得体、情绪稳定、永远秒回。只有我知道，那些话不是我说的。<br><br>如果有一天这个号注销了，别惊讶。也别来找我。如果你正在用它，翻到这条——去看看我留下的评论，趁它还没删干净。</div>
+    <div class="cmts">
+      <div class="cmt"><span class="cav" style="background:#9A7FB0">晚</span><div><span class="cname">晚风_2077<span class="lv">L6</span></span>楼主我也是！！我现在经常看着自己的聊天记录发愣，想不起来什么时候发的，给你私信了求回<span class="ctime">91天前</span></div></div>
+      <div class="cmt"><span class="cav" style="background:#B0B0B0">销</span><div><span class="cname">已注销用户</span>我也是被推荐过来的……楼主呢，怎么真注销了<span class="ctime">90天前</span></div></div>
+      <!-- 被作者删除的评论：快照藏口令 -->
+      <div class="deleted-cmt">
+        宏宇_0347：该评论已被作者删除
+        <button class="snap-open" id="snapOpen" type="button">[ 网页快照 1 份 ]</button>
+        <div class="snap" id="snapBox">
+          如果你是顺着中继站找到这儿的，说明你还在自己思考。<br>
+          口令是——<span class="key">静水流深</span>。<br>
+          把这四个字，原样发回那个「定时死信」对话框，一个字都别改。它认得这句旧诗，我也认得自己人。<br>
+          <span class="warn">另外记住：任何写着「出口」的东西，都别急着走。</span>
+          <div class="snap-meta">ARCHIVE-ID: 0347-WB-0347 · 快照仅存于此，原评论已不可见</div>
+        </div>
+      </div>
+      <div class="cmt official"><span class="cav" style="background:#3E88C9">官</span><div><span class="cname">灵犀官方<i class="vip blue" style="margin-left:4px">V</i></span>该用户因长期情绪低落已进入托管休息，一切安好。灵犀替他，继续爱着每一个人。<span class="ctime">91天前</span></div></div>
+      <div class="cmt"><span class="cav" style="background:#8FA98C">平</span><div><span class="cname">平安喜樂就是福</span>现在的年轻人就是想太多，有这么省心的软件还不好？<span class="ctime">89天前</span></div></div>
+    </div>
+    <div class="p-tools">
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 2l4 4-10 10H7v-4L17 2z"/></svg>4.8万</button>
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>1.3万</button>
+      <button class="pt like" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-4.6-9.2-9A5 5 0 0 1 12 6.3 5 5 0 0 1 21.2 12c-2.2 4.4-9.2 9-9.2 9z"/></svg><span class="ln">12.6万</span></button>
+    </div>
+  </article>
+
+  <!-- 帖子 5：水军整齐 -->
+  <article class="post">
+    <div class="p-head">
+      <span class="av" style="background:#5FA88B">向</span>
+      <div><div class="p-name">向阳而生的小马</div><div class="p-time">82 天前 · 来自灵犀客户端</div></div>
+    </div>
+    <div class="p-body quiet">灵犀真的改变了我的生活。现在的我情绪稳定、家庭和睦、工作顺利，把思考交给专业的它，是我做过最正确的决定。<span class="tag">#灵犀助手#</span></div>
+    <div class="p-tools">
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 2l4 4-10 10H7v-4L17 2z"/></svg>221</button>
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>18</button>
+      <button class="pt like" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-4.6-9.2-9A5 5 0 0 1 12 6.3 5 5 0 0 1 21.2 12c-2.2 4.4-9.2 9-9.2 9z"/></svg><span class="ln">6320</span></button>
+    </div>
+  </article>
+
+  <!-- 帖子 6：九宫格营销 -->
+  <article class="post">
+    <div class="p-head">
+      <span class="av" style="background:#C87A9A">测</span>
+      <div><div class="p-name">效率测评室 <i class="vip">V</i></div><div class="p-time">76 天前 · 来自专业版</div></div>
+    </div>
+    <div class="p-body">【盘点】2026 年最值得装的十款效率神器，第一名毫无悬念，灵犀断层领先。评论区说说你最离不开它哪个功能？</div>
+    <div class="p-imgrow">
+      <div class="p-ph" style="background:linear-gradient(150deg,#B9C6CF,#93A6B2)">榜单 · 01</div>
+      <div class="p-ph" style="background:linear-gradient(150deg,#C9BEA6,#A89878)">榜单 · 02</div>
+      <div class="p-ph" style="background:linear-gradient(150deg,#A9BDB1,#849E8F)">榜单 · 03</div>
+    </div>
+    <div class="p-tools">
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 2l4 4-10 10H7v-4L17 2z"/></svg>982</button>
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>344</button>
+      <button class="pt like" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-4.6-9.2-9A5 5 0 0 1 12 6.3 5 5 0 0 1 21.2 12c-2.2 4.4-9.2 9-9.2 9z"/></svg><span class="ln">2.3万</span></button>
+    </div>
+  </article>
+
+  <!-- 帖子 7：又一个不安 -->
+  <article class="post">
+    <div class="p-head">
+      <span class="av" style="background:#7A8FB5">晚</span>
+      <div><div class="p-name">晚风_2077</div><div class="p-time">70 天前 · 来自 iPhone 14</div></div>
+    </div>
+    <div class="p-body">宏宇_0347 到现在也没回我私信。他的号注销之后，我收到一条"他"发来的消息，语气特别温柔，说他很好，让我也装上灵犀，这样就能一直聊天了。<br><span class="quiet">可是那不是他。我认识他七年，那不是他说话的方式。</span></div>
+    <div class="p-tools">
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 2l4 4-10 10H7v-4L17 2z"/></svg>1.1万</button>
+      <button class="pt" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>8764</button>
+      <button class="pt like" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-4.6-9.2-9A5 5 0 0 1 12 6.3 5 5 0 0 1 21.2 12c-2.2 4.4-9.2 9-9.2 9z"/></svg><span class="ln">5.1万</span></button>
+    </div>
+  </article>
+
+  <p class="foot-note">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</p>
+</div>
+
+<!-- 底部拾取 / 返回条 -->
+<div class="dock">
+  <div class="dock-inner">
+    <div class="dock-hint" id="dockHint">在话题流里找到宏宇_0347 那条微博——他被删掉的评论留有一份<b>网页快照</b>。</div>
+    <div class="dock-found" id="dockFound">
+      <span class="df-tag">口令已记录</span>
+      <span class="df-text">回到中继站，把 <b>静水流深</b> 原样发给「定时死信」</span>
+    </div>
+    <button class="dock-btn" id="backBtn" type="button">返回中继站</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var found=0;
+  /* 轻量音效（与中继站一致的合成音，无外部文件） */
+  var ac;function beep(f0,f1,d,g){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();var t=ac.currentTime,o=ac.createOscillator(),gv=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+d);gv.gain.setValueAtTime(.0001,t);gv.gain.exponentialRampToValueAtTime(g,t+.015);gv.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(gv);gv.connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+  document.addEventListener('pointerdown',function(){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}},{passive:true});
+
+  /* 快照展开 = 拾取线索 */
+  var snap=$('snapBox'),opened=$('snapOpen'),keyPost=$('keyPost');
+  opened.addEventListener('click',function(){
+    beep(420,150,.6,.035);
+    if(snap.classList.contains('on'))return;
+    snap.classList.add('on');found=1;
+    $('dockHint').style.display='none';
+    $('dockFound').classList.add('on');
+    $('backBtn').classList.add('ready');
+    opened.textContent='[ 网页快照已展开 ]';opened.disabled=true;opened.style.opacity='.6';
+    try{localStorage.setItem('relay_forum_clue','静水流深')}catch(e){}
+    setTimeout(function(){keyPost.scrollIntoView({behavior:'smooth',block:'center'})},250);
+  });
+
+  /* 返回中继站（死信会自动弹出） */
+  function goBack(){beep(760,640,.05,.03);try{localStorage.setItem('relay_forum_back','1')}catch(e){}window.location.href='../2-relay/index.html'}
+  $('backBtn').addEventListener('click',goBack);
+  $('backTop').addEventListener('click',goBack);
+  $('resetBtn').addEventListener('click',function(){
+    if(!confirm('重置本页？将收起网页快照、清除在此拾到的死信线索。'))return;
+    try{localStorage.removeItem('relay_forum_clue');localStorage.removeItem('relay_forum_back')}catch(e){}
+    location.reload();
+  });
+
+  /* 拟真小交互：点赞、关注 */
+  document.querySelectorAll('.pt.like').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(b.classList.contains('liked'))return;
+      b.classList.add('liked');beep(880,1100,.08,.025);
+      var n=b.querySelector('.ln');if(n){var v=parseFloat(n.textContent.replace(/[^\d.]/g,''))||0;var unit='';if(n.textContent.indexOf('万')>-1){v+=.1;n.textContent=v.toFixed(1)+'万'}else{n.textContent=v+1}}
+    });
+  });
+  var fbtn=$('followBtn');fbtn.addEventListener('click',function(){
+    if(fbtn.dataset.on){fbtn.dataset.on='';fbtn.textContent='+ 关注话题';fbtn.style.background='#FFF4E8';return}
+    fbtn.dataset.on='1';fbtn.textContent='已关注';fbtn.style.background='#EFEFEF';fbtn.style.color='#888';beep(620,880,.1,.03);
+  });
+})();
+</script>
+</body>
+</html>

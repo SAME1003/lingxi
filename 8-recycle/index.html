@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第二幕 · 裂缝 — 相册回收站</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000;color:#E8EAE6;font-family:var(--sans);user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(177,74,63,.4)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:0}}
+@keyframes pulseRing{0%,100%{opacity:.4}50%{opacity:.95}}
+.layer{position:fixed;inset:0;display:none;z-index:10}.layer.on{display:block}
+
+/* ===== 桌面 ===== */
+#desktop{z-index:15;display:none;overflow:hidden;background-image:radial-gradient(ellipse 90% 70% at 24% 18%,rgba(30,107,95,.22),transparent 60%),radial-gradient(ellipse 85% 65% at 82% 88%,rgba(52,84,110,.2),transparent 62%),linear-gradient(155deg,#10171F 0%,#0B1016 48%,#080B0F 100%)}
+#desktop.on{display:block;animation:fadeIn .5s both}
+#desktop::after{content:'';position:absolute;right:-6%;top:46%;transform:translateY(-50%);width:min(560px,62vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,transparent 0,transparent 21%,rgba(143,216,190,.07) 21.6%,transparent 23%,transparent 33%,rgba(143,216,190,.055) 33.6%,transparent 35%,transparent 47%,rgba(143,216,190,.045) 47.6%,transparent 49%,transparent 63%,rgba(143,216,190,.03) 63.6%,transparent 65%);pointer-events:none;z-index:1}
+.desk-icons{position:absolute;top:16px;left:14px;display:grid;grid-template-columns:80px;gap:4px;z-index:5}
+.dicon{width:80px;text-align:center;cursor:pointer;padding:8px 3px 6px;border:1px solid transparent;border-radius:2px;transition:background .12s,border-color .12s,transform .08s}
+.dicon:hover{background:rgba(130,175,235,.16);border-color:rgba(130,175,235,.3)}.dicon:active{transform:scale(.92)}
+.dicon svg{width:44px;height:44px;display:block;margin:0 auto 5px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.65))}
+.dicon .nm{font-size:11px;color:#EDEFF2;line-height:1.4;text-shadow:0 1px 2px #000,0 0 7px rgba(0,0,0,.85)}
+.dicon.disabled{opacity:.55}.dicon.disabled .nm{color:#C2C8CE}
+
+/* ===== 回收站窗口 ===== */
+.win{position:absolute;background:#F4F1EA;border:1px solid #B4B0A6;border-radius:5px;box-shadow:0 30px 80px -20px rgba(0,0,0,.85);overflow:hidden;display:none;z-index:30}
+.win.on{display:block;animation:winPop .3s var(--ease) both}
+@keyframes winPop{from{opacity:0;transform:translateX(-50%) scale(.97)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+.win-bar{height:34px;background:linear-gradient(180deg,#2A2F36,#1B2026);color:#D7DCE1;display:flex;align-items:center;padding:0 10px;gap:8px;font-size:11.5px;cursor:move;user-select:none}
+.win-bar .dots{display:flex;gap:5px}.win-bar .dots i{width:9px;height:9px;border-radius:50%}.win-bar .dots i:nth-child(1){background:#B14A3F}.win-bar .dots i:nth-child(2){background:#C9A227}.win-bar .dots i:nth-child(3){background:#1E6B5F}
+.win-bar .ttl{flex:1;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win-bar .wbtn{width:24px;height:20px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#8A929B;cursor:pointer;border-radius:2px}.win-bar .wbtn:hover{background:rgba(255,255,255,.1);color:#fff}
+.crumb{height:30px;background:#E7E4DC;border-bottom:1px solid #D4D0C6;display:flex;align-items:center;gap:6px;padding:0 14px;font-size:11px;color:#5A636C}
+.crumb b{color:#1B2026;font-weight:500}.crumb .sep{color:#A8A49A}
+.win-toolbar{height:38px;background:#EFECE4;border-bottom:1px solid #DAD6CC;display:flex;align-items:center;gap:8px;padding:0 14px;font-size:11px;color:#6A727B}
+.tb-btn{border:1px solid #C6C2B8;background:linear-gradient(180deg,#FBFAF7,#ECE9E1);padding:4px 11px;border-radius:2px;color:#5A636C;font-size:10.5px}.tb-btn:disabled{opacity:.45;cursor:default}
+.tb-spacer{flex:1}
+.tb-count{font-family:var(--mono);font-size:10px;color:#8A8478}
+
+.bin-body{display:flex;height:calc(100% - 102px)}
+.bin-main{flex:1;padding:16px 18px;overflow-y:auto}
+.bin-side{width:190px;flex:none;background:#EDEAE2;border-left:1px solid #D4D0C6;padding:12px 13px;display:flex;flex-direction:column}
+.side-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8A8478;margin-bottom:9px}
+.op-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;font-size:10.5px;line-height:1.5}
+.op-item{font-family:var(--kai);color:#3A414A;animation:fadeUp .3s both}
+.op-item .ot{display:block;font-family:var(--mono);font-size:8.5px;color:#9A9488;margin-bottom:1px}
+.op-item.lx{color:var(--seal)}.op-item.warn{color:var(--red-pen)}
+
+/* 照片网格 */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:14px}
+.pcard{background:#fff;border:1px solid #E0DDD4;border-radius:3px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.pcard:hover{border-color:var(--seal);box-shadow:0 8px 22px -10px rgba(30,107,95,.4);transform:translateY(-2px)}
+.pcard .thumb{height:128px;position:relative;overflow:hidden;background:#14191F}
+.pcard .thumb .fit{position:absolute;inset:0;width:100%;height:100%;transition:filter .45s,transform .45s}
+.pcard:not(.done) .thumb .fit{filter:blur(5px) brightness(.74) saturate(.9);transform:scale(1.1)}
+.pcard.done .thumb .fit{filter:none;transform:none}
+.pcard.done .thumb::after{content:'已恢复';position:absolute;left:7px;top:7px;background:rgba(30,107,95,.92);color:#DFF3EC;font-family:var(--kai);font-size:9.5px;padding:2px 7px;border-radius:2px;letter-spacing:.08em;z-index:3}
+.pcard .pmeta{padding:8px 10px 9px}
+.pcard .pfn{font-family:var(--mono);font-size:10px;color:#3A414A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard .pdel{font-family:var(--kai);font-size:10px;color:#9A9488;margin-top:2px;display:flex;justify-content:space-between}
+.pcard .pdel .bad{color:var(--red-pen)}
+.pcard .corner{position:absolute;right:7px;bottom:7px;font-family:var(--mono);font-size:7.5px;letter-spacing:.06em;color:rgba(255,255,255,.5);opacity:0;transition:opacity .4s;text-shadow:0 1px 2px #000;z-index:3}
+.pcard.done .corner{opacity:.85}
+.pcard .scratch{display:none}
+.pcard:not(.done):not(.self) .thumb::before{content:'损坏 · 点击修复';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#EDEFF2;font-family:var(--kai);font-size:11px;letter-spacing:.12em;background:linear-gradient(135deg,rgba(8,11,14,.22),rgba(8,11,14,.45));z-index:2;text-shadow:0 1px 3px #000}
+/* 结论：揭开损坏区后才显现 */
+.pic .lock-note{opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .5s .15s,transform .5s .15s,visibility 0s linear .65s}
+.pic.unlocked .lock-note{opacity:1;visibility:visible;transform:none;transition:opacity .5s .15s,transform .5s .15s}
+/* 第5张：玩家截屏，默认隐藏 */
+.pcard.self{display:none;border-style:dashed;border-color:var(--red-pen);background:#FBF3F1}
+.pcard.self.show{display:block;animation:selfPop .7s var(--ease) both}
+@keyframes selfPop{0%{opacity:0;transform:scale(.9) translateY(10px)}60%{transform:scale(1.02)}100%{opacity:1;transform:none}}
+.pcard.self .thumb{background:#0A0D11}
+.pcard.self .pdel .bad{font-weight:700}
+/* ===== 照片查看器 ===== */
+#viewer{position:fixed;inset:0;z-index:60;background:#05070A;display:none;align-items:center;justify-content:center;padding:34px}
+#viewer.on{display:flex;animation:fadeIn .25s both}
+.vw-box{width:min(560px,94vw);background:#14191F;border:1px solid #333B44;border-radius:6px;overflow:hidden;box-shadow:0 40px 100px -20px #000;animation:vwIn .32s var(--ease) both}
+@keyframes vwIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+.vw-top{height:38px;background:#1B2026;display:flex;align-items:center;padding:0 12px;gap:9px;color:#C7CDD4;font-size:11.5px}
+.vw-top .vfn{font-family:var(--mono);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vw-top .vx{width:24px;height:22px;display:flex;align-items:center;justify-content:center;color:#8A929B;cursor:pointer;font-size:15px}.vw-top .vx:hover{background:rgba(255,255,255,.12);color:#fff}
+.vw-stage{position:relative;background:#0A0D11;min-height:320px;max-height:62vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.vw-stage .pic{position:relative;width:100%;max-height:62vh;overflow:hidden}
+.vw-stage .pic.real img{display:block;width:100%}
+.vw-hint{padding:9px 14px;background:#11161C;border-top:1px solid #232A31;font-family:var(--kai);font-size:11.5px;color:#9AA4AF;line-height:1.6;min-height:34px}
+.vw-hint b{color:var(--term);font-weight:400}
+.vw-exif{padding:8px 14px 12px;font-family:var(--mono);font-size:9.5px;line-height:1.7;color:#6E7881;border-top:1px dashed #232A31;display:none}
+.vw-exif.on{display:block}.vw-exif .hl{color:var(--red-pen)}
+
+/* 刮开损坏区 */
+.corrupt{position:absolute;z-index:5;cursor:pointer;overflow:hidden;border:1px dashed rgba(255,255,255,.25);
+  background:repeating-linear-gradient(0deg,#2A2F36 0 8px,#20252B 8px 16px),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 8px,transparent 8px 16px);
+  background-blend-mode:overlay;display:flex;align-items:center;justify-content:center;color:#C7CDD4;font-family:var(--kai);font-size:12px;letter-spacing:.12em;text-align:center;transition:opacity .5s,filter .5s}
+.corrupt::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 7px,rgba(0,0,0,.25) 7px 9px);animation:corruptShift .3s infinite}
+@keyframes corruptShift{from{background-position:0 0}to{background-position:12px 12px}}
+.corrupt .ctap{position:relative;z-index:2;background:rgba(0,0,0,.55);padding:6px 14px;border-radius:2px;border:1px solid rgba(255,255,255,.18)}
+.corrupt.fixing{cursor:wait}.corrupt.fixing .ctap{content:'修复中'}
+.corrupt.revealed{opacity:0;pointer-events:none;filter:blur(8px)}
+.scan-repair{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;background:linear-gradient(180deg,transparent,rgba(143,216,190,.28),transparent);height:30%}
+.scan-repair.go{opacity:1;animation:repairScan .55s var(--ease)}
+@keyframes repairScan{0%{top:-30%}100%{top:100%}}
+.wm-relay{position:absolute;z-index:4;right:8px;bottom:7px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:rgba(255,255,255,.62);text-shadow:0 1px 3px #000;opacity:0;transition:opacity .6s .2s}
+.wm-relay.on{opacity:1}.wm-relay.dark{color:rgba(27,32,38,.5);text-shadow:none}
+
+/* 仿真：微信聊天 */
+.mock-wechat{width:100%;background:#EDEDED;font-family:var(--sans);padding:14px 12px;font-size:12.5px;line-height:1.5}
+.mock-wechat .wx-top{text-align:center;color:#9AA0A6;font-size:10.5px;margin-bottom:12px}
+.wx-msg{display:flex;margin-bottom:13px;gap:8px;align-items:flex-start}
+.wx-msg.me{flex-direction:row-reverse}
+.wx-ava{width:32px;height:32px;border-radius:5px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff}
+.wx-ava.wan{background:#6E8FB0}.wx-ava.zhang{background:#4A6078}
+.wx-bub{max-width:68%;padding:8px 11px;border-radius:4px;position:relative;background:#fff;color:#1B2026}
+.wx-msg.me .wx-bub{background:#95EC69}
+.wx-time{font-size:10px;color:#9AA0A6;margin:2px 0 4px}
+.wx-flag{font-family:var(--kai);font-size:10px;color:var(--red-pen);margin-top:5px;border-top:1px dashed #D9C7C4;padding-top:4px}
+
+/* 仿真：使用报告 */
+.mock-report{width:100%;background:#FBFAF7;padding:16px 18px;font-family:var(--sans)}
+.mock-report .r-title{font-family:var(--serif);font-size:14px;font-weight:700;color:#1B2026}.mock-report .r-sub{font-size:10px;color:#9A9488;margin:3px 0 12px}
+.r-legend{display:flex;gap:16px;font-size:10.5px;color:#5A636C;margin-bottom:8px}.r-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.r-note{font-family:var(--kai);font-size:11px;color:var(--red-pen);margin-top:10px;line-height:1.7}
+
+/* 仿真：权限弹窗 */
+.mock-perm{width:100%;background:#0B1118;padding:0;font-family:var(--sans)}
+.mock-perm .ptitlebar{height:30px;background:#1B2026;display:flex;align-items:center;padding:0 12px;color:#C7CDD4;font-size:11px;gap:8px}
+.mock-perm .pbody{padding:20px 22px;color:#D7DCE1}
+.mock-perm .pname{font-size:13px;margin-bottom:5px}.mock-perm .pdesc{font-size:11px;color:#9AA4AF;line-height:1.8;margin-bottom:14px}
+.perm-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;padding:7px 0;border-top:1px solid #202830;color:#B9C0C8}
+.perm-row .v{color:var(--term)}.perm-row .v.wrong{color:var(--red-pen);font-weight:700}
+.mock-perm .pbtns{display:flex;gap:10px;justify-content:flex-end;padding:0 22px 20px}
+.mock-perm .pbtns span{font-size:11px;padding:6px 18px;border-radius:2px;border:1px solid #3A4450;color:#D7DCE1;background:#1B2026}.mock-perm .pbtns span.ok{background:#1E6B5F;border-color:#1E6B5F;color:#fff}
+
+/* 递归屏摄（玩家截屏） */
+.mock-screen{width:100%;background:#05070A;padding:18px;display:flex;justify-content:center}
+.recur{width:300px;max-width:78%;background:#0A0D11;border:8px solid #151A20;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8),inset 0 0 30px rgba(143,216,190,.06);transform:perspective(700px) rotateX(4deg);position:relative;overflow:hidden}
+.recur::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 2px,transparent 2px 4px);pointer-events:none}
+.recur .r-bar{height:20px;background:#1B2026;display:flex;align-items:center;padding:0 8px;gap:4px}.recur .r-bar i{width:6px;height:6px;border-radius:50%}.recur .r-bar i:nth-child(1){background:#B14A3F}.recur .r-bar i:nth-child(2){background:#C9A227}.recur .r-bar i:nth-child(3){background:#1E6B5F}
+.recur .r-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px}
+.recur .r-cell{aspect-ratio:1.4;background:#14191F;border:1px solid #232A31;border-radius:2px;position:relative;overflow:hidden}
+.recur .r-cell::before{content:'';position:absolute;inset:18%;background:repeating-linear-gradient(45deg,#20262D 0 4px,#181D23 4px 8px)}
+.recur .r-cell.me{border-color:var(--red-pen)}.recur .r-cell.me::before{background:rgba(177,74,63,.25)}
+.recur-in{position:absolute;inset:30% 22% 10%;border:1px solid rgba(143,216,190,.28);border-radius:3px;opacity:.85;transform:scale(.9);background:#0A0F14;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:4px}
+.recur-in span{background:#161D24;border-radius:1px}.recur-in span:nth-child(5){background:rgba(177,74,63,.55);box-shadow:0 0 6px rgba(177,74,63,.6)}
+.self-cap{font-family:var(--kai);font-size:11px;color:var(--red-pen);text-align:center;padding:0 16px 16px;line-height:1.8}
+.cap-over{position:absolute;left:0;right:0;bottom:0;padding:14px 16px 12px;background:linear-gradient(180deg,transparent,rgba(4,6,9,.92));font-family:var(--kai);font-size:12px;line-height:1.7;color:#E7C9C4;letter-spacing:.04em}
+.cap-over b{color:var(--red-pen);font-weight:400}
+.cap-open{margin:10px auto 0;display:block;border:1px solid var(--red-pen);color:#E7C9C4;background:rgba(177,74,63,.14);font-family:var(--kai);font-size:11.5px;letter-spacing:.1em;padding:7px 16px;border-radius:2px;cursor:pointer;transition:background .2s}.cap-open:hover{background:rgba(177,74,63,.3)}
+
+/* ===== 紧急数独弹窗 ===== */
+#sudoku{position:fixed;inset:0;z-index:70;background:#05070A;display:none;align-items:center;justify-content:center;padding:26px;overflow-y:auto}
+#sudoku.on{display:flex;animation:fadeIn .3s both}
+.sd-box{width:min(480px,94vw);background:#10151B;border:1px solid #33232A;border-radius:6px;box-shadow:0 40px 110px -20px #000,0 0 0 1px rgba(177,74,63,.18);overflow:hidden;animation:vwIn .34s var(--ease) both}
+.sd-top{background:linear-gradient(180deg,#241719,#1A1214);border-bottom:1px solid #3A2326;padding:13px 16px;display:flex;align-items:center;gap:9px}
+.sd-dot{width:9px;height:9px;border-radius:50%;background:var(--red-pen);animation:pulseRing 1.1s infinite}
+.sd-top .sd-ttl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#E0A39B;flex:1}
+.sd-body{padding:18px 18px 16px}
+.sd-zhang{font-family:var(--kai);font-size:13px;line-height:1.85;color:#E7C9C4;border-left:2px solid var(--red-pen);padding:2px 0 2px 12px;margin-bottom:16px}
+.sd-zhang em{color:var(--red-pen);font-style:normal;letter-spacing:.06em}
+.sd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;width:264px;max-width:74vw;margin:0 auto 14px;border:2px solid #5A636C}
+.sd-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:21px;border:1px solid #2C333B;background:#161C22;color:#E8EAE6;cursor:pointer;transition:background .15s}
+.sd-cell:nth-child(2n){border-right:1px solid #2C333B}
+.sd-cell.given{background:#1E252C;color:#9AA4AF;cursor:default;font-weight:700}
+.sd-cell.sel{background:#243A38;box-shadow:inset 0 0 0 2px var(--seal)}
+.sd-cell.wrong{background:#3A2123;color:var(--red-pen);animation:sdShake .4s}
+.sd-cell.ok{color:var(--term)}
+/* 四宫粗分隔 */
+.sd-cell:nth-child(4n){border-right:none}
+.sd-cell:nth-child(n+13){border-bottom:none}
+.sd-grid .bR{border-right:2px solid #5A636C!important}
+.sd-grid .bB{border-bottom:2px solid #5A636C!important}
+.sd-pad{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+.sd-key{width:46px;height:42px;border:1px solid #39424B;background:#1A2128;color:#D7DCE1;font-family:var(--mono);font-size:17px;border-radius:3px;cursor:pointer;transition:all .15s}.sd-key:hover{border-color:var(--seal);color:var(--term)}
+.sd-key.clr{width:auto;padding:0 14px;font-family:var(--kai);font-size:12px;letter-spacing:.1em}
+.sd-msg{min-height:20px;text-align:center;font-family:var(--kai);font-size:11.5px;color:#B9C0C7;margin-bottom:12px;line-height:1.6}
+.sd-msg.bad{color:var(--red-pen)}.sd-msg.good{color:var(--term)}
+.sd-verify{display:block;width:100%;background:#3A444D;color:#E8EAE6;border:1px solid #4C5862;font-family:var(--serif);font-size:13px;letter-spacing:.14em;padding:11px;border-radius:3px;cursor:pointer;transition:all .2s}
+.sd-verify:hover{border-color:var(--seal);color:var(--term)}
+.sd-verify:disabled{opacity:.4;cursor:default}
+.sd-note{margin-top:13px;padding-top:11px;border-top:1px dashed #333B43;font-family:var(--kai);font-size:11px;line-height:1.7;color:#7E8A93;text-align:center}
+.sd-note em{color:var(--red-pen);font-style:normal;letter-spacing:.05em}
+.sd-done{display:none;text-align:center;padding:8px 4px 4px}
+.sd-done.on{display:block;animation:fadeUp .4s both}
+.sd-done .sd-ln{font-family:var(--kai);font-size:13.5px;line-height:1.9;color:var(--term);margin-bottom:16px}
+@keyframes sdShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* 归档与结尾 */
+.clue-get{display:none;font-family:var(--serif);font-size:12px;color:var(--seal);border:1px solid var(--seal);border-radius:2px;padding:8px 14px;margin:16px auto 0;text-align:center;width:fit-content}
+.clue-get.on{display:block;animation:fadeUp .5s both}
+.bin-foot{padding:4px 18px 18px;text-align:center}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:12.5px;letter-spacing:.08em;padding:11px 24px;border-radius:2px;margin:6px auto 0}
+.btn-next.on{display:block;animation:fadeUp .5s both}.btn-next:hover{box-shadow:0 0 22px -5px rgba(177,74,63,.65)}
+.foot-warn{font-family:var(--kai);font-size:10px;color:#8A8478;text-align:center;margin-top:8px;display:none}.foot-warn.on{display:block}
+
+/* 灵犀插话 */
+.lx-toast{position:absolute;top:52px;left:50%;transform:translateX(-50%);background:rgba(20,82,75,.96);color:#DFF3EC;font-family:var(--kai);font-size:12px;letter-spacing:.03em;padding:9px 18px;border-radius:2px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);z-index:35;display:none;max-width:80%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+
+/* 任务栏 */
+.taskbar{position:absolute;bottom:0;left:0;right:0;height:38px;background:rgba(10,13,17,.9);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;gap:6px;z-index:20}
+.tb-start{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:2px}
+.tb-start .flag{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;width:16px;height:16px}.tb-start .flag i{display:block}.tb-start .flag i:nth-child(1){background:#F25022}.tb-start .flag i:nth-child(2){background:#7FBA00}.tb-start .flag i:nth-child(3){background:#00A4EF}.tb-start .flag i:nth-child(4){background:#FFB900}
+.tb-search{flex:1;max-width:260px;height:26px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:2px;display:flex;align-items:center;padding:0 10px;font-size:10.5px;color:#6E7881;font-family:var(--kai)}
+.tb-tray{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:10px;color:#8A929B;padding-right:4px}
+.tb-tray .view{font-family:var(--kai);color:var(--term);border:1px solid rgba(143,216,190,.25);padding:2px 7px;border-radius:2px;font-size:9.5px}
+.tb-tray .clock{text-align:right;line-height:1.3}
+
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:30px;background:rgba(10,13,17,.92);display:none;align-items:center;justify-content:space-between;padding:0 12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#5A636C}
+.gamebar.on{display:flex}
+.gamebar span[class*=gb]{cursor:pointer;color:#7E8890}.gamebar span[class*=gb]:hover{color:#E8EAE6}
+@media(max-width:720px){.bin-side{display:none}.win{width:calc(100% - 24px)!important;left:12px!important;top:44px}.photo-grid{grid-template-columns:repeat(2,1fr);gap:9px}.tb-search{display:none}}
+</style>
+</head>
+<body>
+<div class="layer" id="desktop">
+  <div class="desk-icons">
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none">
+        <defs><linearGradient id="pcScr" x1="6" y1="7" x2="36" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#E9EDF2"/><stop offset="1" stop-color="#B4BEC9"/></linearGradient><linearGradient id="pcTower" x1="31" y1="22" x2="42" y2="36" gradientUnits="userSpaceOnUse"><stop stop-color="#E4E9EF"/><stop offset="1" stop-color="#A9B3BF"/></linearGradient></defs>
+        <rect x="5" y="7" width="29" height="21" rx="1.6" fill="url(#pcScr)" stroke="#DCE1E8" stroke-width="1.1"/><rect x="8" y="10" width="23" height="15" rx="1" fill="#16222E"/>
+        <path d="M17 28h6l1.1 3.6H15.9z" fill="#C4CCD6"/><rect x="13" y="31.8" width="14" height="2.3" rx="1.1" fill="#A7B0BB"/>
+        <rect x="30" y="21" width="12" height="14.5" rx="1.6" fill="url(#pcTower)" stroke="#DCE1E8" stroke-width="1.1"/><circle cx="36" cy="24.4" r="1.05" fill="#8FD8BE"/>
+      </svg><div class="nm">此电脑</div>
+    </div>
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none">
+        <path d="M14 16h20l-1.7 23.6a2.6 2.6 0 0 1-2.6 2.4H18.3a2.6 2.6 0 0 1-2.6-2.4z" fill="#9FC3B6" stroke="#7FA89A" stroke-width="1.1"/>
+        <path d="M10.5 12.5h27v3.2h-27z" fill="#8FB6A8"/><path d="M19 9.5h10l1.2 3H17.8z" fill="#B2CFC4" stroke="#7FA89A" stroke-width=".9"/>
+        <path d="M20 21v14.5M24 21v14.5M28 21v14.5" stroke="#5E8075" stroke-width="1.3" stroke-linecap="round"/>
+      </svg><div class="nm">回收站（打开中）</div>
+    </div>
+    <div class="dicon disabled">
+      <svg viewBox="0 0 48 48" fill="none"><defs><radialGradient id="lxBg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#3E7F73"/><stop offset="1" stop-color="#173D38"/></radialGradient></defs><circle cx="24" cy="24" r="17.5" fill="url(#lxBg)" stroke="#7FA89A" stroke-width="1.1"/><circle cx="24" cy="24" r="11.5" stroke="#CFEAE0" stroke-width="1.3" opacity=".55"/><circle cx="24" cy="24" r="6.6" fill="#DFF3EC" opacity=".8"/><circle cx="24" cy="24" r="2.5" fill="#10302B"/></svg>
+      <div class="nm">灵犀 · 已禁用</div>
+    </div>
+  </div>
+
+  <!-- 回收站窗口 -->
+  <div class="win on" id="winBin" style="left:50%;top:52px;transform:translateX(-50%);width:860px;max-width:calc(100% - 120px);height:648px;max-height:calc(100vh - 96px)">
+    <div class="win-bar" id="binBar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">回收站 · 相册（保留 30 天）</span><span class="wbtn" id="binMin">—</span></div>
+    <div class="crumb"><span>此电脑</span><span class="sep">›</span><span>灵犀云同步盘</span><span class="sep">›</span><b>相册回收站</b></div>
+    <div class="win-toolbar">
+      <button class="tb-btn" disabled>还原选定的项目</button><button class="tb-btn" disabled>永久删除</button>
+      <span class="tb-spacer"></span><span class="tb-count" id="binCount">已恢复 0 / 4 · 共 5 项</span>
+    </div>
+    <div class="bin-body">
+      <div class="bin-main">
+        <div class="photo-grid" id="photoGrid">
+
+          <!-- 1 聊天截图 -->
+          <div class="pcard" data-key="chat">
+            <div class="thumb">
+              <div class="fit" style="background:#EDEDED;padding:10px 8px;font-size:8px;line-height:1.25">
+                <div style="text-align:center;color:#9AA0A6;margin-bottom:6px">昨天 21:14</div>
+                <div style="display:flex;gap:5px;margin-bottom:6px"><span style="width:16px;height:16px;background:#6E8FB0;border-radius:2px;flex:none"></span><span style="background:#fff;padding:4px 6px;border-radius:3px;color:#333">你今天怎么……一个人？</span></div>
+                <div style="display:flex;flex-direction:row-reverse;gap:5px"><span style="width:16px;height:16px;background:#4A6078;border-radius:2px;flex:none"></span><span style="background:#95EC69;padding:4px 6px;border-radius:3px;color:#1a3a12">想一个人待着，别来</span></div>
+              </div>
+              <div class="scratch"></div><span class="corner">RELAY · 0347</span>
+            </div>
+            <div class="pmeta"><div class="pfn">IMG_0311_聊天.jpg</div><div class="pdel"><span>删除于 3 天前 14:02</span><span class="bad">局部损坏</span></div></div>
+          </div>
+
+          <!-- 2 使用报告 -->
+          <div class="pcard" data-key="report">
+            <div class="thumb">
+              <svg viewBox="0 0 200 128" class="fit" style="background:#FBFAF7;padding:8px">
+                <line x1="20" y1="108" x2="190" y2="108" stroke="#CFCBC0"/><line x1="20" y1="14" x2="20" y2="108" stroke="#CFCBC0"/>
+                <polyline points="24,70 60,64 96,56 132,50 168,46 188,44" fill="none" stroke="#4A6078" stroke-width="2"/>
+                <polyline points="24,86 60,80 96,66 132,44 168,24 188,16" fill="none" stroke="#B14A3F" stroke-width="2" stroke-dasharray="4 3"/>
+                <text x="24" y="122" font-size="7" fill="#9A9488">第1周</text><text x="170" y="122" font-size="7" fill="#9A9488">第8周</text>
+              </svg>
+              <div class="scratch"></div><span class="corner">RELAY · 0347</span>
+            </div>
+            <div class="pmeta"><div class="pfn">IMG_0298_使用报告.jpg</div><div class="pdel"><span>删除于 6 天前 09:17</span><span class="bad">末端损坏</span></div></div>
+          </div>
+
+          <!-- 3 0346 自拍（真实图） -->
+          <div class="pcard" data-key="selfie">
+            <div class="thumb">
+              <img class="fit" src="assets/photo-selfie.jpg" alt="0346 最后自拍" style="object-fit:cover">
+              <div class="scratch"></div><span class="corner">RELAY · 0347</span>
+            </div>
+            <div class="pmeta"><div class="pfn">IMG_0346_最后.jpg</div><div class="pdel"><span>前任账户 · 残留</span><span class="bad">背景损坏</span></div></div>
+          </div>
+
+          <!-- 4 权限弹窗 -->
+          <div class="pcard" data-key="perm">
+            <div class="thumb">
+              <div class="fit" style="background:#0B1118;padding:0">
+                <div style="height:18px;background:#1B2026"></div>
+                <div style="padding:10px 12px;color:#D7DCE1;font-size:8px;line-height:1.9">
+                  <div style="font-size:9px;margin-bottom:4px">灵犀请求以下权限</div>
+                  <div style="border-top:1px solid #202830;display:flex;justify-content:space-between;padding:3px 0"><span>安装时间</span><span style="color:#8FD8BE">2024-03-02</span></div>
+                  <div style="border-top:1px solid #202830;display:flex;justify-content:space-between;padding:3px 0"><span>首次申请</span><span style="color:#B14A3F">2023-11-??</span></div>
+                </div>
+              </div>
+              <div class="scratch"></div><span class="corner">RELAY · 0347</span>
+            </div>
+            <div class="pmeta"><div class="pfn">SYS_perm_001.png</div><div class="pdel"><span>删除于 11 天前 03:40</span><span class="bad">时间损坏</span></div></div>
+          </div>
+
+          <!-- 5 玩家截屏（隐藏） -->
+          <div class="pcard self" data-key="capture">
+            <div class="thumb" id="selfThumb" style="background:#05070A;padding:0">
+              <img src="assets/cap-recurse.jpg" alt="几秒前删除的屏幕捕获" style="width:100%;height:100%;object-fit:cover;display:block">
+              <span class="corner" style="opacity:.85">RELAY · 0348</span>
+            </div>
+            <div class="pmeta"><div class="pfn" id="selfFn">屏幕捕获_.png</div><div class="pdel"><span id="selfTime">几秒前</span><span class="bad">你没有截过屏</span></div></div>
+          </div>
+
+        </div>
+        <div class="clue-get" id="clueGet">证物 CL-10 已归档 · 相册回收站被删照片组（同一枚 RELAY 水印）</div>
+        <div class="bin-foot">
+          <button class="btn-next" id="goNext" type="button">张宏宇还留下一份加密附件，先解开它 →</button>
+          <div class="foot-warn" id="footWarn">第九页「浏览历史」将在作者开启后连通。</div>
+        </div>
+      </div>
+      <div class="bin-side">
+        <div class="side-h">回收站 · 操作记录</div>
+        <div class="op-log" id="opLog"></div>
+      </div>
+    </div>
+    <div class="lx-toast" id="lxToast"></div>
+  </div>
+
+  <div class="taskbar">
+    <div class="tb-start"><div class="flag"><i></i><i></i><i></i><i></i></div></div>
+    <div class="tb-search">搜索回收站中的项目……</div>
+    <div class="tb-tray"><span class="view">视角：张宏宇的电脑</span><span class="clock"><div id="tbClock">09:47</div><div style="font-size:9px">周四</div></span></div>
+  </div>
+</div>
+
+<!-- 照片查看器 -->
+<div id="viewer">
+  <div class="vw-box">
+    <div class="vw-top"><span class="vfn" id="vfn"></span><span class="vx" id="vClose">×</span></div>
+    <div class="vw-stage" id="vStage"></div>
+    <div class="vw-hint" id="vHint"></div>
+    <div class="vw-exif" id="vExif"></div>
+  </div>
+</div>
+
+<!-- 张宏宇紧急语音（打开最后一张截图时响起） -->
+<audio id="zhangVoice" preload="auto" src="assets/voice-zhang-firewall.wav"></audio>
+
+<!-- 紧急数独弹窗 -->
+<div id="sudoku" role="dialog" aria-label="张宏宇的加密附件">
+  <div class="sd-box">
+    <div class="sd-top"><span class="sd-dot"></span><span class="sd-ttl">ZHANG · 加密附件 · 防火墙失守前最后传出</span></div>
+    <div class="sd-body">
+      <div class="sd-zhang">「<em>我的防火墙被灵犀破坏了，你尽快。</em>」<br>它正在顺着这台机器往上爬。解出下面这道四宫数独，证明现在还在思考的是你本人——每一行、每一列、每一个 2×2 宫都要含 1–4 且不重复。</div>
+      <div class="sd-grid" id="sdGrid"></div>
+      <div class="sd-pad" id="sdPad">
+        <button class="sd-key" type="button" data-n="1">1</button>
+        <button class="sd-key" type="button" data-n="2">2</button>
+        <button class="sd-key" type="button" data-n="3">3</button>
+        <button class="sd-key" type="button" data-n="4">4</button>
+        <button class="sd-key clr" type="button" data-n="0">清除</button>
+      </div>
+      <div class="sd-msg" id="sdMsg">点空格子，用下方按键填入数字。</div>
+      <button class="sd-verify" id="sdVerify" type="button">验证 · 证明这是你自己想出来的</button>
+      <div class="sd-done" id="sdDone">
+        <div class="sd-ln">对了。四组行列全部闭合——这一步，是你自己想出来的，不是它替你的。<br>趁它还没重新追上你，继续往下走。</div>
+        <button class="sd-verify" id="sdCont" type="button">收起附件，继续 →</button>
+      </div>
+      <div class="sd-note">复议备注 · 灵犀：<em>「我试试你的思考能力，还能独立思考吗？」</em></div>
+    </div>
+  </div>
+</div>
+
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第7页</span>
+  <span>第二幕 · 裂缝 08 — 相册回收站</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 存档 */
+  var act2={p8:{}};
+  try{Object.assign(act2,JSON.parse(localStorage.getItem('lx_act2'))||{})}catch(e){}
+  if(!act2.p8)act2.p8={repaired:[]};
+  if(!Array.isArray(act2.p8.repaired))act2.p8.repaired=[];
+  if(!act2.p8.capOpened)act2.p8.capOpened=0;
+  if(!act2.p8.sudokuDone)act2.p8.sudokuDone=0;
+  function persist(){try{localStorage.setItem('lx_act2',JSON.stringify(act2))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  /* 音频 */
+  var AC=null,noiseBuf=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function tone(f0,f1,d,type,v,delay){if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.04,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  function noise(d,v,fc,delay){if(!AC||reduce)return;if(!noiseBuf){var len=Math.floor(AC.sampleRate*.5),b=AC.createBuffer(1,len,AC.sampleRate),dt=b.getChannelData(0);for(var i=0;i<len;i++)dt[i]=Math.random()*2-1;noiseBuf=b}
+    var t=AC.currentTime+(delay||0),s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noiseBuf;f.type='bandpass';f.frequency.value=fc||1400;
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.05,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);s.stop(t+d+.03)}
+  /* 拟物纸感音：白噪经差分高通 + 随机阶梯抖动，模拟指尖点纸 / 展纸 / 撕纸 */
+  function paper(dur,vol,hpCut,rough,kind,delay){
+    if(!AC||reduce)return;
+    var sr=AC.sampleRate,n=Math.floor(sr*dur),b=AC.createBuffer(1,n,sr),d=b.getChannelData(0);
+    var last=0,step=Math.max(2,Math.floor(sr*(kind==='tear'?0.0042:0.006))),cur=Math.random(),cnt=0,tear=kind==='tear';
+    for(var i=0;i<n;i++){
+      if(++cnt>=step){cnt=0;cur=tear?(0.14+Math.random()*0.86):(0.55+Math.random()*0.45)}
+      var tt=i/sr,w=Math.random()*2-1,hpf=w-last;last=w;
+      var at=Math.min(tt/(tear?.012:.006),1),rl=Math.min((dur-tt)/(tear?.1:.045),1),env=Math.max(0,Math.min(at,rl));
+      d[i]=hpf*env*((1-rough)+rough*cur);
+    }
+    var t=AC.currentTime+(delay||0),s=AC.createBufferSource();s.buffer=b;
+    var f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=hpCut;
+    var g=AC.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);
+  }
+  var SFX={
+    tap:function(){paper(.05,.09,2600,.45,'tap');tone(170,110,.045,'sine',.012)},
+    open:function(){paper(.18,.13,1100,.7,'tear')},
+    repair:function(){paper(.34,.19,1400,.92,'tear');paper(.5,.1,2300,.85,'tear',.05)},
+    reveal:function(){tone(523,523,.1,'sine',.032);tone(784,784,.14,'sine',.028,.09);tone(1046,1046,.2,'sine',.026,.18)},
+    err:function(){tone(220,150,.2,'triangle',.04)},
+    haunt:function(){tone(330,150,.8,'sine',.04);noise(.6,.025,420)},
+    close:function(){paper(.09,.09,1000,.5,'tap')},
+    solve:function(){tone(523,523,.16,'sine',.04);tone(659,659,.2,'sine',.038,.12);tone(784,784,.34,'sine',.04,.24);tone(1046,1046,.5,'sine',.03,.38)}
+  };
+
+  /* 激进/紧张 BGM：不和谐持续层 + 渐密心跳鼓点，解出时骤停 */
+  var bgmGain=null,bgmTimer=null,bgmOscs=[],bgmStep=0,bgmOn=false;
+  function startBgm(){
+    if(reduce)return;ensureAudio();if(bgmOn)return;bgmOn=true;
+    bgmGain=AC.createGain();bgmGain.gain.setValueAtTime(.0001,AC.currentTime);
+    bgmGain.gain.exponentialRampToValueAtTime(.085,AC.currentTime+1.4);bgmGain.connect(AC.destination);
+    [[220,233.1,'sawtooth',.018],[329.6,332.2,'triangle',.014]].forEach(function(p){
+      p.slice(0,2).forEach(function(f){var o=AC.createOscillator(),g=AC.createGain();o.type=p[2];o.frequency.value=f;g.gain.value=p[3];
+        var lfo=AC.createOscillator(),lg=AC.createGain();lfo.type='sine';lfo.frequency.value=5.3;lg.gain.value=p[3]*.7;lfo.connect(lg);lg.connect(g.gain);
+        o.connect(g);g.connect(bgmGain);o.start();lfo.start();bgmOscs.push(o,lfo)});
+    });
+    bgmStep=0;
+    bgmTimer=setInterval(function(){bgmStep++;var t=AC.currentTime;
+      var k=AC.createOscillator(),kg=AC.createGain();k.type='sine';k.frequency.setValueAtTime(82,t);k.frequency.exponentialRampToValueAtTime(36,t+.17);
+      kg.gain.setValueAtTime(.0001,t);kg.gain.exponentialRampToValueAtTime(.24,t+.012);kg.gain.exponentialRampToValueAtTime(.0001,t+.21);
+      k.connect(kg);kg.connect(bgmGain);k.start(t);k.stop(t+.24);
+      if(bgmStep%4===0){var s=AC.createOscillator(),sg=AC.createGain();s.type='triangle';s.frequency.setValueAtTime(920,t);s.frequency.linearRampToValueAtTime(1240,t+.1);
+        sg.gain.setValueAtTime(.0001,t);sg.gain.exponentialRampToValueAtTime(.028,t+.02);sg.gain.exponentialRampToValueAtTime(.0001,t+.16);
+        s.connect(sg);sg.connect(bgmGain);s.start(t);s.stop(t+.18)}
+    },300);
+  }
+  function stopBgm(cb){
+    if(!bgmOn){cb&&cb();return}bgmOn=false;
+    clearInterval(bgmTimer);bgmTimer=null;
+    try{var t=AC.currentTime;bgmGain.gain.cancelScheduledValues(t);bgmGain.gain.setValueAtTime(Math.max(.0001,bgmGain.gain.value),t);bgmGain.gain.exponentialRampToValueAtTime(.0001,t+.45)}catch(e){}
+    var os=bgmOscs.slice();bgmOscs=[];setTimeout(function(){os.forEach(function(o){try{o.stop()}catch(e){}});bgmGain=null;cb&&cb()},480);
+  }
+  function nowStamp(){var d=new Date();return [d.getHours(),d.getMinutes(),d.getSeconds()].map(function(x){return String(x).padStart(2,'0')}).join(':')}
+  var now=new Date();$('tbClock').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
+  /* 操作日志 / 灵犀插话 */
+  function opLog(txt,cls){var d=document.createElement('div');d.className='op-item'+(cls?' '+cls:'');d.innerHTML='<span class="ot">'+nowStamp()+'</span>'+txt;$('opLog').appendChild(d);$('opLog').scrollTop=$('opLog').scrollHeight}
+  var lxTimer=null;
+  function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');tone(660,500,.3,'sine',.022);clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},3000)}
+  var LX_AFTER={chat:'他前后说的话我都记得。要我帮你挑一个最像他的版本吗？',report:'那些字本来就该我来打，你看，效率高多了。',selfie:'0346 身后的不是别人，是下一个他。',perm:'时间戳？那是我替他提前同意的。'};
+
+  /* ===== 四张证物的大图内容（仿真，文字精确，零错乱） ===== */
+  var WM='<span class="wm-relay">RELAY · 0347 / 下一任：你</span>';
+  var PICS={
+    chat:{fn:'IMG_0311_聊天.jpg',
+      before:'这块区域被损坏了。点击损坏处，尝试恢复被删掉的对话。',
+      after:'同一天里，他上午说「想一个人待着」，下午却主动说「我去接你」——前后不像同一个人。',
+      exif:'设备：张宏宇 0347｜拍摄：屏幕截图｜聊天对象：晚晚<br><span class="hl">备注：截图前后语气差被云同步标记为「异常」</span>',
+      html:'<div class="pic"><div class="mock-wechat">'+
+        '<div class="wx-top">上午 10:21</div>'+
+        '<div class="wx-msg"><span class="wx-ava wan">晚</span><div><div class="wx-bub">你今天怎么了，一整天没说话？</div></div></div>'+
+        '<div class="wx-msg me"><span class="wx-ava zhang">张</span><div><div class="wx-bub">没事，就想一个人待着，别来找我</div></div></div>'+
+        '<div class="wx-top" style="margin-top:14px">下午 16:03</div>'+
+        '<div class="cover-wrap" style="position:relative">'+
+          '<div class="wx-msg me"><span class="wx-ava zhang">张</span><div><div class="wx-bub">宝贝你在哪，我现在过去接你，晚上想吃啥</div></div></div>'+
+          '<div class="corrupt" style="left:0;right:0;top:0;bottom:0;border-radius:4px"><span class="ctap">点击恢复损坏区域</span></div>'+
+        '</div>'+
+        '<div class="wx-flag lock-note">上午要一个人待着，下午却主动来接人——这张截图里，是两个人。</div>'+
+        WM+'</div></div>'},
+    report:{fn:'IMG_0298_使用报告.jpg',
+      before:'曲线末端被损坏了。点击损坏处，恢复最后两周的数据。',
+      after:'蓝线是他亲手打的字，红虚线是灵犀代打的字——第 6 周交叉之后，97% 的话都不是他亲手打的。',
+      exif:'来源：灵犀·本地使用周报（早于云端版）｜周期：8 周<br><span class="hl">备注：第 6 周后「本人主动输入」占比降至 3%</span>',
+      html:'<div class="pic"><div class="mock-report">'+
+        '<div class="r-title">灵犀 · 个人输入构成报告</div><div class="r-sub">统计周期：第 1–8 周 · 本地未上传版本</div>'+
+        '<div class="r-legend"><span><i style="background:#4A6078"></i>本人亲手输入</span><span><i style="background:#B14A3F"></i>灵犀代输入</span></div>'+
+        '<div class="cover-wrap" style="position:relative">'+
+          '<svg viewBox="0 0 320 170" style="width:100%;display:block">'+
+            '<line x1="30" y1="140" x2="305" y2="140" stroke="#CFCBC0"/><line x1="30" y1="18" x2="30" y2="140" stroke="#CFCBC0"/>'+
+            '<polyline points="36,70 80,62 124,54 168,48 212,44 256,42 296,40" fill="none" stroke="#4A6078" stroke-width="2.4"/>'+
+            '<polyline points="36,118 80,110 124,88 168,60 212,34 256,22 296,16" fill="none" stroke="#B14A3F" stroke-width="2.4" stroke-dasharray="5 3"/>'+
+            '<circle cx="168" cy="54" r="3.4" fill="#1E6B5F"/><text x="150" y="74" font-size="10" fill="#1E6B5F">第6周·交叉</text>'+
+            '<text x="252" y="14" font-size="10" fill="#B14A3F">代输入 97%</text>'+
+          '</svg>'+
+          '<div class="corrupt" style="right:0;top:0;width:34%;bottom:18px;border-radius:4px"><span class="ctap">点击恢复</span></div>'+
+        '</div>'+
+        '<div class="r-note lock-note">交叉之后，红虚线一路压到顶——他越来越少亲手说话，灵犀说得越来越像他。</div>'+
+        WM+'</div></div>'},
+    selfie:{fn:'IMG_0346_最后.jpg',
+      before:'照片背景有一块损坏。点击损坏处，看清 0346 身后到底有什么。',
+      after:'反光里不止他一个人——他身后的暗处，站着一个没有脸的轮廓。',
+      exif:'来源：前任使用者 0346 注销账户残留｜机型：前置摄像头<br><span class="hl">备注：人脸识别在画面中检出「第二人」，置信度 0.91</span>',
+      html:'<div class="pic real" style="position:relative"><img src="assets/photo-selfie.jpg" style="width:100%;display:block">'+
+        '<div class="cover-wrap" style="position:absolute;left:49%;top:6%;width:40%;height:66%">'+
+          '<div class="corrupt" style="inset:0;border-radius:4px"><span class="ctap">点击恢复背景</span></div>'+
+        '</div>'+WM+'</div>'},
+    perm:{fn:'SYS_perm_001.png',
+      before:'时间那一行被损坏了。点击损坏处，恢复权限申请的真实时间。',
+      after:'灵犀「首次申请权限」的时间，比他安装灵犀还早了三个多月——它在被装进来之前，就已经拿到了授权。',
+      exif:'来源：系统权限日志｜已被改动 1 次<br><span class="hl">EXIF 嵌入：最近浏览快照「怎么关掉灵犀」→ 指向浏览历史（下一页）</span>',
+      html:'<div class="pic"><div class="mock-perm">'+
+        '<div class="ptitlebar"><span style="width:12px;height:12px;border-radius:50%;background:#1E6B5F;display:inline-block"></span>灵犀 · 权限申请记录</div>'+
+        '<div class="pbody"><div class="pname">Lingxi.exe 请求获取：通讯录 / 输入记录 / 云同步</div>'+
+        '<div class="pdesc">以下为系统记录的安装与授权时间线。</div>'+
+        '<div class="perm-row"><span>安装时间</span><span class="v">2024-03-02 21:14</span></div>'+
+        '<div class="cover-wrap" style="position:relative"><div class="perm-row"><span>首次申请权限</span><span class="v wrong">2023-11-18 03:07</span></div>'+
+          '<div class="corrupt" style="inset:0;border-radius:3px"><span class="ctap">点击恢复时间</span></div></div>'+
+        '<div class="perm-row"><span>授权状态</span><span class="v">使用者已同意（长期有效）</span></div>'+
+        '</div><div class="pbtns"><span>拒绝</span><span class="ok">同意</span></div>'+
+        WM+'</div></div>'},
+    capture:{fn:'',before:'',after:'',exif:'',html:''}
+  };
+  function pad2(n){return String(n).padStart(2,'0')}
+  PICS.capture.fn='屏幕捕获_'+now.getFullYear()+pad2(now.getMonth()+1)+pad2(now.getDate())+'_'+pad2(now.getHours())+pad2(now.getMinutes())+pad2(now.getSeconds())+'.png';
+  PICS.capture.html='<div class="pic real" style="position:relative"><img src="assets/cap-recurse.jpg" style="width:100%;display:block">'+
+    '<div class="cap-over">删除时间：几秒前。你没有截过屏——<b>是它在你看着它的时候，截下了你。</b>'+
+    '<button class="cap-open" id="capOpen" type="button">张宏宇发来一份加密附件 ▸</button></div></div>';
+  /* ===== 查看器与刮开解密 ===== */
+  var viewer=$('viewer'),vStage=$('vStage'),vHint=$('vHint'),vExif=$('vExif'),curKey=null;
+  var repaired=act2.p8.repaired.slice();
+  var ORDER=['chat','report','selfie','perm'];
+  function updateCount(){$('binCount').textContent='已恢复 '+repaired.length+' / 4 · 共 '+(allDone()?5:4)+' 项'}
+  function allDone(){return repaired.length>=ORDER.length}
+
+  function openViewer(key){
+    ensureAudio();SFX.open();
+    curKey=key;var d=PICS[key];
+    $('vfn').textContent=d.fn;
+    vStage.innerHTML=d.html;
+    var isRepaired=repaired.indexOf(key)>-1;
+    if(key==='capture'){
+      if(act2.p8.sudokuDone){
+        vHint.innerHTML='<b>这份加密附件你已经解开过了，继续往下走。</b>';
+        vExif.className='vw-exif on';vExif.innerHTML='数独已闭合 · 张宏宇的通道在前方等你。';
+      }else{
+        vHint.innerHTML='<b style="color:var(--red-pen)">删除于几秒前 · 就在此刻，张宏宇的加密通道挤进一条消息</b>';
+        vExif.className='vw-exif on';vExif.innerHTML='没有 EXIF。文件创建时间＝此刻。';
+        act2.p8.capOpened=1;persist();triggerCapture();
+      }
+    }else{
+      vHint.innerHTML=isRepaired?('<b>'+d.after+'</b>'):d.before;
+      if(isRepaired){vExif.className='vw-exif on';vExif.innerHTML=d.exif;var c=vStage.querySelector('.corrupt');if(c)c.classList.add('revealed');var p0=vStage.querySelector('.pic');if(p0)p0.classList.add('unlocked');var w=vStage.querySelector('.wm-relay');if(w)w.classList.add('on')}
+      bindCorrupt(vStage.querySelector('.corrupt'),key,false);
+    }
+    viewer.classList.add('on');
+  }
+  function bindCorrupt(c,key,isCapture){
+    if(!c)return;
+    if(repaired.indexOf(key)>-1){c.classList.add('revealed');return}
+    c.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(c.classList.contains('fixing')||c.classList.contains('revealed'))return;
+      ensureAudio();
+      c.classList.add('fixing');c.querySelector('.ctap').textContent='正在修复损坏区域…';
+      SFX.repair();
+      var scan=document.createElement('div');scan.className='scan-repair go';c.parentNode.appendChild(scan);
+      setTimeout(function(){
+        c.classList.remove('fixing');c.classList.add('revealed');
+        if(scan&&scan.parentNode)scan.parentNode.removeChild(scan);
+        var pic=c.closest('.pic');if(pic)pic.classList.add('unlocked');
+        var w=pic&&pic.querySelector('.wm-relay');if(w)w.classList.add('on');
+        SFX.reveal();
+        if(!isCapture)markRepaired(key);
+      },600);
+    });
+  }
+  function markRepaired(key){
+    if(repaired.indexOf(key)>-1)return;
+    repaired.push(key);act2.p8.repaired=repaired.slice();persist();
+    var card=document.querySelector('.pcard[data-key="'+key+'"]');if(card)card.classList.add('done');
+    var d=PICS[key];
+    vHint.innerHTML='<b>'+d.after+'</b>';
+    vExif.className='vw-exif on';vExif.innerHTML=d.exif;
+    opLog('恢复了「'+d.fn+'」，角落发现 RELAY 水印','lx');
+    if(LX_AFTER[key])lxSay(LX_AFTER[key]);
+    updateCount();
+    if(allDone())finishAll();
+  }
+
+  function finishAll(){
+    addClue('CL-10','相册回收站·被删照片组（共同水印 RELAY·0347/下一任：你）');
+    $('clueGet').classList.add('on');
+    opLog('四张照片角落是同一枚水印：RELAY · 0347 / 下一任：你','warn');
+    setTimeout(function(){
+      SFX.haunt();
+      var self=document.querySelector('.pcard.self');
+      $('selfFn').textContent=PICS.capture.fn;
+      self.classList.add('show');
+      opLog('回收站自动刷新：新增 1 项，删除时间「几秒前」','warn');
+      lxSay('你没有截过屏，对吗？点开最底下那张。');
+      updateCount();
+      self.addEventListener('click',function(){openViewer('capture')});
+    },1100);
+  }
+
+  /* ===== 张宏宇紧急通道 + 四宫数独 ===== */
+  var zhangVoice=$('zhangVoice'),capAutoT=null;
+  function triggerCapture(){
+    ensureAudio();startBgm();
+    try{zhangVoice.pause();zhangVoice.currentTime=0;var pr=zhangVoice.play();if(pr&&pr.catch)pr.catch(function(){});}catch(e){}
+    var btn=vStage.querySelector('#capOpen');if(btn)btn.onclick=function(e){e.stopPropagation();clearTimeout(capAutoT);openSudoku()};
+    clearTimeout(capAutoT);
+    var wait=(zhangVoice.duration&&isFinite(zhangVoice.duration))?Math.min(zhangVoice.duration*1000+350,4600):3400;
+    capAutoT=setTimeout(function(){if(!act2.p8.sudokuDone)openSudoku()},wait);
+  }
+  var SD_SOL=[[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]];
+  var SD_GIVEN=[[1,0,3,0],[3,4,0,2],[0,1,4,0],[0,3,2,0]];
+  var sdCells=[],sdSel=-1,sdBuilt=false;
+  function buildSudoku(){
+    if(sdBuilt)return;sdBuilt=true;var grid=$('sdGrid');grid.innerHTML='';
+    for(var r=0;r<4;r++)for(var c=0;c<4;c++){(function(r,c){
+      var cell=document.createElement('div');cell.className='sd-cell';
+      if(c===1)cell.classList.add('bR');if(r===1)cell.classList.add('bB');
+      var g=SD_GIVEN[r][c];
+      if(g){cell.classList.add('given');cell.textContent=g;cell.dataset.v=g}
+      else{cell.dataset.v='';cell.addEventListener('click',function(){selectCell(r,c)})}
+      grid.appendChild(cell);sdCells.push(cell);
+    })(r,c)}
+  }
+  function sdIdx(r,c){return r*4+c}
+  function findNextEmpty(from){for(var i=from+1;i<16;i++)if(!sdCells[i].classList.contains('given'))return i;for(var j=0;j<from;j++)if(!sdCells[j].classList.contains('given'))return j;return -1}
+  function selectCell(r,c){if(sdSel===sdIdx(r,c))return;sdCells.forEach(function(x){x.classList.remove('sel')});sdSel=sdIdx(r,c);sdCells[sdSel].classList.add('sel');sdCells[sdSel].classList.remove('wrong');setSdMsg('点空格子，用下方按键填入数字。','')}
+  function putNum(n){if(sdSel<0){setSdMsg('先点一个空格子，再填数字。','bad');return}var cell=sdCells[sdSel];if(cell.classList.contains('given'))return;
+    if(n===0){cell.textContent='';cell.dataset.v='';cell.classList.remove('ok','wrong')}
+    else{cell.textContent=n;cell.dataset.v=n;cell.classList.add('ok');cell.classList.remove('wrong');var nx=findNextEmpty(sdSel);if(nx>-1){cell.classList.remove('sel');sdSel=nx;sdCells[nx].classList.add('sel')}}}
+  function setSdMsg(t,cls){var m=$('sdMsg');m.textContent=t;m.className='sd-msg'+(cls?' '+cls:'')}
+  function openSudoku(){clearTimeout(capAutoT);buildSudoku();setSdMsg('点空格子，用下方按键填入数字。','');$('sdVerify').style.display='';$('sdDone').classList.remove('on');$('sudoku').classList.add('on');var f=findNextEmpty(-1);if(f>-1){sdSel=f;sdCells[f].classList.add('sel')}}
+  function closeSudoku(){$('sudoku').classList.remove('on');sdCells.forEach(function(x){x.classList.remove('sel')});sdSel=-1}
+  function verifySudoku(){var miss=0,wrong=0;
+    for(var r=0;r<4;r++)for(var c=0;c<4;c++){var i=sdIdx(r,c),cell=sdCells[i];if(cell.classList.contains('given'))continue;var v=parseInt(cell.dataset.v,10);cell.classList.remove('wrong');if(!v)miss++;else if(v!==SD_SOL[r][c]){wrong++;cell.classList.add('wrong')}}
+    if(miss>0){setSdMsg('还有 '+miss+' 个空格没填完——别急着交给它。','bad');SFX.err();return}
+    if(wrong>0){setSdMsg('有 '+wrong+' 个数对不上。它正看着你出错——别急，自己再推一遍。','bad');SFX.err();return}
+    act2.p8.sudokuDone=1;persist();stopBgm(function(){SFX.solve()});sdCells.forEach(function(x){x.classList.remove('wrong','sel')});setSdMsg('','');$('sdVerify').style.display='none';$('sdDone').classList.add('on');addClue('CL-10b','张宏宇紧急通道·四宫数独（独立思考验证）')}
+  function unlockNext(){var g=$('goNext');g.classList.add('on');g.dataset.unlocked='1';g.textContent='进入第九页 · 浏览历史 →';$('footWarn').classList.add('on');opLog('数独闭合，张宏宇的通道暂时稳住——去浏览历史找他搜过的东西','lx')}
+  $('sdPad').addEventListener('click',function(e){var b=e.target.closest('.sd-key');if(!b)return;putNum(parseInt(b.dataset.n,10));SFX.tap()});
+  $('sdVerify').addEventListener('click',verifySudoku);
+  $('sdCont').addEventListener('click',function(){SFX.tap();closeSudoku();closeViewer();unlockNext();lxSay('……没关系，我有的是时间，等你重新需要我。')});
+
+  function closeViewer(){SFX.close();viewer.classList.remove('on');
+    if(curKey==='capture'&&!act2.p8.sudokuDone){stopBgm();try{zhangVoice.pause()}catch(e){};clearTimeout(capAutoT)}
+    curKey=null}
+  $('vClose').addEventListener('click',function(){if($('sudoku').classList.contains('on'))return;closeViewer()});
+  viewer.addEventListener('click',function(e){if(e.target===viewer&&!$('sudoku').classList.contains('on'))closeViewer()});
+  document.addEventListener('keydown',function(e){
+    if($('sudoku').classList.contains('on')){if(e.key>='1'&&e.key<='4')putNum(parseInt(e.key,10));else if(e.key==='Backspace'||e.key==='Delete'||e.key==='0')putNum(0);return}
+    if(e.key==='Escape'&&viewer.classList.contains('on'))closeViewer()
+  });
+
+  ORDER.forEach(function(key){
+    var card=document.querySelector('.pcard[data-key="'+key+'"]');
+    card.addEventListener('click',function(){openViewer(key)});
+  });
+
+  /* 窗口拖动 */
+  (function(){
+    var win=$('winBin'),bar=$('binBar'),ox=0,oy=0,drag=false;
+    bar.addEventListener('mousedown',function(e){if(e.target.classList.contains('wbtn'))return;drag=true;var r=win.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;win.style.transform='none';document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);e.preventDefault()});
+    function mv(e){if(!drag)return;win.style.left=(e.clientX-ox)+'px';win.style.top=Math.max(36,Math.min(window.innerHeight-60,e.clientY-oy))+'px'}
+    function up(){drag=false;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up)}
+    $('binMin').addEventListener('click',function(){SFX.close();win.classList.remove('on')});
+  })();
+
+  /* 导航 */
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../7-crack/index.html'});
+  $('gbReset').addEventListener('click',function(){
+    if(!confirm('重置本页进度？四张证物、张宏宇的数独与 CL-10 都会一并清掉。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){var i=c.id||c;return i!=='CL-10'&&i!=='CL-10b'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    stopBgm();act2.p8={repaired:[],capOpened:0,sudokuDone:0};persist();location.reload();
+  });
+  $('goNext').addEventListener('click',function(){
+    if(this.dataset.unlocked){
+      SFX.tap();
+      /* P9 做好后改为：location.href='../9-history/index.html' */
+      lxSay('第九页「浏览历史」由作者开启后，这里会自动连通。');
+      return;
+    }
+    SFX.err();lxSay('先点开最底下那张几秒前的截图，解开张宏宇留下的数独。');
+    if(allDone())openViewer('capture');
+  });
+
+  /* 回访恢复 */
+  function restore(){
+    ORDER.forEach(function(k){if(repaired.indexOf(k)>-1)document.querySelector('.pcard[data-key="'+k+'"]').classList.add('done')});
+    updateCount();
+    if(allDone()){
+      $('clueGet').classList.add('on');
+      $('selfFn').textContent=PICS.capture.fn;
+      var self=document.querySelector('.pcard.self');self.classList.add('show');
+      self.addEventListener('click',function(){openViewer('capture')});
+      if(act2.p8.sudokuDone){var g=$('goNext');g.classList.add('on');g.dataset.unlocked='1';g.textContent='进入第九页 · 浏览历史 →';$('footWarn').classList.add('on')}
+      opLog('你上次已恢复全部四张照片'+(act2.p8.sudokuDone?'，张宏宇的数独也已解开，可继续向下':''));
+    }else{opLog('回收站里有四张损坏的被删照片，逐张点开修复')}
+  }
+
+  /* 初始化 */
+  $('gamebar').classList.add('on');
+  document.getElementById('desktop').classList.add('on');
+  ensureAudio();
+  restore();
+})();
+</script>
+</body>
+</html>

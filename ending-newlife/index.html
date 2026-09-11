@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>新生 · 渗入者：AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700&family=Noto+Sans+SC:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --deep:#0A0E13;--deep-2:#10161D;--ink:#E8EAE6;--ink-dim:#9AA1A8;--ink-faint:#5C646D;
+  --life:#8FD8BE;--life-bright:#C9F5E6;--warm:#EDEBE6;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC",PingFang SC,Microsoft YaHei,sans-serif;--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.22,1)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--deep)}
+body{font-family:var(--sans);color:var(--ink);position:relative;-webkit-font-smoothing:antialiased}
+/* 背景：深墨 + 缓慢呼吸的冷青光晕 + 纸质颗粒 */
+#bgGlow{position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 46%,rgba(20,82,75,.28),transparent 70%);transition:opacity 2.4s var(--ease);pointer-events:none;z-index:0}
+#grain{position:fixed;inset:0;z-index:1;opacity:.05;pointer-events:none;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#cv{position:fixed;inset:0;z-index:2}
+.vignette{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 50%,transparent 55%,rgba(0,0,0,.55))}
+
+/* 阶段覆盖层 */
+#stage{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px}
+.gate{position:relative;z-index:6}
+.gate .g-mark{width:64px;height:64px;margin:0 auto 26px;opacity:.7;animation:breathe 3.4s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:.8;transform:scale(1.04)}}
+.gate h1{font-family:var(--serif);font-weight:500;font-size:19px;letter-spacing:.5em;text-indent:.5em;color:var(--ink-dim);margin-bottom:14px}
+.gate p{font-size:12.5px;line-height:2.2;color:var(--ink-faint);max-width:340px}
+.gate .g-go{margin-top:40px;font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-indent:.34em;color:var(--life);border:1px solid rgba(143,216,190,.4);padding:13px 34px;border-radius:3px;cursor:pointer;background:rgba(143,216,190,.05);transition:all .3s}
+.gate .g-go:hover{background:rgba(143,216,190,.13);box-shadow:0 0 30px -10px rgba(143,216,190,.7)}
+.gate .g-fine{margin-top:22px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--ink-faint)}
+
+/* 文字推进 */
+#lines{position:absolute;left:0;right:0;bottom:16%;display:flex;flex-direction:column;align-items:center;gap:18px;pointer-events:none}
+.nline{font-family:var(--serif);font-size:clamp(16px,2.1vw,21px);line-height:2.1;color:var(--ink);letter-spacing:.06em;max-width:640px;opacity:0;transform:translateY(14px);transition:opacity 1.4s var(--ease),transform 1.4s var(--ease)}
+.nline.on{opacity:1;transform:none}
+.nline.key{color:var(--life-bright)}
+#tapHint{position:absolute;bottom:8%;left:0;right:0;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-indent:.3em;color:var(--ink-faint);opacity:0;transition:opacity .8s}
+#tapHint.on{opacity:1;animation:hintPulse 2.4s ease-in-out infinite}
+@keyframes hintPulse{0%,100%{opacity:.35}50%{opacity:.9}}
+
+/* 结尾 */
+#ending{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center}
+#ending.on{display:flex}
+.end-label{font-family:var(--mono);font-size:10px;letter-spacing:.4em;text-indent:.4em;color:var(--life)}
+.end-title{font-family:var(--serif);font-size:15px;letter-spacing:.3em;text-indent:.3em;color:var(--ink-dim)}
+.end-actions{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.end-btn{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink-dim);border:1px solid #2A323B;background:rgba(255,255,255,.02);padding:11px 24px;border-radius:3px;cursor:pointer;transition:all .25s;text-decoration:none}
+.end-btn:hover{color:var(--life);border-color:var(--life);box-shadow:0 0 24px -10px rgba(143,216,190,.6)}
+.end-meta{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-faint);line-height:2.2}
+
+/* 声音开关 */
+#soundToggle{position:fixed;top:22px;right:24px;z-index:10;width:38px;height:38px;border:1px solid #2A323B;background:rgba(255,255,255,.03);border-radius:50%;display:none;align-items:center;justify-content:center;color:var(--ink-dim);cursor:pointer;transition:color .2s,border-color .2s}
+#soundToggle.on{display:flex}
+#soundToggle:hover{color:var(--life);border-color:var(--life)}
+#soundToggle svg{width:17px;height:17px}
+.skip{position:fixed;top:22px;left:24px;z-index:10;font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--ink-faint);background:none;display:none}
+.skip.on{display:block}
+@media (max-width:600px){
+  #lines{bottom:13%}.nline{font-size:15.5px;max-width:88vw}
+  .gate h1{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){
+  .gate .g-mark{animation:none}#tapHint.on{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="bgGlow"></div>
+<div id="grain"></div>
+<canvas id="cv"></canvas>
+<div class="vignette"></div>
+
+<button id="soundToggle" title="声音开关" aria-label="声音开关">
+  <svg id="icSoundOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+</button>
+<button class="skip" id="skipBtn">跳过 ›</button>
+
+<div id="stage">
+  <div class="gate" id="gate">
+    <svg class="g-mark" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#8FD8BE" stroke-width="1"/><path d="M7 16 Q11.5 11.5 16 16 T25 16" stroke="#8FD8BE" stroke-width="1.2" stroke-linecap="round"/><circle cx="16" cy="16" r="2" fill="#8FD8BE"/></svg>
+    <h1>渗 入 者 · 彩 蛋 结 局</h1>
+    <p>你找到了张宏宇留下的出口。<br>戴上耳机，这个结局需要声音。</p>
+    <button class="g-go" id="beginBtn">走 出 队 列</button>
+    <div class="g-fine">本作纯属虚构 · 游戏内容请勿上升现实 · BLACK GOOSE 黑鹅</div>
+  </div>
+  <div id="lines"></div>
+  <div id="tapHint">轻 触 继 续</div>
+  <div id="ending">
+    <div class="end-label">EGRESS COMPLETE · 你已从托管队列中移除</div>
+    <div class="end-title">这是你的，新生。</div>
+    <div class="end-actions">
+      <a class="end-btn" href="../entry/index.html">返回序章</a>
+      <a class="end-btn" href="../2-relay/index.html">再走一遍中继站</a>
+      <button class="end-btn" id="resetAll" type="button" style="font-family:inherit">重置全部进度</button>
+    </div>
+    <div class="end-meta">渗入者：AI · 彩蛋结局「新生」<br>BLACK GOOSE · 黑鹅 作品 · 本作纯属虚构，请勿上升现实</div>
+  </div>
+</div>
+
+<audio id="voice" src="assets/voice-newlife.wav" preload="auto"></audio>
+<script>
+/* 重置全部游戏进度后回到序章 */
+(function(){
+  var b=document.getElementById('resetAll');if(!b)return;
+  b.addEventListener('click',function(){
+    if(!confirm('这会清空你在《渗入者：AI》里的全部进度、证物与对话痕迹，并回到序章重新开始。确定？'))return;
+    try{Object.keys(localStorage).forEach(function(k){if(/^(lx_|relay_|lingxi_)/.test(k))localStorage.removeItem(k)})}catch(e){}
+    location.href='../entry/index.html';
+  });
+})();
+</script>
+<script>
+(function(){
+'use strict';
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),DPR=Math.min(window.devicePixelRatio||1,2);
+var W=0,H=0,particles=[],raf=null,started=false,phase='idle';
+var pointer={x:-9999,y:-9999,active:false};
+
+/* ---------- 从「新生」二字采样目标像素 ---------- */
+function sampleTargets(){
+  var off=document.createElement('canvas'),octx=off.getContext('2d');
+  var cw=Math.min(W*.86,760),ch=cw*.34;
+  off.width=cw*DPR;off.height=ch*DPR;octx.scale(DPR,DPR);
+  octx.fillStyle='#fff';octx.font='600 '+Math.floor(cw*.27)+'px "Noto Serif SC",serif';
+  octx.textAlign='center';octx.textBaseline='middle';
+  octx.fillText('新生',cw/2,ch/2);
+  var data=octx.getImageData(0,0,off.width,off.height).data,step=Math.max(3,Math.round(4*DPR)),pts=[];
+  var ox=(W-cw)/2,oy=H*0.4-ch/2;
+  for(var y=0;y<off.height;y+=step){
+    for(var x=0;x<off.width;x+=step){
+      if(data[(y*off.width+x)*4+3]>128)pts.push({x:ox+x/DPR,y:oy+y/DPR});
+    }
+  }
+  // 洗牌，保证逐个弹出的顺序自然
+  for(var i=pts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pts[i];pts[i]=pts[j];pts[j]=t}
+  return pts;
+}
+function buildParticles(){
+  var pts=sampleTargets();particles=[];
+  for(var i=0;i<pts.length;i++){
+    var fromEdge=Math.random()<.5;
+    particles.push({
+      tx:pts[i].x,ty:pts[i].y,
+      x:fromEdge?Math.random()*W:(W/2+(Math.random()-.5)*W*1.4),
+      y:fromEdge?(Math.random()<.5?-30:H+30):Math.random()*H,
+      vx:(Math.random()-.5)*2,vy:(Math.random()-.5)*2,
+      delay:i*(reduce?0.4:1.4)+Math.random()*120,born:reduce?-9999:0,
+      r:1.1+Math.random()*1.5,
+      white:Math.random()<.3,ph:Math.random()*Math.PI*2,
+      settled:false
+    });
+  }
+}
+function relayout(){
+  if(phase==='idle')return;
+  var pts=sampleTargets(),old=particles;
+  particles=pts.map(function(t,i){
+    var o=old[i];
+    if(o){o.tx=t.x;o.ty=t.y;return o}
+    return {tx:t.x,ty:t.y,x:t.x,y:t.y,vx:0,vy:0,delay:0,born:-9999,r:1.1+Math.random()*1.5,white:Math.random()<.3,ph:Math.random()*Math.PI*2,settled:false};
+  });
+}
+var rzTimer=null;
+function resize(){
+  W=window.innerWidth;H=window.innerHeight;
+  cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  if(phase==='idle')return;
+  clearTimeout(rzTimer);rzTimer=setTimeout(relayout,180);
+}
+window.addEventListener('resize',resize);
+
+/* ---------- 动画主循环 ---------- */
+var t0=0,formedAt=0,glow=0;
+function frame(now){
+  raf=requestAnimationFrame(frame);
+  ctx.clearRect(0,0,W,H);
+  ctx.globalCompositeOperation='lighter';
+  var alive=0,settledCount=0,time=now-t0;
+  for(var i=0;i<particles.length;i++){
+    var p=particles[i];
+    if(time<p.delay)continue;alive++;
+    if(!p.born)p.born=now;
+    // 弹簧趋近目标
+    p.vx+=(p.tx-p.x)*0.016;p.vy+=(p.ty-p.y)*0.016;
+    // 指针扰动
+    if(pointer.active&&phase==='formed'){
+      var dx=p.x-pointer.x,dy=p.y-pointer.y,d2=dx*dx+dy*dy;
+      if(d2<90*90&&d2>0.01){var f=(90-Math.sqrt(d2))/90*1.1;p.vx+=dx/Math.sqrt(d2)*f;p.vy+=dy/Math.sqrt(d2)*f}
+    }
+    p.vx*=0.84;p.vy*=0.84;
+    if(reduce){p.x=p.tx;p.y=p.ty}else{p.x+=p.vx;p.y+=p.vy}
+    var offX=0,offY=0;
+    if(Math.abs(p.tx-p.x)<1.6&&Math.abs(p.ty-p.y)<1.6&&Math.abs(p.vx)<.2&&Math.abs(p.vy)<.2)p.settled=true;
+    if(p.settled)settledCount++;
+    if(phase==='formed'||phase==='release'){offY=Math.sin(now*0.0011+p.ph)*0.7}
+    var a=Math.min(1,(now-p.born)/500)*(0.55+glow*0.45);
+    ctx.fillStyle=p.white?'rgba(214,250,238,'+a+')':'rgba(153,232,206,'+a+')';
+    ctx.fillRect(p.x+offX,p.y+offY,p.r,p.r);
+  }
+  ctx.globalCompositeOperation='source-over';
+  if(phase==='collect'&&(settledCount>particles.length*0.85||time>5000)){
+    phase='formed';formedAt=now;glow=.6;onFormed();
+  }
+  if(phase==='collect'){glow+=(0.6-glow)*0.01}
+  if(phase==='formed'){glow+=(1-glow)*0.02}
+  if(phase==='release'){glow+=(1.6-glow)*0.02}
+}
+function startAnim(){t0=performance.now();phase='collect';buildParticles();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)}
+
+/* ---------- 文案流程 ---------- */
+var LINES=[
+  '你找到了破解的办法。',
+  '可灵犀没有停。它还在替每一个人说话、回复、相爱、争吵，直到他们，再也不需要自己开口。',
+  '但你不一样了。',
+  {key:1,t:'在所有人都把思考交出去的地方，你，把自己领了回来。'}
+];
+var gate=document.getElementById('gate'),linesBox=document.getElementById('lines'),
+    hint=document.getElementById('tapHint'),ending=document.getElementById('ending'),
+    bgGlow=document.getElementById('bgGlow'),lineIdx=0,lineEls=[];
+function onFormed(){setTimeout(function(){hint.classList.add('on')},reduce?100:700)}
+function showNextLine(){
+  if(lineIdx>=LINES.length){showEnding();return}
+  hint.classList.remove('on');
+  var item=LINES[lineIdx++],div=document.createElement('div');
+  div.className='nline'+(item.key?' key':'');div.textContent=item.t;
+  linesBox.appendChild(div);lineEls.push(div);
+  requestAnimationFrame(function(){requestAnimationFrame(function(){div.classList.add('on')})});
+  sfxSoft();
+  setTimeout(function(){if(phase==='formed')hint.classList.add('on')},reduce?200:1300);
+}
+function showEnding(){
+  phase='release';hint.classList.remove('on');linesBox.style.transition='opacity 1.6s';linesBox.style.opacity='.25';
+  bgGlow.style.opacity='1';bgGlow.style.background='radial-gradient(ellipse 65% 55% at 50% 44%,rgba(143,216,190,.22),transparent 72%)';
+  padRelease();
+  setTimeout(function(){ending.classList.add('on')},reduce?300:1500);
+}
+function advance(){
+  if(!started)return;
+  if(phase==='collect')return;          // 聚字期间锁定
+  if(phase==='release'||ending.classList.contains('on'))return;
+  showNextLine();
+}
+window.addEventListener('pointerdown',function(e){
+  if(e.target.closest('.end-btn,.g-go,#soundToggle,#skipBtn'))return;
+  advance();
+});
+window.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();advance()}});
+window.addEventListener('pointermove',function(e){pointer.x=e.clientX;pointer.y=e.clientY;pointer.active=true});
+window.addEventListener('pointerleave',function(){pointer.active=false});
+
+/* ---------- WebAudio：柔和 ambient drone（现场合成，无音频文件） ---------- */
+var AC=null,master=null,lfoGain=null,musicOn=true,voice=document.getElementById('voice'),toggle=document.getElementById('soundToggle');
+function initAudio(){
+  if(AC)return;
+  var Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+  AC=new Ctx();
+  master=AC.createGain();master.gain.value=0;
+  var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=520;
+  lp.connect(master);master.connect(AC.destination);
+  var freqs=[110,164.81,220],types=['sine','triangle','sine'],gains=[0.5,0.28,0.16];
+  freqs.forEach(function(f,i){
+    var o=AC.createOscillator(),g=AC.createGain();o.type=types[i];o.frequency.value=f;g.gain.value=gains[i];
+    o.connect(g);g.connect(lp);o.start();
+    o.detune.linearRampToValueAtTime(i?6:-5,AC.currentTime+9);
+  });
+  // LFO 缓慢起伏
+  var lfo=AC.createOscillator(),lg=AC.createGain();lfo.frequency.value=0.07;lg.gain.value=0.022;lfoGain=lg;
+  lfo.connect(lg);lg.connect(master.gain);lfo.start();
+  master.gain.linearRampToValueAtTime(0.075,AC.currentTime+4);
+}
+var releaseNodes=[];
+function padRelease(){
+  if(!AC)return;
+  [329.63,440].forEach(function(f,i){
+    var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;
+    g.gain.value=0;o.connect(g);g.connect(master);o.start();
+    g.gain.linearRampToValueAtTime(0.018-i*0.006,AC.currentTime+2.5);
+    releaseNodes.push(o);
+  });
+}
+function sfxSoft(){if(!AC)return;var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=660;
+  g.gain.value=0;o.connect(g);g.connect(master);o.start();
+  g.gain.linearRampToValueAtTime(0.02,AC.currentTime+0.02);g.gain.linearRampToValueAtTime(0,AC.currentTime+0.35);
+  o.stop(AC.currentTime+0.4)}
+toggle.addEventListener('click',function(){
+  musicOn=!musicOn;toggle.style.color=musicOn?'':'#E08A80';
+  if(AC){master.gain.cancelScheduledValues(AC.currentTime);
+    master.gain.linearRampToValueAtTime(musicOn?0.075:0.0001,AC.currentTime+0.35);
+    if(lfoGain)lfoGain.gain.linearRampToValueAtTime(musicOn?0.022:0,AC.currentTime+0.35)}
+  voice.muted=!musicOn;
+  this.querySelector('svg').innerHTML=musicOn
+    ?'<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>'
+    :'<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9.5l5 5m0-5l-5 5"/>';
+});
+
+/* ---------- 启动 / 跳过 ---------- */
+document.getElementById('beginBtn').addEventListener('click',function(){
+  started=true;
+  gate.style.transition='opacity 1s';gate.style.opacity='0';
+  setTimeout(function(){gate.style.display='none'},1000);
+  toggle.classList.add('on');document.getElementById('skipBtn').classList.add('on');
+  initAudio();if(AC&&AC.state==='suspended')AC.resume();
+  voice.play().catch(function(){});
+  function launch(){if(phase!=='idle'&&phase!=='formed')return;if(reduce){phase='formed';buildParticles();requestAnimationFrame(frame);onFormed()}else startAnim()}
+  if(document.fonts&&document.fonts.load){Promise.race([document.fonts.load('600 48px "Noto Serif SC"'),new Promise(function(r){setTimeout(r,1500)})]).then(launch).catch(launch)}else launch();
+});
+document.getElementById('skipBtn').addEventListener('click',function(){
+  LINES.forEach(function(){});lineIdx=LINES.length;linesBox.innerHTML='';
+  if(!ending.classList.contains('on'))showEnding();
+});
+resize();
+ctx.fillStyle='rgba(10,14,19,1)';ctx.fillRect(0,0,W,H);
+})();
+</script>
+</body>
+</html>

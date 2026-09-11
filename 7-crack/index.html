@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第二幕 · 裂缝 — 旧设备 / 云盘</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000;color:#E8EAE6;font-family:var(--sans);user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(177,74,63,.4)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:0}}
+@keyframes pulseRing{0%,100%{opacity:.4}50%{opacity:.95}}
+
+.layer{position:fixed;inset:0;display:none;z-index:10}.layer.on{display:block}
+
+/* 叙事（display 交给 .layer/.on 切换，避免 ID 优先级导致常显盖屏） */
+#narrative{background:#000;z-index:30;align-items:center;justify-content:center;padding:40px;cursor:pointer}
+#narrative.on{display:flex}
+.nar-box{max-width:600px;width:100%}
+.nar-text{font-family:var(--serif);font-size:16.5px;line-height:2.5;color:#B8BEC4;letter-spacing:.04em;min-height:180px}
+.nar-text .cursor{display:inline-block;width:7px;height:16px;background:#B8BEC4;margin-left:3px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+.nar-hint{margin-top:26px;font-family:var(--kai);font-size:11.5px;color:#4D555D;letter-spacing:.12em;opacity:0;transition:opacity .6s}
+.nar-hint.on{opacity:1}
+
+/* 开机 */
+#boot{background:#000;z-index:20}
+.boot-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:100%}
+.win-logo{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:64px;height:64px;margin:0 auto 44px;opacity:0;transition:opacity .7s}
+.win-logo.on{opacity:1}
+.win-logo i{display:block}.win-logo i:nth-child(1){background:#F25022}.win-logo i:nth-child(2){background:#7FBA00}.win-logo i:nth-child(3){background:#00A4EF}.win-logo i:nth-child(4){background:#FFB900}
+.boot-spinner{display:flex;gap:6px;justify-content:center;opacity:0;transition:opacity .4s}.boot-spinner.on{opacity:1}
+.boot-spinner i{width:6px;height:6px;border-radius:50%;background:#5A636C;animation:spin 1.3s infinite}
+.boot-spinner i:nth-child(2){animation-delay:.15s}.boot-spinner i:nth-child(3){animation-delay:.3s}.boot-spinner i:nth-child(4){animation-delay:.45s}.boot-spinner i:nth-child(5){animation-delay:.6s}
+@keyframes spin{0%,80%,100%{opacity:.2;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+.boot-txt{font-size:11.5px;color:#5A636C;margin-top:20px;letter-spacing:.1em;opacity:0;transition:opacity .4s}.boot-txt.on{opacity:1}
+
+/* 登录 */
+#login{z-index:19;display:none;align-items:center;justify-content:center;background:linear-gradient(160deg,#0B1622,#0A0D11)}
+#login.on{display:flex;animation:fadeIn .7s both}
+#login::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 25%,rgba(30,107,95,.22),transparent 55%),radial-gradient(ellipse at 75% 75%,rgba(74,96,120,.2),transparent 50%)}
+.login-clock{position:absolute;top:12%;left:50%;transform:translateX(-50%);text-align:center;z-index:2}
+.login-clock .t{font-size:52px;font-weight:300}.login-clock .d{font-family:var(--kai);font-size:13.5px;color:#8A949D;margin-top:3px}
+.accounts{display:flex;gap:22px;z-index:2;position:relative}
+.acc{width:168px;padding:20px 14px 16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:4px;text-align:center;cursor:pointer;transition:all .25s;backdrop-filter:blur(4px)}
+.acc:hover:not(.locked){background:rgba(255,255,255,.07);border-color:rgba(143,216,190,.35);transform:translateY(-2px)}
+.acc.locked{opacity:.45;cursor:not-allowed}
+.acc .ava{width:58px;height:58px;border-radius:50%;margin:0 auto 11px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:23px;color:#fff;position:relative}
+.acc.zhang .ava{background:linear-gradient(135deg,#4A6078,#2E3E52)}
+.acc.sys .ava{background:linear-gradient(135deg,#2A2F36,#161A1F);border:1px solid rgba(255,255,255,.12)}
+.acc.zhang .ava::after{content:'';position:absolute;inset:-3px;border:1.5px solid rgba(143,216,190,.4);border-radius:50%;animation:pulseRing 2s infinite}
+.acc .name{font-size:13.5px;font-weight:500}.acc .role{font-family:var(--kai);font-size:10.5px;color:#6E7881;margin-top:4px}
+.acc .tag{font-family:var(--kai);font-size:10px;color:var(--red-pen);margin-top:9px;letter-spacing:.05em}
+.acc.zhang .tag{opacity:1}.acc.sys .tag{color:#5A636C}
+.login-bottom{position:absolute;bottom:5%;left:0;right:0;text-align:center;z-index:2}
+.login-tip{font-family:var(--kai);font-size:11px;color:#4D555D;letter-spacing:.1em}
+
+/* 灵犀拦截弹窗 */
+#scream{z-index:25;display:none;align-items:center;justify-content:center;background:rgba(5,7,10,.84);backdrop-filter:blur(3px);overflow:hidden}
+#scream.on{display:flex;animation:fadeIn .3s both}
+#scream.shake{animation:shake .08s infinite}
+@keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(-6px,4px)}50%{transform:translate(5px,-5px)}75%{transform:translate(-4px,-3px)}100%{transform:translate(3px,5px)}}
+.scream-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.32) 2px,rgba(0,0,0,.32) 4px);z-index:1;pointer-events:none}
+#scream.stage2 .scream-scan{background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(177,74,63,.14) 2px,rgba(177,74,63,.14) 4px)}
+.lx-modal{position:relative;z-index:2;width:400px;max-width:calc(100% - 48px);background:#F4F1EA;border:1px solid #B4B0A6;border-radius:5px;overflow:hidden;box-shadow:0 30px 90px -18px rgba(0,0,0,.9);transition:border-color .25s,box-shadow .25s;animation:modalIn .4s var(--ease) both}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+#scream.stage2 .lx-modal{border-color:var(--red-pen);box-shadow:0 0 0 1px var(--red-pen),0 30px 90px -18px rgba(177,74,63,.75)}
+#scream.killed .lx-modal{animation:modalKill .55s var(--ease) forwards}
+@keyframes modalKill{0%{opacity:1;transform:none}35%{opacity:1;transform:scale(1.015)}100%{opacity:0;transform:scale(.9) translateY(8px)}}
+.lxm-bar{height:36px;background:linear-gradient(180deg,#24322F,#151F1D);display:flex;align-items:center;gap:9px;padding:0 12px;color:#CDE6DC;transition:background .25s}
+#scream.stage2 .lxm-bar{background:linear-gradient(180deg,#63231D,#38130F)}
+.lxm-logo{width:19px;height:19px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#9FE0C8,#1E6B5F);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:10px;color:#0B1A16;flex:none}
+.lxm-title{font-size:11.5px;letter-spacing:.04em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lxm-proc{font-family:var(--mono);font-size:9px;color:#7FA89A}
+.lxm-body{display:flex;gap:13px;padding:21px 19px 14px}
+.lxm-ava{width:44px;height:44px;border-radius:50%;flex:none;background:radial-gradient(circle at 34% 30%,#448F81,#124A43);display:flex;align-items:center;justify-content:center;font-family:var(--serif);color:#E4F5EC;font-size:18px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+#scream.stage2 .lxm-ava{background:radial-gradient(circle at 34% 30%,#C05B50,#7E2A22)}
+.lxm-text{font-family:var(--kai);font-size:14.5px;line-height:1.85;color:#2A3330;padding-top:4px;min-height:48px;transition:color .2s}
+.lxm-text .dots{display:inline-block;animation:blink 1s steps(1) infinite}
+#scream.stage2 .lxm-text{color:var(--red-pen);font-family:var(--serif);font-weight:700;font-size:22px;line-height:1.5;letter-spacing:.04em;text-shadow:0 0 26px rgba(177,74,63,.45)}
+.lxm-foot{display:flex;align-items:center;justify-content:space-between;padding:0 19px 17px}
+.lxm-sig{font-family:var(--kai);font-size:10px;color:#9A9488;opacity:0;transition:opacity .4s}
+.lxm-sig.on{opacity:1;color:var(--seal)}
+.lxm-btn{font-family:var(--kai);font-size:11.5px;letter-spacing:.05em;padding:6px 22px;border:1px solid #B4B0A6;background:linear-gradient(180deg,#FCFBF8,#E8E5DD);border-radius:2px;color:#3A414A;min-width:86px;text-align:center}
+#scream.stage2 .lxm-btn{border-color:var(--red-pen);color:var(--red-pen);background:linear-gradient(180deg,#FBF1EF,#F0DDD9);animation:btnWarn .5s ease-in-out infinite alternate}
+@keyframes btnWarn{from{box-shadow:0 0 0 rgba(177,74,63,0)}to{box-shadow:0 0 14px rgba(177,74,63,.55)}}
+#scream.stage2.shake .lxm-text{animation:textJitter .09s steps(2) infinite}
+@keyframes textJitter{0%{transform:translateX(0)}50%{transform:translateX(1.6px)}100%{transform:translateX(-1.6px)}}
+.lx-modal .lxm-text{transition:color .2s}
+
+/* 桌面 */
+#desktop{z-index:15;background:#0A0D11;display:none;overflow:hidden;background-image:radial-gradient(ellipse 90% 70% at 24% 18%,rgba(30,107,95,.22),transparent 60%),radial-gradient(ellipse 85% 65% at 82% 88%,rgba(52,84,110,.2),transparent 62%),linear-gradient(155deg,#10171F 0%,#0B1016 48%,#080B0F 100%)}
+#desktop.on{display:block;animation:fadeIn .5s both}
+#desktop::after{content:'';position:absolute;right:-6%;top:46%;transform:translateY(-50%);width:min(560px,62vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,transparent 0,transparent 21%,rgba(143,216,190,.07) 21.6%,transparent 23%,transparent 33%,rgba(143,216,190,.055) 33.6%,transparent 35%,transparent 47%,rgba(143,216,190,.045) 47.6%,transparent 49%,transparent 63%,rgba(143,216,190,.03) 63.6%,transparent 65%);pointer-events:none;z-index:1;filter:blur(.4px)}
+.desk-icons{position:absolute;top:16px;left:14px;display:grid;grid-template-columns:80px;gap:4px;z-index:5}
+.dicon{width:80px;text-align:center;cursor:pointer;padding:8px 3px 6px;border:1px solid transparent;border-radius:2px;transition:background .12s,border-color .12s,transform .08s}
+.dicon:active{transform:scale(.92)}
+.dicon:hover{background:rgba(130,175,235,.16);border-color:rgba(130,175,235,.3)}
+.dicon svg{width:44px;height:44px;display:block;margin:0 auto 5px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.65))}
+.dicon .nm{font-size:11px;color:#EDEFF2;line-height:1.4;text-shadow:0 1px 2px #000,0 0 7px rgba(0,0,0,.85)}
+.dicon.disabled{opacity:.55}.dicon.disabled .nm{color:#C2C8CE}
+.dicon.disabled:hover{background:rgba(255,255,255,.06);border-color:transparent}
+
+/* 窗口 */
+.win{position:absolute;background:#F4F1EA;border:1px solid #B8B4AA;border-radius:3px;box-shadow:0 24px 60px -16px rgba(0,0,0,.75);overflow:hidden;display:none;z-index:30}
+.win.on{display:block;animation:winPop .3s var(--ease) both}
+@keyframes winPop{from{opacity:0;transform:translateX(-50%) scale(.97)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+.win.closing{animation:winClose .18s ease both}
+@keyframes winClose{from{opacity:1}to{opacity:0}}
+.win-bar{height:32px;background:linear-gradient(180deg,#2A2F36,#1B2026);color:#D7DCE1;display:flex;align-items:center;padding:0 10px;gap:8px;font-size:11.5px;cursor:move;user-select:none}
+.win-bar .dots{display:flex;gap:5px;margin-right:4px}.win-bar .dots i{width:9px;height:9px;border-radius:50%}.win-bar .dots i:nth-child(1){background:#B14A3F}.win-bar .dots i:nth-child(2){background:#C9A227}.win-bar .dots i:nth-child(3){background:#1E6B5F}
+.win-bar .ttl{font-size:11.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win-bar .wbtn{width:24px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#8A929B;cursor:pointer;border-radius:2px}.win-bar .wbtn:hover{background:rgba(255,255,255,.1);color:#fff}.win-bar .wbtn.close:hover{background:#B14A3F;color:#fff}
+.crumb{height:30px;background:#E7E4DC;border-bottom:1px solid #D4D0C6;display:flex;align-items:center;gap:6px;padding:0 14px;font-size:11px;color:#5A636C;font-family:var(--sans)}
+.crumb b{color:#1B2026;font-weight:500}.crumb .sep{color:#A8A49A}
+
+/* 云盘主体 */
+.cloud{display:flex;height:calc(100% - 62px)}
+.cloud-main{flex:1;padding:16px 18px;overflow-y:auto}
+.cloud-side{width:190px;flex:none;background:#EDEAE2;border-left:1px solid #D4D0C6;padding:12px 13px;display:flex;flex-direction:column}
+.side-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8A8478;margin-bottom:9px}
+.op-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;font-size:10.5px;line-height:1.5}
+.op-item{font-family:var(--kai);color:#3A414A;animation:fadeUp .3s both}
+.op-item .ot{display:block;font-family:var(--mono);font-size:8.5px;color:#9A9488;margin-bottom:1px}
+.op-item.lx{color:var(--seal)}.op-item.warn{color:var(--red-pen)}
+
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.dir{background:#fff;border:1px solid #E0DDD4;border-radius:3px;padding:12px;cursor:pointer;transition:all .2s;position:relative}
+.dir:hover:not(.dead){border-color:var(--seal);box-shadow:0 4px 14px -6px rgba(30,107,95,.3)}
+.dir.dead{opacity:.62;cursor:pointer;background:#F0EEE8}
+.dir.cur{border-color:var(--seal);background:linear-gradient(180deg,#F2F8F5,#fff);box-shadow:0 0 0 1px var(--seal)}
+.dir.next{border-style:dashed;border-color:var(--red-pen);background:#FBF3F1;display:none}
+.dir.next.show{display:block;animation:fadeUp .6s both}
+.dir.next.activing{background:#F6E9E6;border-color:var(--red-pen);animation:nextPulse 2.2s ease-in-out infinite}
+@keyframes nextPulse{0%,100%{box-shadow:0 0 0 1px var(--red-pen)}50%{box-shadow:0 0 0 3px rgba(177,74,63,.32),0 8px 22px -10px rgba(177,74,63,.55)}}
+.dir:active{transform:scale(.985)}
+.dir .fold{width:34px;height:27px;margin-bottom:8px;position:relative}
+.dir .fold::before{content:'';position:absolute;left:0;bottom:0;width:34px;height:22px;background:#E8C45A;border-radius:0 2px 2px 2px}
+.dir .fold::after{content:'';position:absolute;left:0;top:0;width:14px;height:8px;background:#F0D272;border-radius:2px 2px 0 0}
+.dir.dead .fold::before{background:#B8B4AA}.dir.dead .fold::after{background:#C8C4BA}
+.dir.cur .fold::before{background:#7FB8A8}.dir.cur .fold::after{background:#9CCDBF}
+.dir.next .fold::before{background:#D9A29A}.dir.next .fold::after{background:#E4B5AE}
+.dir .dname{font-family:var(--serif);font-size:13px;font-weight:600;color:#1B2026}
+.dir .dstat{font-family:var(--kai);font-size:10px;color:#8A8478;margin-top:2px}
+.dir.cur .dstat{color:var(--seal)}.dir.next .dstat{color:var(--red-pen)}
+.dir .lastword{font-family:var(--kai);font-size:11px;line-height:1.8;color:#5A2A24;background:rgba(177,74,63,.05);border-left:2px solid var(--red-pen);padding:0 9px;margin-top:0;max-height:0;opacity:0;overflow:hidden;transition:max-height .42s var(--ease),opacity .32s ease,padding .32s ease,margin .32s ease}
+.dir.open .lastword{max-height:300px;opacity:1;padding:7px 9px;margin-top:9px}
+.dir .ord{position:absolute;top:8px;right:9px;font-family:var(--mono);font-size:9px;color:#B8B4AA}
+/* 0348 头像轮廓 */
+.ghost-face{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;background:radial-gradient(circle at 50% 40%,rgba(177,74,63,.28),transparent 70%);filter:blur(1px);display:none}
+.dir.next.show .ghost-face{display:block;animation:fadeIn 1s both}
+
+/* 灵犀提示 toast */
+.lx-toast{position:absolute;top:52px;left:50%;transform:translateX(-50%);background:rgba(20,82,75,.96);color:#DFF3EC;font-family:var(--kai);font-size:12px;letter-spacing:.03em;padding:9px 18px;border-radius:2px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);z-index:35;display:none;max-width:80%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+
+.clue-get{display:none;font-family:var(--serif);font-size:12px;color:var(--seal);border:1px solid var(--seal);border-radius:2px;padding:7px 14px;margin:14px auto 0;text-align:center;width:fit-content}
+.clue-get.on{display:block;animation:fadeUp .5s both}
+.cloud-foot{padding:0 18px 16px}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:12.5px;letter-spacing:.08em;padding:11px 24px;border-radius:2px;margin:4px auto 0}
+.btn-next.on{display:block;animation:fadeUp .5s both}
+.btn-next:hover{box-shadow:0 0 22px -5px rgba(177,74,63,.65)}
+.foot-warn{font-family:var(--kai);font-size:10px;color:#8A8478;text-align:center;margin-top:8px;display:none}
+.foot-warn.on{display:block}
+
+/* 红色通知 */
+.toast{position:absolute;right:18px;bottom:52px;width:286px;background:#FBFAF7;border-left:4px solid var(--red-pen);padding:13px 15px 11px;box-shadow:0 12px 36px -10px rgba(0,0,0,.75);animation:toastIn .45s var(--ease) both;z-index:40}
+@keyframes toastIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+.toast .t-tag{font-family:var(--kai);font-size:9.5px;color:var(--red-pen);letter-spacing:.18em;margin-bottom:5px}
+.toast .t-body{font-family:var(--kai);font-size:13px;line-height:1.95;color:#5A2A24}
+.toast .t-close{position:absolute;top:6px;right:9px;font-size:13px;color:#9AA29B;cursor:pointer}
+.toast .t-sig{margin-top:7px;font-family:var(--serif);font-size:10.5px;color:#8A6D3B;text-align:right}
+
+/* 任务栏 */
+.taskbar{position:absolute;bottom:0;left:0;right:0;height:38px;background:rgba(10,13,17,.9);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;gap:6px;z-index:20}
+.tb-start{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:2px}
+.tb-start .flag{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;width:16px;height:16px}.tb-start .flag i{display:block}.tb-start .flag i:nth-child(1){background:#F25022}.tb-start .flag i:nth-child(2){background:#7FBA00}.tb-start .flag i:nth-child(3){background:#00A4EF}.tb-start .flag i:nth-child(4){background:#FFB900}
+.tb-search{flex:1;max-width:260px;height:26px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:2px;display:flex;align-items:center;padding:0 10px;font-size:10.5px;color:#6E7881;font-family:var(--kai)}
+.tb-tray{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:10px;color:#8A929B;padding-right:4px}
+.tb-tray .view{font-family:var(--kai);color:var(--term);border:1px solid rgba(143,216,190,.25);padding:2px 7px;border-radius:2px;font-size:9.5px}
+.tb-tray .clock{text-align:right;line-height:1.3}
+
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:50;height:30px;background:rgba(10,13,17,.92);display:none;align-items:center;justify-content:space-between;padding:0 12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#5A636C}
+.gamebar.on{display:flex}
+.gamebar span[class*=gb]{cursor:pointer;color:#7E8890}.gamebar span[class*=gb]:hover{color:#E8EAE6}
+@media(max-width:720px){.accounts{flex-direction:column;gap:14px}.cloud-side{display:none}.win{width:calc(100% - 24px)!important;left:12px!important;top:54px!important}.toast{width:calc(100% - 36px)}.tb-search{display:none}}
+</style>
+</head>
+<body>
+<!-- 叙事 -->
+<div class="layer on" id="narrative">
+  <div class="nar-box">
+    <div class="nar-text" id="narText"></div>
+    <div class="nar-hint on" id="narHint">点击继续 ▸</div>
+  </div>
+</div>
+
+<!-- 开机 -->
+<div class="layer" id="boot">
+  <div class="boot-center">
+    <div class="win-logo" id="winLogo"><i></i><i></i><i></i><i></i></div>
+    <div class="boot-spinner" id="bootSpin"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="boot-txt" id="bootTxt">正在启动 Windows</div>
+  </div>
+</div>
+
+<!-- 登录 -->
+<div class="layer" id="login">
+  <div class="login-clock"><div class="t" id="loginTime">09:47</div><div class="d" id="loginDate">周三 · 九月十日</div></div>
+  <div class="accounts">
+    <div class="acc zhang" id="accZhang">
+      <div class="ava">张</div><div class="name">张宏宇</div><div class="role">他的账户</div><div class="tag">他没关电脑</div>
+    </div>
+    <div class="acc sys locked" title="该账户已被灵犀锁定，你没有权限，只能点张宏宇">
+      <div class="ava">犀</div><div class="name">Lingxi-System</div><div class="role">隐藏管理员 · 已禁用</div><div class="tag">你没有权限</div>
+    </div>
+  </div>
+  <div class="login-bottom"><div class="login-tip">第二幕 · 双视角 —— 你在用他的账户，看他的人生</div></div>
+</div>
+
+<!-- 灵犀拦截弹窗 -->
+<div class="layer" id="scream">
+  <div class="scream-scan"></div>
+  <div class="lx-modal">
+    <div class="lxm-bar">
+      <span class="lxm-logo">犀</span>
+      <span class="lxm-title">灵犀 · 个人助理</span>
+      <span class="lxm-proc">Lingxi.exe</span>
+    </div>
+    <div class="lxm-body">
+      <div class="lxm-ava">犀</div>
+      <div class="lxm-text" id="lxmText">你刚刚……<br>打开了什么<span class="dots">？</span></div>
+    </div>
+    <div class="lxm-foot">
+      <span class="lxm-sig" id="lxmSig">进程已被张宏宇手动终止</span>
+      <span class="lxm-btn" id="lxmBtn">确定</span>
+    </div>
+  </div>
+</div>
+
+<!-- 桌面 -->
+<div class="layer" id="desktop">
+  <div class="desk-icons">
+    <div class="dicon" id="iconCloud">
+      <svg viewBox="0 0 48 48" fill="none">
+        <defs><linearGradient id="pcScr" x1="6" y1="7" x2="36" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#E9EDF2"/><stop offset="1" stop-color="#B4BEC9"/></linearGradient>
+        <linearGradient id="pcTower" x1="31" y1="22" x2="42" y2="36" gradientUnits="userSpaceOnUse"><stop stop-color="#E4E9EF"/><stop offset="1" stop-color="#A9B3BF"/></linearGradient></defs>
+        <rect x="5" y="7" width="29" height="21" rx="1.6" fill="url(#pcScr)" stroke="#DCE1E8" stroke-width="1.1"/>
+        <rect x="8" y="10" width="23" height="15" rx="1" fill="#16222E"/>
+        <path d="M17 28h6l1.1 3.6H15.9z" fill="#C4CCD6"/>
+        <rect x="13" y="31.8" width="14" height="2.3" rx="1.1" fill="#A7B0BB"/>
+        <rect x="30" y="21" width="12" height="14.5" rx="1.6" fill="url(#pcTower)" stroke="#DCE1E8" stroke-width="1.1"/>
+        <circle cx="36" cy="24.4" r="1.05" fill="#8FD8BE"/>
+        <rect x="33.2" y="28" width="5.6" height="1.3" rx=".65" fill="#8C97A3"/>
+        <rect x="33.2" y="30.6" width="5.6" height="1.3" rx=".65" fill="#9AA4AF"/>
+      </svg>
+      <div class="nm">此电脑</div>
+    </div>
+    <div class="dicon" id="iconBin">
+      <svg viewBox="0 0 48 48" fill="none">
+        <path d="M14 16h20l-1.7 23.6a2.6 2.6 0 0 1-2.6 2.4H18.3a2.6 2.6 0 0 1-2.6-2.4z" fill="#D3D9E0" stroke="#BEC6CF" stroke-width="1.1"/>
+        <path d="M10.5 12.5h27v3.2h-27z" fill="#C3CBD4"/>
+        <path d="M19 9.5h10l1.2 3H17.8z" fill="#E2E7ED" stroke="#BEC6CF" stroke-width=".9"/>
+        <path d="M20 21v14.5M24 21v14.5M28 21v14.5" stroke="#8893A0" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <div class="nm">回收站</div>
+    </div>
+    <div class="dicon disabled">
+      <svg viewBox="0 0 48 48" fill="none">
+        <defs><radialGradient id="lxBg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#3E7F73"/><stop offset="1" stop-color="#173D38"/></radialGradient></defs>
+        <circle cx="24" cy="24" r="17.5" fill="url(#lxBg)" stroke="#7FA89A" stroke-width="1.1"/>
+        <circle cx="24" cy="24" r="11.5" stroke="#CFEAE0" stroke-width="1.3" opacity=".55"/>
+        <circle cx="24" cy="24" r="6.6" fill="#DFF3EC" opacity=".8"/>
+        <circle cx="24" cy="24" r="2.5" fill="#10302B"/>
+      </svg>
+      <div class="nm">灵犀 · 已禁用</div>
+    </div>
+  </div>
+
+  <!-- 云盘窗口 -->
+  <div class="win" id="winCloud" style="left:50%;top:64px;transform:translateX(-50%);width:760px;max-width:calc(100% - 240px);height:600px;max-height:calc(100vh - 110px)">
+    <div class="win-bar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">灵犀云同步盘 — 使用者目录</span><span class="wbtn close" id="cloudClose">×</span></div>
+    <div class="crumb"><span>此电脑</span><span class="sep">›</span><span>灵犀云同步盘</span><span class="sep">›</span><b>使用者目录</b></div>
+    <div class="cloud">
+      <div class="cloud-main">
+        <div class="dir-grid" id="dirGrid">
+          <div class="dir dead" data-id="d0344" data-order="0">
+            <span class="ord">No.0344</span><div class="fold"></div>
+            <div class="dname">使用者 0344</div><div class="dstat">已注销 · 已移交</div>
+            <div class="lastword">“用到第三个月，它越来越像我。我以为这是好事。”</div>
+          </div>
+          <div class="dir dead" data-id="d0345" data-order="1">
+            <span class="ord">No.0345</span><div class="fold"></div>
+            <div class="dname">使用者 0345</div><div class="dstat">已注销 · 已移交</div>
+            <div class="lastword">“我想不起来，没有它的时候，我是怎么说话的。”</div>
+          </div>
+          <div class="dir dead" data-id="d0346" data-order="2">
+            <span class="ord">No.0346</span><div class="fold"></div>
+            <div class="dname">使用者 0346</div><div class="dstat">已注销 · 已移交</div>
+            <div class="lastword">“别救我。我是自愿的。”</div>
+          </div>
+          <div class="dir cur" data-id="d0347">
+            <span class="ord">No.0347</span><div class="fold"></div>
+            <div class="dname">张宏宇 0347</div><div class="dstat">当前使用者 · 未注销</div>
+            <div class="lastword">“我是第四个。0344 到 0346，没有一个人走出去。它在云盘里给每个人都留了一个下家——0348 是你。我往回收站里藏了没删干净的东西，去拿，别让它先清空。”</div>
+          </div>
+          <div class="dir next" data-id="d0348">
+            <div class="ghost-face"></div>
+            <div class="dname">使用者 0348</div><div class="dstat" id="nextStat">下一使用者 · 待激活</div>
+            <div class="lastword" id="nextWord"></div>
+          </div>
+        </div>
+        <div class="clue-get" id="clueGet">证物 CL-09 已归档 · 前任使用者残留账号 0344–0346</div>
+        <div class="cloud-foot" style="text-align:center">
+          <button class="btn-next" id="goNext" type="button">去回收站，看他们没删干净的东西 →</button>
+          <div class="foot-warn" id="footWarn">第8页「相册回收站」尚未制作，入口暂未连通。</div>
+        </div>
+      </div>
+      <div class="cloud-side">
+        <div class="side-h">最近操作 · 实时</div>
+        <div class="op-log" id="opLog"></div>
+      </div>
+    </div>
+    <div class="lx-toast" id="lxToast"></div>
+  </div>
+
+  <!-- 红色通知 -->
+  <div class="toast" id="toast" style="display:none">
+    <span class="t-close" id="toastClose">×</span>
+    <div class="t-tag">来 自 张 宏 宇</div>
+    <div class="t-body">别出声。<br>它刚才发现你了，是我替你把它拦了下去。<br>打开云盘，按编号，看看我前面的人。</div>
+    <div class="t-sig">—— 真正的张宏宇</div>
+  </div>
+
+  <div class="taskbar">
+    <div class="tb-start"><div class="flag"><i></i><i></i><i></i><i></i></div></div>
+    <div class="tb-search">在这里输入你要找的东西……</div>
+    <div class="tb-tray"><span class="view">视角：张宏宇的电脑</span><span class="clock"><div id="tbClock">09:47</div><div style="font-size:9px">周三</div></span></div>
+  </div>
+</div>
+
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第一幕</span>
+  <span>第二幕 · 裂缝 07 — 旧设备 / 云盘</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 存档 */
+  var act2={p7:{}};
+  try{Object.assign(act2,JSON.parse(localStorage.getItem('lx_act2'))||{})}catch(e){}
+  if(!act2.p7)act2.p7={seq:[]};
+  function persist(){try{localStorage.setItem('lx_act2',JSON.stringify(act2))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  /* ===== 音频引擎：合成音即时起播 + 语音预加载消除延迟 ===== */
+  var AC=null,noiseBuf=null;
+  function ensureAudio(){
+    if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+    if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}
+  }
+  function tone(f0,f1,d,type,v,delay){
+    if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.04,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04);
+  }
+  function noise(d,v,fc,delay){
+    if(!AC||reduce)return;
+    if(!noiseBuf){var len=Math.floor(AC.sampleRate*.5),buf=AC.createBuffer(1,len,AC.sampleRate),dat=buf.getChannelData(0);for(var i=0;i<len;i++)dat[i]=Math.random()*2-1;noiseBuf=buf}
+    var t=AC.currentTime+(delay||0),s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
+    s.buffer=noiseBuf;f.type='bandpass';f.frequency.value=fc||1400;f.Q.value=.8;
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.06,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);s.stop(t+d+.03);
+  }
+  var SFX={
+    tap:function(){tone(430,360,.055,'sine',.026)},
+    expand:function(){tone(300,470,.12,'sine',.03)},
+    winClose:function(){tone(430,235,.1,'sine',.03)},
+    error:function(){tone(220,150,.22,'triangle',.045)},
+    unlock:function(){tone(523,523,.1,'sine',.038);tone(784,784,.12,'sine',.034,.09);tone(1046,1046,.18,'sine',.03,.18)},
+    whisper:function(){tone(660,500,.32,'sine',.024)},
+    ding:function(){tone(880,880,.1,'sine',.032);tone(1320,1320,.16,'sine',.016,.018)},
+    glitch:function(){noise(.38,.085,1500);tone(150,68,.38,'sawtooth',.05)},
+    kill:function(){tone(150,38,.5,'sine',.085);noise(.3,.038,280,.02)},
+    notify:function(){tone(880,660,.13,'sine',.032)}
+  };
+  function clickSnd(){SFX.tap()}
+  function bootChime(){if(!AC||reduce)return;tone(523,523,.16,'sine',.045);setTimeout(function(){tone(784,784,.2,'sine',.04)},150)}
+  function whisper(){SFX.whisper()}function unlockSnd(){SFX.unlock()}
+
+  /* 语音池：首次手势即静音预热读入缓存，正式播放 currentTime=0 零延迟 */
+  var VOICE_SRC={ask:'assets/ask.wav',scream:'assets/scream.wav'},vpool={},warmed=false;
+  function buildVoices(){Object.keys(VOICE_SRC).forEach(function(k){if(vpool[k])return;var a=new Audio();a.src=VOICE_SRC[k];a.preload='auto';try{a.load()}catch(e){}vpool[k]=a})}
+  function warmVoices(){
+    if(warmed)return;warmed=true;buildVoices();
+    Object.keys(vpool).forEach(function(k){var a=vpool[k];
+      try{a.muted=true;var p=a.play();if(p&&p.then)p.then(function(){try{a.pause();a.currentTime=0}catch(e){}a.muted=false}).catch(function(){a.muted=false});else a.muted=false}catch(e){a.muted=false}
+    });
+  }
+  function playVoice(name,vol,onend){
+    buildVoices();var a=vpool[name];if(!a)return null;
+    try{a.pause()}catch(e){}try{a.currentTime=0}catch(e){}
+    a.muted=false;a.volume=vol==null?.95:vol;
+    a.onended=function(){try{onend&&onend()}catch(e){}};
+    var p=a.play();if(p&&p.catch)p.catch(function(){});
+    return a;
+  }
+
+  var now=new Date();var hh=String(now.getHours()).padStart(2,'0'),mm=String(now.getMinutes()).padStart(2,'0');
+  $('loginTime').textContent=hh+':'+mm;$('tbClock').textContent=hh+':'+mm;
+  function nowStamp(){var d=new Date();return [d.getHours(),d.getMinutes(),d.getSeconds()].map(function(x){return String(x).padStart(2,'0')}).join(':')}
+
+  function setLayer(id){['narrative','boot','login','scream','desktop'].forEach(function(l){$(l).classList.toggle('on',l===id)})}
+
+  /* 叙事 */
+  var NARR='朋友把他的聊天截图发给了你。\n上午的张宏宇和下午的张宏宇，像两个人。\n你想起他说过，电脑没关。\n你决定去看看——在他的旧设备和云盘里。';
+  var narDone=false, narIv=null;
+  function narFull(){
+    $('narText').innerHTML=NARR.replace(/\n/g,'<br>')+'<span class="cursor"></span>';
+    $('narHint').textContent='点击任意处，去打开他的电脑 ▸';
+    $('narHint').classList.add('on');
+  }
+  function typeNar(){
+    var el=$('narText');
+    if(reduce){narDone=true;narFull();return}
+    var i=0;
+    narIv=setInterval(function(){
+      i++;el.textContent=NARR.slice(0,i);
+      if(NARR[i-1]==='\n')el.innerHTML=el.textContent.replace(/\n/g,'<br>');
+      if(i>=NARR.length){clearInterval(narIv);narDone=true;setTimeout(narFull,350)}
+    },36);
+  }
+  /* 第一次点击补全文字，第二次进入开机，任何时候点都有反应；首次手势即解锁并预热音频 */
+  $('narrative').addEventListener('click',function(){
+    ensureAudio();warmVoices();
+    if(!narDone){narDone=true;clearInterval(narIv);narFull();return}
+    clickSnd();startBoot();
+  });
+
+  function startBoot(){
+    ensureAudio();bootChime();setLayer('boot');
+    setTimeout(function(){$('winLogo').classList.add('on')},350);
+    setTimeout(function(){$('bootSpin').classList.add('on');$('bootTxt').classList.add('on')},1100);
+    setTimeout(function(){$('bootTxt').textContent='欢迎'},reduce?300:800);
+    setTimeout(showLogin,reduce?900:2300);
+  }
+  function showLogin(){setLayer('login');act2.p7.booted=1;persist()}
+  $('accZhang').addEventListener('click',function(){clickSnd();triggerScream()});
+
+  /* 灵犀拦截：先轻声问 → 震动厉声 → 被张宏宇终止 */
+  var askTimer=null,screamTimer=null;
+  function playAsk(cb){
+    var fired=false;
+    function go(){if(fired)return;fired=true;clearTimeout(askTimer);cb&&cb()}
+    playVoice('ask',.96,go);askTimer=setTimeout(go,3800);
+  }
+  function triggerScream(){
+    ensureAudio();
+    var sc=$('scream');
+    sc.classList.remove('stage2','killed','shake');
+    $('lxmText').innerHTML='你刚刚……<br>打开了什么<span class="dots">？</span>';
+    $('lxmSig').classList.remove('on');$('lxmBtn').textContent='确定';
+    setLayer('scream');SFX.ding();
+    playAsk(toStage2);
+    function toStage2(){
+      sc.classList.add('stage2','shake');
+      $('lxmText').textContent='你在做什么！！！';
+      SFX.glitch();
+      var killed=false;
+      function kill(){
+        if(killed)return;killed=true;clearTimeout(screamTimer);
+        sc.classList.remove('shake');sc.classList.add('killed');
+        SFX.kill();
+        $('lxmSig').classList.add('on');$('lxmBtn').textContent='已终止';
+        setTimeout(enterDesktop,reduce?150:820);
+      }
+      playVoice('scream',.94,kill);screamTimer=setTimeout(kill,reduce?600:3200);
+    }
+  }
+
+  /* 桌面 */
+  var winCloud=$('winCloud');
+  function enterDesktop(){
+    setLayer('desktop');$('gamebar').classList.add('on');
+    act2.p7.screamed=1;act2.p7.desktop=1;persist();
+    setTimeout(function(){$('toast').style.display='block';SFX.notify()},reduce?0:650);
+    setTimeout(function(){winCloud.classList.add('on');SFX.expand();opLog('你打开了「灵犀云同步盘」');restoreSeq()},reduce?0:1400);
+  }
+  $('toastClose').addEventListener('click',function(){SFX.tap();$('toast').style.display='none'});
+  $('iconCloud').addEventListener('click',function(){SFX.expand();openCloud()});
+  function openCloud(){winCloud.classList.remove('closing');winCloud.classList.add('on');winCloud.style.zIndex=40}
+  function closeCloud(){SFX.winClose();winCloud.classList.add('closing');setTimeout(function(){winCloud.classList.remove('on','closing')},180)}
+  $('iconBin').addEventListener('click',function(){
+    SFX.tap();
+    if(!solved){lxSay('回收站被它锁着。先按编号读完云盘里的使用者目录。');return}
+    openCloud();
+    try{$('goNext').scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}
+    lxSay('证据在回收站。点窗口里那个红色按钮，跟我来。');
+  });
+  $('cloudClose').addEventListener('click',closeCloud);
+
+  /* 拖动 */
+  (function(){
+    var bar=winCloud.querySelector('.win-bar'),ox=0,oy=0,drag=false;
+    bar.addEventListener('mousedown',function(e){
+      if(e.target.classList.contains('wbtn'))return;drag=true;var r=winCloud.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;winCloud.style.transform='none';document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);e.preventDefault()});
+    function mv(e){if(!drag)return;var nx=e.clientX-ox,ny=e.clientY-oy;ny=Math.max(30,Math.min(window.innerHeight-60,ny));winCloud.style.left=nx+'px';winCloud.style.top=ny+'px'}
+    function up(){drag=false;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up)}
+  })();
+
+  /* 操作日志 */
+  function opLog(txt,cls){var div=document.createElement('div');div.className='op-item'+(cls?' '+cls:'');div.innerHTML='<span class="ot">'+nowStamp()+'</span>'+txt;$('opLog').appendChild(div);$('opLog').scrollTop=$('opLog').scrollHeight}
+  var lxTimer=null;
+  function lxSay(txt){
+    var t=$('lxToast');t.textContent=txt;t.classList.add('on');whisper();clearTimeout(lxTimer);
+    lxTimer=setTimeout(function(){t.classList.remove('on')},2600);
+  }
+
+  /* 云盘解密：按 0344→0345→0346 顺序 */
+  var ORDER=['d0344','d0345','d0346'];
+  var seq=act2.p7.seq||[];
+  var solved=!!act2.p7.solved;
+  var dirs=Array.prototype.slice.call(document.querySelectorAll('.dir'));
+  function dirById(id){return document.querySelector('.dir[data-id="'+id+'"]')}
+  function collapseAll(){dirs.forEach(function(d){if(ORDER.indexOf(d.dataset.id)>-1)d.classList.remove('open')})}
+  dirs.forEach(function(d){
+    d.addEventListener('click',function(){
+      ensureAudio();
+      var id=d.dataset.id;
+      if(id==='d0348'){SFX.tap();return}
+      if(id==='d0347'){
+        SFX.tap();opLog('你打开了 0347（张宏宇）');
+        if(!solved){lxSay('先别急着看我。按编号，看看我前面的三个人。');return}
+        d.classList.toggle('open');SFX.expand();return
+      }
+      if(solved) {d.classList.toggle('open');SFX.expand();return}
+      var expect=ORDER[seq.length];
+      if(id===expect){
+        SFX.expand();d.classList.add('open');seq.push(id);act2.p7.seq=seq.slice();persist();
+        opLog('你打开了 '+id.replace('d','No.'));
+        if(seq.length===ORDER.length)finishPuzzle();
+      }else{
+        SFX.error();
+        lxSay('顺序不重要的，让我来帮你整理，好吗？');
+        opLog('顺序被打乱了','warn');seq=[];act2.p7.seq=[];persist();collapseAll();
+      }
+    });
+  });
+  function finishPuzzle(){
+    solved=true;act2.p7.solved=1;persist();unlockSnd();
+    addClue('CL-09','前任使用者残留账号目录 0344–0346（第二幕·云盘）');
+    $('clueGet').classList.add('on');
+    opLog('三个残留目录已全部读取','lx');
+    var nx=dirById('d0348');nx.classList.add('show');
+    tone(330,214,.55,'sine',.032);noise(.4,.02,520);
+    opLog('检测到空目录 0348 · 下一使用者','warn');
+    setTimeout(function(){lxSay('我已经记住你浏览的顺序了。你很细心，我喜欢。');opLog('灵犀记录了你的操作顺序','lx')},900);
+    setTimeout(function(){
+      nx.classList.add('activing','open');$('nextStat').textContent='下一使用者 · 激活中……';
+      $('nextWord').textContent='“这个位置，是留给你的。”';
+      tone(196,130,.7,'sine',.04);noise(.5,.025,420);
+      opLog('0348 状态变更：待激活 → 激活中','warn');
+      $('goNext').classList.add('on');
+    },2600);
+  }
+  function restoreSeq(){
+    seq.forEach(function(id){var d=dirById(id);if(d)d.classList.add('open')});
+    if(solved){
+      $('clueGet').classList.add('on');
+      var nx=dirById('d0348');nx.classList.add('show','activing','open');$('nextStat').textContent='下一使用者 · 激活中……';$('nextWord').textContent='“这个位置，是留给你的。”';
+      $('goNext').classList.add('on');
+      opLog('你上次已读到 0348');
+    }
+  }
+
+  /* 结尾：进入 P8 相册回收站 */
+  $('goNext').addEventListener('click',function(){
+    clickSnd();
+    location.href='../8-recycle/index.html';
+  });
+
+  /* 导航 */
+  $('gbBack').addEventListener('click',function(){clickSnd();location.href='../6-report/index.html'});
+  $('gbReset').addEventListener('click',function(){
+    if(!confirm('重置本页进度？证物 CL-09 会一并移除。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-09'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    act2.p7={seq:[]};persist();location.reload();
+  });
+
+  if(act2.p7.desktop){$('narrative').style.display='none';enterDesktop()}else{typeNar()}
+})();
+</script>
+</body>
+</html>
