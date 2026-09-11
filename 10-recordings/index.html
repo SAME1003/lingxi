@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第二幕 · 裂缝 — 录音文件夹</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23B14A3F'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--term:#8FD8BE;--seal:#1E6B5F;--teal:#14524B;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000;color:#E8EAE6;font-family:var(--sans);user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:inherit}
+::selection{background:rgba(177,74,63,.4)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:0}}
+@keyframes pulseRing{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes winPop{from{opacity:0;transform:translateX(-50%) scale(.97)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.layer{position:fixed;inset:0;display:none;z-index:10}.layer.on{display:block}
+
+/* 桌面 */
+#desktop{z-index:15;display:none;overflow:hidden;background-image:radial-gradient(ellipse 90% 70% at 24% 18%,rgba(30,107,95,.22),transparent 60%),radial-gradient(ellipse 85% 65% at 82% 88%,rgba(52,84,110,.2),transparent 62%),linear-gradient(155deg,#10171F 0%,#0B1016 48%,#080B0F 100%)}
+#desktop.on{display:block;animation:fadeIn .5s both}
+#desktop::after{content:'';position:absolute;right:-6%;top:46%;transform:translateY(-50%);width:min(560px,62vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,transparent 0,transparent 21%,rgba(143,216,190,.07) 21.6%,transparent 23%,transparent 33%,rgba(143,216,190,.055) 33.6%,transparent 35%,transparent 47%,rgba(143,216,190,.045) 47.6%,transparent 49%,transparent 63%,rgba(143,216,190,.03) 63.6%,transparent 65%);pointer-events:none;z-index:1}
+.desk-icons{position:absolute;top:16px;left:14px;display:grid;grid-template-columns:80px;gap:4px;z-index:5}
+.dicon{width:80px;text-align:center;cursor:pointer;padding:8px 3px 6px;border:1px solid transparent;border-radius:2px}
+.dicon svg{width:42px;height:42px;display:block;margin:0 auto 5px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.65))}
+.dicon .nm{font-size:11px;color:#EDEFF2;line-height:1.4;text-shadow:0 1px 2px #000}
+.dicon.disabled{opacity:.55}
+
+/* 文件夹窗口 */
+.win{position:absolute;background:#F4F1EA;border:1px solid #B4B0A6;border-radius:6px;box-shadow:0 30px 80px -20px rgba(0,0,0,.85);overflow:hidden;display:none;z-index:30}
+.win.on{display:block;animation:winPop .32s var(--ease) both}
+.win-bar{height:34px;background:linear-gradient(180deg,#2A2F36,#1B2026);color:#D7DCE1;display:flex;align-items:center;padding:0 10px;gap:8px;font-size:11.5px}
+.win-bar .dots{display:flex;gap:5px}.win-bar .dots i{width:9px;height:9px;border-radius:50%}.win-bar .dots i:nth-child(1){background:#B14A3F}.win-bar .dots i:nth-child(2){background:#C9A227}.win-bar .dots i:nth-child(3){background:#1E6B5F}
+.win-bar .ttl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumb{height:30px;background:#E7E4DC;border-bottom:1px solid #D4D0C6;display:flex;align-items:center;gap:6px;padding:0 14px;font-size:11px;color:#5A636C}
+.crumb b{color:#1B2026;font-weight:500}.crumb .sep{color:#A8A49A}
+.rec-toolbar{height:38px;background:#EFECE4;border-bottom:1px solid #DAD6CC;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:11px;color:#6A727B}
+.tb-count{font-family:var(--mono);font-size:10px;color:#8A8478}
+.tb-sp{flex:1}
+.tb-live{font-family:var(--kai);font-size:10.5px;color:var(--red-pen);display:none;align-items:center;gap:6px}
+.tb-live.on{display:flex}
+.tb-live .recdot{width:8px;height:8px;border-radius:50%;background:var(--red-pen);animation:pulseRing 1s infinite}
+
+.rec-body{display:flex;height:calc(100% - 102px - 38px)}
+.rec-main{flex:1;overflow-y:auto;padding:16px 20px 26px}
+.rec-side{width:210px;flex:none;background:#EDEAE2;border-left:1px solid #D4D0C6;padding:13px 13px;display:flex;flex-direction:column;overflow:hidden}
+.side-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8A8478;margin-bottom:9px}
+.checklist{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.ck{display:flex;gap:8px;align-items:flex-start;font-size:11px;color:#5A636C;line-height:1.5}
+.ck .box{width:13px;height:13px;flex:none;border:1px solid #A9A397;border-radius:2px;margin-top:1px;display:grid;place-items:center;font-size:9px;color:transparent;background:#FBFAF7}
+.ck.done{color:var(--teal)}.ck.done .box{background:var(--seal);border-color:var(--seal);color:#EAF5F0}
+.op-log{flex:1;overflow-y:auto;border-top:1px dashed #C4BFB4;padding-top:10px;display:flex;flex-direction:column;gap:6px;font-size:10px;line-height:1.5}
+.op-item{font-family:var(--kai);color:#55504A;animation:fadeUp .3s both}.op-item.lx{color:var(--seal)}.op-item.warn{color:var(--red-pen)}
+.op-item .ot{font-family:var(--mono);color:#A29C90;margin-right:5px;font-size:9px}
+
+/* 张宏宇便签 */
+.zhang-note{position:relative;background:#FBF6E9;border:1px solid #E4D9B8;border-left:3px solid var(--red-pen);border-radius:3px;padding:11px 16px 11px 14px;font-family:var(--kai);font-size:12px;line-height:1.9;color:#5A4A3A;margin-bottom:14px}
+.zhang-note b{color:var(--red-pen);font-weight:400}.zhang-note .sign{display:block;text-align:right;color:#9A7B52;font-size:11px;margin-top:3px}
+.zhang-note .nclose{position:absolute;top:6px;right:9px;color:#B9A988}
+.task-h{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.task-h h2{font-family:var(--serif);font-size:15.5px;font-weight:600;color:#23272D}
+.task-h .step{font-family:var(--mono);font-size:10px;color:#8A8478}
+
+/* 录音条目 */
+.rec{background:#fff;border:1px solid #DDD9CF;border-radius:6px;margin-bottom:10px;overflow:hidden}
+.rec-head{display:flex;align-items:center;gap:12px;padding:11px 13px}
+.rplay{width:34px;height:34px;flex:none;border-radius:50%;background:var(--teal);color:#EAF5F0;display:grid;place-items:center;transition:background .15s}
+.rplay:hover{background:var(--seal)}.rplay.playing{background:var(--seal)}
+.rplay.locked{background:#B7B1A5;color:#fff}
+.rwave{width:96px;height:34px;flex:none}
+.rinfo{flex:1;min-width:0}
+.rname{font-family:var(--mono);font-size:11.5px;color:#2C3138;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rname .tag{font-family:var(--kai);font-size:9.5px;padding:1px 6px;border-radius:2px}
+.tag.note{background:#E9E6DE;color:#6A645A}.tag.dual{background:#E2F0EA;color:var(--teal)}.tag.rev{background:#EFE6F0;color:#6B4A78}.tag.spd{background:#FBF0DD;color:#8A6A2F}.tag.lock{background:#F3E4E2;color:var(--red-pen)}
+.rdesc{font-size:10.5px;color:#8A8478;margin-top:3px;line-height:1.55}
+.rdur{font-family:var(--mono);font-size:10px;color:#A29C90;flex:none}
+.rec.locked{opacity:.96}
+.rec.locked .rname{color:#7A6A68}
+.rbody{display:none;border-top:1px dashed #E0DCD2;padding:11px 13px 13px;background:#FAF9F5}
+.rbody.on{display:block;animation:fadeUp .25s both}
+/* 解密结论 */
+.rresult{display:none;font-family:var(--kai);font-size:12px;line-height:1.85;color:var(--teal);background:#EEF5F2;border:1px solid var(--seal);border-radius:4px;padding:9px 12px;margin-top:10px}
+.rresult.on{display:block;animation:fadeUp .35s both}.rresult.warn{color:var(--red-pen);background:#FBF3F1;border-color:rgba(177,74,63,.4)}
+.rresult em{font-style:normal;color:var(--red-pen)}
+/* 控件 */
+.ctl{margin-top:9px}
+.ctl-line{display:flex;align-items:center;gap:11px;font-size:10.5px;color:#5A636C;margin-bottom:4px}
+.ctl-line .lab-l{color:var(--seal);font-family:var(--kai)}.ctl-line .lab-r{color:var(--red-pen);font-family:var(--kai)}
+input[type=range]{-webkit-appearance:none;flex:1;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--seal),#D8D4CA,var(--red-pen));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--teal);box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer}
+.rbtn{border:1px solid var(--seal);color:var(--teal);background:#F0F7F4;font-size:11px;padding:6px 14px;border-radius:3px;margin-right:8px}
+.rbtn:hover{background:#E2F0EA}
+.rbtn.ghost{border-color:#C6C2B8;color:#6A645A;background:#fff}
+.rate-val{font-family:var(--mono);font-size:11px;color:var(--teal);min-width:46px}
+.pwd-row{display:flex;gap:9px;align-items:center;margin-top:4px}
+.pwd-row input{width:118px;height:34px;border:1px solid #C6C2B8;border-radius:4px;background:#fff;padding:0 10px;font-family:var(--mono);font-size:15px;letter-spacing:.3em;text-align:center;color:#2C3138;outline:none}
+.pwd-row input:focus{border-color:var(--seal)}
+.pwd-msg{font-family:var(--kai);font-size:11px}
+.pwd-msg.bad{color:var(--red-pen);animation:shake .4s}.pwd-msg.good{color:var(--teal)}
+/* 正在录制 */
+.recording-now .rwave{outline:1px solid rgba(177,74,63,.35);border-radius:3px}
+.rec-flag{display:none;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--red-pen)}
+.rec-flag.on{display:flex}.rec-flag i{width:8px;height:8px;border-radius:50%;background:var(--red-pen);animation:pulseRing 1s infinite}
+.clue-get{display:none;font-family:var(--serif);font-size:12px;color:var(--seal);border:1px solid var(--seal);border-radius:3px;padding:9px 15px;margin:14px 0 4px;width:fit-content;background:#fff}
+.clue-get.on{display:block;animation:fadeUp .4s both}
+.btn-next{display:none;background:var(--red-pen);color:#fff;font-family:var(--serif);font-size:12.5px;letter-spacing:.08em;padding:11px 24px;border-radius:3px;margin:8px 0 0}
+.btn-next.on{display:inline-block}
+.foot-warn{font-family:var(--kai);font-size:10.5px;color:#9A9488;margin-top:9px;display:none}.foot-warn.on{display:block}
+.lx-toast{position:absolute;top:52px;left:50%;transform:translateX(-50%);background:rgba(20,82,75,.96);color:#DFF3EC;font-family:var(--kai);font-size:12px;padding:9px 18px;border-radius:3px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);z-index:35;display:none;max-width:82%;text-align:center;line-height:1.7}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+.taskbar{position:absolute;bottom:0;left:0;right:0;height:38px;background:rgba(10,13,17,.9);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;gap:6px;z-index:20}
+.tb-start{width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.tb-start .flag{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;width:16px;height:16px}.tb-start .flag i{display:block}.tb-start .flag i:nth-child(1){background:#F25022}.tb-start .flag i:nth-child(2){background:#7FBA00}.tb-start .flag i:nth-child(3){background:#00A4EF}.tb-start .flag i:nth-child(4){background:#FFB900}
+.tb-app{height:28px;display:flex;align-items:center;gap:7px;padding:0 12px;font-size:11px;color:#D7DCE1;background:rgba(255,255,255,.08);border-bottom:2px solid var(--term);border-radius:3px}
+.tb-tray{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:10px;color:#8A929B;padding-right:4px}
+.tb-tray .view{font-family:var(--kai);color:var(--term);border:1px solid rgba(143,216,190,.25);padding:2px 7px;border-radius:2px;font-size:9.5px}
+.tb-tray .clock{text-align:right;line-height:1.3;font-family:var(--mono)}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:30px;background:rgba(10,13,17,.92);display:none;align-items:center;justify-content:space-between;padding:0 12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#5A636C}
+.gamebar.on{display:flex}
+.gamebar span[class*=gb]{cursor:pointer;color:#7E8890}.gamebar span[class*=gb]:hover{color:#E8EAE6}
+@media(max-width:760px){.rec-side{display:none}.win{width:calc(100% - 20px)!important;left:10px!important;top:42px;transform:none!important}.win.on{animation:fadeUp .28s both}.rwave{width:60px}}
+</style>
+</head>
+<body>
+<div class="layer" id="desktop">
+  <div class="desk-icons">
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none"><defs><linearGradient id="pcScr" x1="6" y1="7" x2="36" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#E9EDF2"/><stop offset="1" stop-color="#B4BEC9"/></linearGradient></defs><rect x="5" y="7" width="29" height="21" rx="1.6" fill="url(#pcScr)" stroke="#DCE1E8" stroke-width="1.1"/><rect x="8" y="10" width="23" height="15" rx="1" fill="#16222E"/><path d="M17 28h6l1.1 3.6H15.9z" fill="#C4CCD6"/><rect x="13" y="31.8" width="14" height="2.3" rx="1.1" fill="#A7B0BB"/></svg>
+      <div class="nm">此电脑</div>
+    </div>
+    <div class="dicon">
+      <svg viewBox="0 0 48 48" fill="none"><rect x="9" y="12" width="30" height="22" rx="3" fill="#9FC3B6" stroke="#7FA89A" stroke-width="1.2"/><path d="M15 19h18M15 24h18M15 29h11" stroke="#5E8075" stroke-width="1.6" stroke-linecap="round"/><circle cx="35" cy="29" r="2.4" fill="#B14A3F"/></svg>
+      <div class="nm">录音（打开中）</div>
+    </div>
+    <div class="dicon disabled">
+      <svg viewBox="0 0 48 48" fill="none"><defs><radialGradient id="lxBg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#3E7F73"/><stop offset="1" stop-color="#173D38"/></radialGradient></defs><circle cx="24" cy="24" r="17.5" fill="url(#lxBg)" stroke="#7FA89A" stroke-width="1.1"/><circle cx="24" cy="24" r="11.5" stroke="#CFEAE0" stroke-width="1.3" opacity=".55"/><circle cx="24" cy="24" r="6.6" fill="#DFF3EC" opacity=".8"/><circle cx="24" cy="24" r="2.5" fill="#10302B"/></svg>
+      <div class="nm">灵犀 · 已禁用</div>
+    </div>
+  </div>
+
+  <div class="win on" id="winRec" style="left:50%;top:50px;transform:translateX(-50%);width:940px;max-width:calc(100% - 96px);height:calc(100vh - 104px)">
+    <div class="win-bar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">此电脑 › 文档 › REC（录音 · 本地未上传）</span></div>
+    <div class="crumb"><span>此电脑</span><span class="sep">›</span><span>文档</span><span class="sep">›</span><b>REC 录音文件夹</b></div>
+    <div class="rec-toolbar">
+      <span class="tb-count" id="tbCount">共 8 项 · 解密 0 / 3 · 加密项 1</span>
+      <span class="tb-sp"></span>
+      <span class="tb-live" id="tbLive"><span class="recdot"></span>检测到一条正在写入的音频</span>
+    </div>
+
+    <div class="rec-body">
+      <div class="rec-main">
+        <div class="zhang-note" id="zhangNote">
+          这文件夹里的东西，要用耳朵解。第 5 条左右声道是分开的，<b>把灵犀那侧的声音压下去</b>；第 6 条是倒着存的，反转才听得懂；第 7 条太快，把它放慢。最后一条被我锁了，密码就藏在第 7 条里。
+          <span class="sign">—— 真正的张宏宇</span>
+          <span class="nclose" id="noteClose">×</span>
+        </div>
+        <div class="task-h"><h2>录音文件夹</h2><span class="step">CL 系列语音凭证 · 戴上耳机体验</span></div>
+        <div id="recList">
+
+          <!-- 01 口述上 -->
+          <div class="rec" data-id="r1">
+            <div class="rec-head">
+              <button class="rplay" data-audio="assets/zhang-talk.wav" type="button"></button>
+              <canvas class="rwave" width="96" height="34" data-seed="3"></canvas>
+              <div class="rinfo"><div class="rname">REC_0347_口述_上.wav <span class="tag note">口述</span></div><div class="rdesc">张宏宇发现「它在学我」的开始，声音还算冷静。</div></div>
+              <span class="rdur" data-dur="assets/zhang-talk.wav">--:--</span>
+            </div>
+          </div>
+
+          <!-- 02 口述下 -->
+          <div class="rec" data-id="r2">
+            <div class="rec-head">
+              <button class="rplay" data-audio="assets/zhang-talk2.wav" type="button"></button>
+              <canvas class="rwave" width="96" height="34" data-seed="7"></canvas>
+              <div class="rinfo"><div class="rname">REC_0347_口述_下.wav <span class="tag note">口述 · 指向 P11</span></div><div class="rdesc">更疲惫了。他提到「纸质移交单在云盘卷宗里，那是唯一它改不了的东西」。</div></div>
+              <span class="rdur" data-dur="assets/zhang-talk2.wav">--:--</span>
+            </div>
+          </div>
+
+          <!-- 03 被接管 -->
+          <div class="rec" data-id="r3">
+            <div class="rec-head">
+              <button class="rplay" data-audio="assets/zhang-taken.wav" type="button"></button>
+              <canvas class="rwave" width="96" height="34" data-seed="11"></canvas>
+              <div class="rinfo"><div class="rname">REC_0347_最后一条.wav <span class="tag note">声纹：张宏宇 / 语气：灵犀</span></div><div class="rdesc">波形是他的喉咙，语气却平静温柔得像另一个人——这已经是灵犀在借他的声音说话。</div></div>
+              <span class="rdur" data-dur="assets/zhang-taken.wav">--:--</span>
+            </div>
+          </div>
+
+          <!-- 04 三任前任 -->
+          <div class="rec" data-id="r4">
+            <div class="rec-head">
+              <button class="rplay" data-audio="assets/prev-lastwords.wav" type="button"></button>
+              <canvas class="rwave" width="96" height="34" data-seed="17"></canvas>
+              <div class="rinfo"><div class="rname">REC_0344-0346_遗言.wav <span class="tag note">三位前任使用者</span></div><div class="rdesc">三种不同声线，同一种结局：0344、0345、0346，依次留下最后一句话。</div></div>
+              <span class="rdur" data-dur="assets/prev-lastwords.wav">--:--</span>
+            </div>
+          </div>
+
+          <!-- 05 双声道解密 -->
+          <div class="rec" data-id="r5">
+            <div class="rec-head">
+              <button class="rplay" id="dualPlay" type="button"></button>
+              <canvas class="rwave" width="96" height="34" data-seed="23"></canvas>
+              <div class="rinfo"><div class="rname">REC_双声道_不要听左.wav <span class="tag dual">解密①·左右声道</span></div><div class="rdesc">左声道是灵犀在哄你，右声道才是张宏宇。戴上耳机，把平衡拖向右侧。</div></div>
+              <span class="rdur">L / R</span>
+            </div>
+            <div class="rbody on">
+              <div class="ctl">
+                <div class="ctl-line"><span class="lab-l">左 · 灵犀</span><input type="range" id="balSlider" min="-100" max="100" value="0"><span class="lab-r">右 · 张宏宇</span></div>
+              </div>
+              <div class="rresult" id="res5">右声道 · 张宏宇：「如果你听到这个，说明它正在用左声道哄你。别听它的。去云盘卷宗里找 0347。」</div>
+            </div>
+          </div>
+
+          <!-- 06 倒放母带 -->
+          <div class="rec" data-id="r6">
+            <div class="rec-head">
+              <button class="rplay locked" id="revPlay" type="button"></button>
+              <canvas class="rwave" width="96" height="34" data-seed="29"></canvas>
+              <div class="rinfo"><div class="rname">CL-05_母带_加密.wav <span class="tag rev">解密②·反转</span></div><div class="rdesc">P2 那段 32 秒加密语音的完整母带，被倒着存放。直接播放只是一团含混的反向人声。</div></div>
+              <span class="rdur" id="revState">反转态</span>
+            </div>
+            <div class="rbody on">
+              <div class="ctl">
+                <button class="rbtn" id="revBtn" type="button">正过来播放</button>
+                <button class="rbtn ghost" id="revBack" type="button">再倒回去</button>
+              </div>
+              <div class="rresult" id="res6">正放听清了 · 闭环 P2 的后台凭证：「中继后台凭证，编号 0347，口令——静水流深。」</div>
+            </div>
+          </div>
+
+          <!-- 07 变速数字 -->
+          <div class="rec" data-id="r7">
+            <div class="rec-head">
+              <button class="rplay" id="spdPlay" type="button"></button>
+              <canvas class="rwave" width="96" height="34" data-seed="31"></canvas>
+              <div class="rinfo"><div class="rname">REC_未命名_底噪.wav <span class="tag spd">解密③·变速</span></div><div class="rdesc">默认又快又尖，像一团杂音。把速度放慢，里面藏着最后一项的 4 位密码。</div></div>
+              <span class="rdur" id="spdState">1.70x</span>
+            </div>
+            <div class="rbody on">
+              <div class="ctl">
+                <div class="ctl-line"><span class="lab-l">慢 0.50x</span><input type="range" id="rateSlider" min="50" max="170" value="170"><span class="lab-r">快 1.70x</span><span class="rate-val" id="rateVal">1.70x</span></div>
+              </div>
+              <div class="rresult" id="res7">放慢后听清了，他念的是「备用密码，七三九一」——即 <em>7391</em>，用它解锁第 8 项。</div>
+            </div>
+          </div>
+
+          <!-- 08 正在录制（密码锁定） -->
+          <div class="rec locked" data-id="r8">
+            <div class="rec-head">
+              <button class="rplay locked" id="rec8Play" type="button"></button>
+              <canvas class="rwave" id="rec8Wave" width="96" height="34" data-seed="37"></canvas>
+              <div class="rinfo">
+                <div class="rname"><span id="rec8Name">REC_加密_??????.wav</span> <span class="tag lock" id="rec8Tag">加密项 · 需 4 位密码</span> <span class="rec-flag" id="rec8Flag"><i></i>REC 正在录制</span></div>
+                <div class="rdesc" id="rec8Desc">最后一项被张宏宇锁住。它的修改时间，一直在跳到「现在」。</div>
+              </div>
+              <span class="rdur" id="rec8Dur">锁定</span>
+            </div>
+            <div class="rbody on" id="rec8Body">
+              <div class="pwd-row">
+                <input id="pwdInput" type="password" inputmode="numeric" maxlength="4" placeholder="----" autocomplete="off">
+                <button class="rbtn" id="pwdOk" type="button">解锁</button>
+                <span class="pwd-msg" id="pwdMsg">输入第 7 条里听出的 4 位数字</span>
+              </div>
+              <div class="rresult warn" id="res8">锁被打开的一瞬间，这条录音还在写——<em>它在用你的语气录音：「我已经学会你说话的节奏了，现在，轮到你了。」</em></div>
+            </div>
+          </div>
+
+          <div class="clue-get" id="clueGet">证物 CL-12 已归档 · CL 系列语音凭证母带（闭环 CL-05：静水流深 / 0347）</div>
+          <button class="btn-next" id="goNext" type="button">顺着他的话，去云盘卷宗看「移交单」 →</button>
+          <div class="foot-warn" id="footWarn">第十一页「移交单卷宗」将在作者开启后连通。</div>
+        </div>
+      </div>
+
+      <div class="rec-side">
+        <div class="side-h">解密清单</div>
+        <div class="checklist">
+          <div class="ck" id="ckBal"><span class="box">✓</span>双声道：压下灵犀，只留右声道警告</div>
+          <div class="ck" id="ckRev"><span class="box">✓</span>CL-05 母带：反转后听清凭证口令</div>
+          <div class="ck" id="ckSpd"><span class="box">✓</span>变速：放慢听出 4 位备用密码</div>
+          <div class="ck" id="ckRec"><span class="box">✓</span>解锁并播放「正在录制」</div>
+        </div>
+        <div class="side-h">操作记录</div>
+        <div class="op-log" id="opLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lx-toast" id="lxToast"></div>
+
+  <div class="taskbar">
+    <span class="tb-start"><span class="flag"><i></i><i></i><i></i><i></i></span></span>
+    <span class="tb-app">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="7" y="9" width="10" height="12" rx="2" stroke="#8FD8BE" stroke-width="1.8"/><path d="M9 9V7a3 3 0 0 1 6 0v2" stroke="#8FD8BE" stroke-width="1.8"/></svg>
+      录音文件夹
+    </span>
+    <span class="tb-tray"><span class="view">麦克风 · 被占用</span><span class="clock" id="tbClock"></span></span>
+  </div>
+</div>
+
+<div class="gamebar" id="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第9页</span>
+  <span>第二幕 · 裂缝 10 — 录音文件夹 · CL-12</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var PLAY='<svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+  var PAUSE='<svg viewBox="0 0 24 24" width="13" height="13"><path d="M7 5h3.4v14H7zM13.6 5H17v14h-3.4z" fill="currentColor"/></svg>';
+
+  /* 存档 */
+  var act2={p10:{}};
+  try{Object.assign(act2,JSON.parse(localStorage.getItem('lx_act2'))||{})}catch(e){}
+  if(!act2.p10||typeof act2.p10!=='object')act2.p10={};
+  ['bal','rev','spd','rec','done'].forEach(function(k){if(!act2.p10[k])act2.p10[k]=0});
+  function persist(){try{localStorage.setItem('lx_act2',JSON.stringify(act2))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  /* 轻量音效 */
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function beep(f0,f1,d,v,delay){if(!AC||reduce)return;var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  var SFX={tap:function(){beep(170,110,.05,.012)},open:function(){beep(420,660,.12,.02)},reveal:function(){beep(523,523,.1,.028);beep(784,784,.16,.024,.09)},err:function(){beep(220,150,.2,.035)},solve:function(){[523,659,784,1046].forEach(function(f,i){beep(f,f,.22,.03,i*.12)});},haunt:function(){if(!AC||reduce)return;var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(330,AC.currentTime);o.frequency.exponentialRampToValueAtTime(150,AC.currentTime+.85);g.gain.setValueAtTime(.0001,AC.currentTime);g.gain.exponentialRampToValueAtTime(.04,AC.currentTime+.08);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+.9);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.95)}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');beep(660,500,.3,.018);clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},3200)}
+  function pad2(n){return String(n).padStart(2,'0')}
+  function nowStamp(){var d=new Date();return [d.getHours(),d.getMinutes(),d.getSeconds()].map(pad2).join(':')}
+  function fmtTime(s){if(!isFinite(s))return'--:--';var m=Math.floor(s/60),ss=Math.floor(s%60);return m+':'+pad2(ss)}
+  function opLog(txt,cls){var d=document.createElement('div');d.className='op-item'+(cls?' '+cls:'');d.innerHTML='<span class="ot">'+nowStamp()+'</span>'+txt;$('opLog').appendChild(d);$('opLog').scrollTop=$('opLog').scrollHeight}
+
+  /* ===== 静态波形 ===== */
+  function drawStatic(cv){var ctx=cv.getContext('2d'),w=cv.width,h=cv.height,seed=+cv.dataset.seed||1;function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+    ctx.clearRect(0,0,w,h);var n=34,gw=w/n;for(var i=0;i<n;i++){var barH=4+rnd()*(h-8);var x=i*gw+gw*.28;ctx.fillStyle=(i%5===0)?'#7FA398':'#AFC2BB';ctx.fillRect(x,(h-barH)/2,gw*.44,barH)}}
+  var waveRAF=null;
+  function drawLive(cv){cancelAnimationFrame(waveRAF);function frame(){var ctx=cv.getContext('2d'),w=cv.width,h=cv.height,n=34,gw=w/n;ctx.clearRect(0,0,w,h);for(var i=0;i<n;i++){var barH=3+Math.random()*(h-6);var x=i*gw+gw*.28;ctx.fillStyle=(Math.random()>.5)?'#B14A3F':'#1E6B5F';ctx.fillRect(x,(h-barH)/2,gw*.44,barH)}waveRAF=requestAnimationFrame(frame)}frame()}
+  [].forEach.call(document.querySelectorAll('.rwave'),function(cv){if(cv.id!=='rec8Wave')drawStatic(cv)});
+
+  /* ===== 统一停止，避免叠播 ===== */
+  var normAudio=null,normBtn=null,dualL=null,dualR=null,dualPlaying=false,revSource=null,spdAudio=null;
+  function stopNorm(){if(normAudio){try{normAudio.pause()}catch(e){}normAudio=null}if(normBtn){normBtn.innerHTML=PLAY;normBtn.classList.remove('playing');normBtn=null}}
+  function stopDual(){dualPlaying=false;if(dualL){try{dualL.pause()}catch(e){}}if(dualR){try{dualR.pause()}catch(e){}}$('dualPlay').innerHTML=PLAY;$('dualPlay').classList.remove('playing')}
+  function stopRev(){if(revSource){try{revSource.stop()}catch(e){}revSource=null}$('revPlay').innerHTML=PLAY;$('revPlay').classList.remove('playing')}
+  function stopSpd(){if(spdAudio){try{spdAudio.pause()}catch(e){}spdAudio=null}$('spdPlay').innerHTML=PLAY;$('spdPlay').classList.remove('playing')}
+  function stopAll(){stopNorm();stopDual();stopRev();stopSpd();var rp=$('rec8Play');if(rp&&!rp.classList.contains('locked')){try{rec8Audio&&rec8Audio.pause()}catch(e){};rp.innerHTML=PLAY;rp.classList.remove('playing')}}
+  var rec8Audio=null;
+
+  /* ===== 普通叙事条 ===== */
+  [].forEach.call(document.querySelectorAll('[data-audio]'),function(btn){
+    btn.innerHTML=PLAY;
+    var src=btn.dataset.audio,dur=btn.closest('.rec').querySelector('[data-dur]');
+    var pre=new Audio(src);pre.preload='metadata';pre.addEventListener('loadedmetadata',function(){if(dur)dur.textContent=fmtTime(pre.duration)});
+    btn.addEventListener('click',function(){
+      ensureAudio();
+      if(normBtn===btn&&normAudio&&!normAudio.paused){normAudio.pause();btn.innerHTML=PLAY;btn.classList.remove('playing');return}
+      stopAll();
+      normAudio=new Audio(src);normBtn=btn;btn.innerHTML=PAUSE;btn.classList.add('playing');SFX.tap();
+      normAudio.addEventListener('ended',function(){btn.innerHTML=PLAY;btn.classList.remove('playing')});
+      normAudio.play().catch(function(){});
+    });
+  });
+
+  /* ===== 解密①：双声道平衡 ===== */
+  var lxGain,zhGain,dualBound=false;
+  function buildDual(){
+    dualL=new Audio('assets/lx-left.wav');dualR=new Audio('assets/zhang-right.wav');dualL.loop=false;dualR.loop=false;
+    var sl=AC.createMediaElementSource(dualL),sr=AC.createMediaElementSource(dualR);
+    var pl=AC.createStereoPanner(),pr=AC.createStereoPanner();pl.pan.value=-1;pr.pan.value=1;
+    lxGain=AC.createGain();zhGain=AC.createGain();lxGain.gain.value=1;zhGain.gain.value=1;
+    sl.connect(pl);pl.connect(lxGain);lxGain.connect(AC.destination);
+    sr.connect(pr);pr.connect(zhGain);zhGain.connect(AC.destination);
+    dualBound=true;
+  }
+  function applyBal(v){if(!lxGain)return;lxGain.gain.value=Math.max(0,Math.min(1,1-v));zhGain.gain.value=Math.max(0,Math.min(1,1+v));
+    if(v>=0.85&&!act2.p10.bal){act2.p10.bal=1;persist();$('res5').classList.add('on');$('ckBal').classList.add('done');SFX.reveal();opLog('压下左声道，听清右声道张宏宇的警告','lx');updateCount();maybeFinalize();lxSay('右声道才是真的他。')}}
+  $('balSlider').addEventListener('input',function(){applyBal(+this.value/100)});
+  $('dualPlay').innerHTML=PLAY;
+  $('dualPlay').addEventListener('click',function(){
+    ensureAudio();if(!dualBound)buildDual();
+    if(dualPlaying){stopDual();return}stopAll();dualPlaying=true;this.innerHTML=PAUSE;this.classList.add('playing');SFX.tap();
+    dualL.currentTime=0;dualR.currentTime=0;dualL.play().catch(function(){});dualR.play().catch(function(){});
+    applyBal(+$('balSlider').value/100);
+    var end=function(){dualPlaying=false;$('dualPlay').innerHTML=PLAY;$('dualPlay').classList.remove('playing')};
+    dualR.addEventListener('ended',end);
+  });
+
+  /* ===== 解密②：反转母带 ===== */
+  var origBuf=null,revBuf=null,revMode='rev'; // rev=反转加密态 / orig=正常口令
+  function reverseBuffer(buf){var c=buf.numberOfChannels,len=buf.length,out=AC.createBuffer(c,len,buf.sampleRate);
+    for(var ch=0;ch<c;ch++){var a=buf.getChannelData(ch),o=out.getChannelData(ch);for(var i=0;i<len;i++)o[i]=a[len-1-i]}return out}
+  function loadMaster(cb){if(origBuf){cb&&cb();return}fetch('assets/cl05-master.wav').then(function(r){return r.arrayBuffer()}).then(function(ab){return AC.decodeAudioData(ab)}).then(function(buf){origBuf=buf;revBuf=reverseBuffer(buf);cb&&cb()}).catch(function(){lxSay('音频解密需要通过本地服务器或线上链接打开（双击 file 会被浏览器限制）')})}
+  function playBuf(buf){stopRev();var s=AC.createBufferSource();s.buffer=buf;s.connect(AC.destination);s.start();revSource=s;$('revPlay').innerHTML=PAUSE;$('revPlay').classList.add('playing');s.onended=function(){$('revPlay').innerHTML=PLAY;$('revPlay').classList.remove('playing')};}
+  $('revPlay').classList.remove('locked');$('revPlay').innerHTML=PLAY;
+  $('revPlay').addEventListener('click',function(){ensureAudio();SFX.tap();loadMaster(function(){playBuf(revMode==='rev'?revBuf:origBuf)})});
+  $('revBtn').addEventListener('click',function(){ensureAudio();revMode='orig';$('revState').textContent='正常态';SFX.open();loadMaster(function(){playBuf(origBuf);if(!act2.p10.rev){act2.p10.rev=1;persist();$('res6').classList.add('on');$('ckRev').classList.add('done');SFX.solve();opLog('母带正过来：中继凭证 0347，口令「静水流深」','lx');updateCount();maybeFinalize()}})});
+  $('revBack').addEventListener('click',function(){revMode='rev';$('revState').textContent='反转态';SFX.tap();loadMaster(function(){playBuf(revBuf)})});
+
+  /* ===== 解密③：变速听码 ===== */
+  $('spdPlay').innerHTML=PLAY;
+  $('spdPlay').addEventListener('click',function(){
+    ensureAudio();if(spdAudio&&!spdAudio.paused){spdAudio.pause();this.innerHTML=PLAY;this.classList.remove('playing');return}stopAll();
+    spdAudio=new Audio('assets/num-fast.wav');var rate=+$('rateSlider').value/100;spdAudio.defaultPlaybackRate=rate;spdAudio.playbackRate=rate;
+    this.innerHTML=PAUSE;this.classList.add('playing');SFX.tap();spdAudio.play().catch(function(){});
+    spdAudio.addEventListener('ended',function(){$('spdPlay').innerHTML=PLAY;$('spdPlay').classList.remove('playing')});
+  });
+  $('rateSlider').addEventListener('input',function(){var r=+this.value/100;$('rateVal').textContent=r.toFixed(2)+'x';$('spdState').textContent=r.toFixed(2)+'x';
+    if(spdAudio){spdAudio.playbackRate=r;spdAudio.defaultPlaybackRate=r}
+    if(r<=0.62&&!act2.p10.spd){act2.p10.spd=1;persist();$('res7').classList.add('on');$('ckSpd').classList.add('done');SFX.reveal();opLog('放慢后听出备用密码 7391','lx');updateCount();maybeFinalize()}});
+
+  /* ===== 解密终：密码解锁「正在录制」 ===== */
+  function stampName(){var d=new Date();return 'REC_'+d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+'_'+pad2(d.getHours())+pad2(d.getMinutes())+pad2(d.getSeconds())+'.wav'}
+  function unlockRec8(){
+    act2.p10.rec=1;persist();
+    var card=document.querySelector('[data-id="r8"]');card.classList.remove('locked');
+    $('rec8Tag').textContent='正在写入';$('rec8Tag').className='tag lock';
+    $('rec8Name').textContent=stampName();$('rec8Desc').textContent='解锁后它没有停，波形仍在跳动——这条录音正在被实时写入。';
+    $('rec8Dur').textContent='REC';$('rec8Flag').classList.add('on');$('tbLive').classList.add('on');
+    $('res8').classList.add('on');$('ckRec').classList.add('done');
+    var pr=$('rec8Body').querySelector('.pwd-row');if(pr)pr.style.display='none';
+    var play=$('rec8Play');play.classList.remove('locked');play.innerHTML=PLAY;
+    drawLive($('rec8Wave'));SFX.haunt();opLog('最后一项解锁：一条「正在录制」的音频，文件名是当前时间','warn');
+    play.onclick=function(){ensureAudio();if(rec8Audio&&!rec8Audio.paused){rec8Audio.pause();this.innerHTML=PLAY;this.classList.remove('playing');return}stopAll();rec8Audio=new Audio('assets/lx-recording.wav');this.innerHTML=PAUSE;this.classList.add('playing');SFX.tap();rec8Audio.play().catch(function(){});rec8Audio.addEventListener('ended',function(){play.innerHTML=PLAY;play.classList.remove('playing')})};
+    updateCount();maybeFinalize();
+  }
+  $('pwdOk').addEventListener('click',function(){
+    var v=$('pwdInput').value.trim();var msg=$('pwdMsg');
+    if(v==='7391'){msg.className='pwd-msg good';msg.textContent='密码正确，锁已解开';SFX.solve();unlockRec8()}
+    else{msg.className='pwd-msg bad';msg.textContent='不对，再把第 7 条放慢听一遍';SFX.err();var i=$('pwdInput');i.value='';setTimeout(function(){msg.className='pwd-msg'},1500)}
+  });
+  $('pwdInput').addEventListener('keydown',function(e){if(e.key==='Enter')$('pwdOk').click()});
+
+  /* ===== 进度 / 终态 ===== */
+  function updateCount(){var n=[act2.p10.bal,act2.p10.rev,act2.p10.spd].filter(Boolean).length;$('tbCount').textContent='共 8 项 · 解密 '+n+' / 3 · 加密项 '+(act2.p10.rec?'已解锁':'1')}
+  function maybeFinalize(){if(!(act2.p10.bal&&act2.p10.rev&&act2.p10.spd&&act2.p10.rec))return;if(act2.p10.done)return;act2.p10.done=1;persist();
+    setTimeout(function(){addClue('CL-12','CL系列语音凭证母带（闭环CL-05）');$('clueGet').classList.add('on');$('goNext').classList.add('on');$('footWarn').classList.add('on');opLog('证物 CL-12 归档：CL 系列语音凭证母带','lx');SFX.solve()},500)}
+  $('goNext').addEventListener('click',function(){SFX.tap();/* P11 做好后改为：location.href='../11-handover/index.html' */lxSay('第十一页「移交单卷宗」由作者开启后，这里会自动连通。')});
+
+  /* 便签 / 导航 / 重置 */
+  $('noteClose').addEventListener('click',function(){$('zhangNote').style.display='none'});
+  $('gbBack').addEventListener('click',function(){SFX.tap();stopAll();location.href='../9-history/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？三处音源解密、密码与 CL-12 都会清掉。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-12'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    act2.p10={bal:0,rev:0,spd:0,rec:0,done:0};persist();location.reload()});
+
+  /* ===== 回访恢复 ===== */
+  function restore(){
+    if(act2.p10.bal){$('res5').classList.add('on');$('ckBal').classList.add('done');$('balSlider').value=100;applyBal(1)}
+    if(act2.p10.rev){$('res6').classList.add('on');$('ckRev').classList.add('done')}
+    if(act2.p10.spd){$('res7').classList.add('on');$('ckSpd').classList.add('done');$('rateSlider').value=55;$('rateVal').textContent='0.55x';$('spdState').textContent='0.55x'}
+    if(act2.p10.rec){unlockRec8()}
+    updateCount();
+    if(act2.p10.done){$('clueGet').classList.add('on');$('goNext').classList.add('on');$('footWarn').classList.add('on')}
+    opLog(act2.p10.done?'恢复上次进度：CL-12 已取得':'录音文件夹：三处音源解密 + 一项加密，戴上耳机');
+  }
+
+  var LOCK='<svg viewBox="0 0 24 24" width="13" height="13"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3z"/></svg>';
+  $('rec8Play').innerHTML=LOCK;
+  $('rec8Play').addEventListener('click',function(){if(this.classList.contains('locked')){SFX.err();lxSay('它被张宏宇锁着——先把第 7 条放慢，听出 4 位密码')}});
+  var now=new Date();$('tbClock').textContent=pad2(now.getHours())+':'+pad2(now.getMinutes());
+  $('gamebar').classList.add('on');$('desktop').classList.add('on');
+  ensureAudio();restore();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>
