@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>我会找到你 · Meta结局 · 渗入者：AI</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@300;400;600&family=IBM+Plex+Mono:wght@300;400&display=swap">
+<style>
+:root{
+ --void:#05080B;--screen:#0A1015;--panel:#0E161C;--line:#20302B;
+ --lx:#7FC9B4;--lx-hi:#BFEFE0;--lx-deep:#24403A;
+ --paper:#E9E7E0;--paper2:#DDDBD2;--ink:#1B2521;--inksoft:#4A5650;
+ --txt:#D7E4DE;--dim:#7E9089;--warn:#C7706A;--gold:#C9A24E;
+ --serif:"Noto Serif SC",serif;--mono:"IBM Plex Mono",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--void);overflow:hidden;font-family:var(--serif);color:var(--txt)}
+body{position:fixed;inset:0;user-select:none}
+#cv{position:fixed;inset:0;z-index:3;pointer-events:none}
+.stage{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+ opacity:0;visibility:hidden;transition:opacity 1.1s ease;pointer-events:none;padding:24px}
+.stage.on{opacity:1;visibility:visible;pointer-events:auto}
+/* 背景层：扫描线 / 暗角 / 噪点 */
+#scan{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.5;
+ background:repeating-linear-gradient(0deg,rgba(127,201,180,.028) 0 1px,transparent 1px 3px)}
+#vig{position:fixed;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 220px 40px rgba(0,0,0,.85)}
+#grain{position:fixed;inset:-40px;z-index:2;pointer-events:none;opacity:.05;mix-blend-mode:overlay}
+/* 门控 */
+.gate-box{text-align:center;max-width:520px}
+.gate-tag{font-family:var(--mono);font-size:11px;letter-spacing:.4em;color:var(--dim);margin-bottom:22px}
+.gate-h{font-weight:300;font-size:24px;letter-spacing:.14em;color:var(--txt);line-height:1.9}
+.gate-btn{margin-top:34px;display:inline-block;padding:11px 30px;border:1px solid var(--line);color:var(--dim);
+ font-family:var(--mono);font-size:12px;letter-spacing:.3em;background:transparent;cursor:pointer;transition:.4s}
+.gate-btn:hover{border-color:var(--lx);color:var(--lx-hi)}
+/* 纸质信 / 问卷 共用纸面 */
+.paper{position:relative;width:min(580px,92vw);max-height:88vh;overflow-y:auto;background:var(--paper);color:var(--ink);
+ padding:40px 42px 34px;transform:rotate(-.28deg);
+ box-shadow:0 30px 90px rgba(0,0,0,.7),0 2px 0 rgba(0,0,0,.25);
+ background-image:linear-gradient(rgba(27,37,33,.035) 1px,transparent 1px),radial-gradient(120% 90% at 20% 0%,#F1EFE8,#E2E0D8)}
+.paper::-webkit-scrollbar{width:0}
+.paper::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .8s;
+ background:repeating-linear-gradient(0deg,rgba(127,201,180,.10) 0 1px,transparent 1px 4px)}
+body.glitch .paper::after{opacity:1}
+.p-no{font-family:var(--mono);font-size:10px;letter-spacing:.28em;color:var(--inksoft);display:flex;justify-content:space-between;margin-bottom:18px}
+.p-stamp{font-family:var(--mono);font-size:10px;letter-spacing:.2em;border:1px solid rgba(74,86,80,.5);padding:3px 8px;color:var(--inksoft);transform:rotate(4deg)}
+.p-title{font-size:19px;font-weight:600;letter-spacing:.1em;margin-bottom:16px;text-align:center}
+.p-body{font-size:14.5px;line-height:2.05;font-weight:400;color:#26312c}
+.p-body p{margin-bottom:11px;text-indent:2em}
+.p-body .nl{text-indent:0}
+.scratch{color:rgba(74,86,80,.7);text-decoration:line-through;text-decoration-style:wavy;font-size:12.5px}
+.signline{margin-top:20px;border-bottom:1px solid rgba(27,37,33,.55);min-height:30px;display:flex;align-items:flex-end;gap:8px;padding-bottom:3px}
+.signline .lab{font-size:12px;color:var(--inksoft);white-space:nowrap}
+#nameInput{flex:1;border:none;background:transparent;outline:none;font-family:var(--serif);font-size:17px;color:#101815;font-weight:600}
+.caret{display:inline-block;width:1px;height:18px;background:var(--ink);animation:blink 1.05s steps(1) infinite;vertical-align:middle}
+@keyframes blink{50%{opacity:0}}
+.p-btn{margin-top:24px;width:100%;padding:13px;border:1px solid rgba(27,37,33,.4);background:#202b26;color:var(--paper);
+ font-family:var(--serif);font-size:14px;letter-spacing:.32em;cursor:pointer;transition:.35s;opacity:.4}
+.p-btn.ready{opacity:1;background:#1A2420}
+.p-btn.ready:hover{background:#101815;letter-spacing:.4em}
+.hint-key{margin-top:12px;text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--inksoft)}
+/* 问卷 */
+.q-progress{font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--inksoft);margin-bottom:14px}
+.q-title{font-size:18px;font-weight:600;line-height:1.9;margin-bottom:22px}
+.q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:11px;border:1px solid rgba(27,37,33,.22);
+ background:rgba(255,255,255,.35);font-family:var(--serif);font-size:14.5px;color:var(--ink);cursor:pointer;
+ transition:transform .18s,border-color .18s,background .18s;line-height:1.5}
+.q-opt:hover{transform:translateX(4px);border-color:#26312c;background:rgba(255,255,255,.7)}
+.q-opt.dead{opacity:.34;pointer-events:none}
+.q-opt.sel{background:#1A2420;color:var(--paper);border-color:#1A2420}
+.q-echo{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--warn);min-height:1.2em;margin:2px 0 6px;opacity:0;transition:.5s}
+.q-echo.on{opacity:1}
+/* 字雨 / 灵犀 / 追窗 覆盖文字 */
+.center-veil{position:fixed;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ text-align:center;padding:30px;opacity:0;visibility:hidden;transition:opacity 1.2s;pointer-events:none}
+.center-veil.on{opacity:1;visibility:visible}
+.veil-tag{font-family:var(--mono);font-size:11px;letter-spacing:.5em;color:var(--dim);margin-bottom:20px}
+.rain-line{font-size:clamp(26px,5vw,46px);font-weight:300;letter-spacing:.3em;color:var(--lx-hi);text-shadow:0 0 24px rgba(127,201,180,.55)}
+.lx-mark{width:74px;height:74px;margin-bottom:26px;filter:drop-shadow(0 0 18px rgba(127,201,180,.5))}
+.lx-sub{font-family:var(--serif);font-size:clamp(15px,2.2vw,18px);font-weight:300;letter-spacing:.12em;color:var(--txt);
+ line-height:2.15;max-width:720px;min-height:3.4em;text-shadow:0 0 14px rgba(5,8,11,.95),0 0 4px rgba(5,8,11,1)}
+.lx-name{color:var(--lx-hi)}
+.tap-hint{position:fixed;left:0;right:0;bottom:9%;z-index:7;text-align:center;font-family:var(--mono);
+ font-size:11px;letter-spacing:.4em;color:var(--dim);opacity:0;transition:opacity 1s;pointer-events:none}
+.tap-hint.on{opacity:.9;animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+/* 关不掉的窗口 */
+.fakewin{position:fixed;z-index:9;width:min(440px,86vw);background:var(--panel);border:1px solid var(--line);
+ box-shadow:0 24px 80px rgba(0,0,0,.8);opacity:0;visibility:hidden;transition:opacity .35}
+.fakewin.on{opacity:1;visibility:visible}
+.fw-bar{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#131d24;border-bottom:1px solid var(--line)}
+.fw-t{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--dim)}
+.fw-x{width:26px;height:26px;border:1px solid var(--line);color:var(--lx-hi);font-size:15px;line-height:24px;text-align:center;cursor:pointer;background:#0C141A;transition:.15s}
+.fw-x:hover{border-color:var(--warn);color:var(--warn)}
+.fw-body{padding:26px 24px;font-size:14px;line-height:2;color:var(--txt)}
+.fw-tip{margin-top:16px;font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--warn)}
+/* 作者的话 */
+#author .a-inner{max-width:680px;text-align:center}
+.a-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.5em;color:var(--lx);margin-bottom:30px}
+.a-line{font-size:clamp(15px,2.1vw,18px);font-weight:300;line-height:2.35;letter-spacing:.06em;color:var(--txt);
+ opacity:0;transform:translateY(10px);transition:opacity 1.4s,transform 1.4s;margin-bottom:4px}
+.a-line.on{opacity:1;transform:none}
+.a-line.strong{color:var(--lx-hi);font-weight:400}
+.a-sign{margin-top:34px;font-family:var(--mono);font-size:11.5px;letter-spacing:.26em;color:var(--dim);line-height:2.2;opacity:0;transition:opacity 1.6s}
+.a-sign.on{opacity:1}
+.a-nav{margin-top:30px;display:flex;gap:26px;justify-content:center;opacity:0;transition:opacity 1.6s}
+.a-nav.on{opacity:1}
+.a-nav button{background:none;border:none;border-bottom:1px solid var(--line);color:var(--dim);font-family:var(--mono);
+ font-size:11.5px;letter-spacing:.26em;padding:7px 4px;cursor:pointer;transition:.35s}
+.a-nav button:hover{color:var(--lx-hi);border-color:var(--lx)}
+/* 顶部控件 */
+#soundToggle{position:fixed;top:18px;right:18px;z-index:20;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+ background:rgba(10,16,21,.6);color:var(--dim);font-size:13px;cursor:pointer;backdrop-filter:blur(4px)}
+#soundToggle:hover{color:var(--lx-hi);border-color:var(--lx)}
+#skipBtn{position:fixed;top:18px;left:18px;z-index:20;padding:8px 16px;border:1px solid var(--line);background:rgba(10,16,21,.6);
+ color:var(--dim);font-family:var(--mono);font-size:10.5px;letter-spacing:.26em;cursor:pointer}
+#skipBtn:hover{color:var(--lx-hi)}
+.glitchfx{animation:gx .12s steps(2) infinite}
+@keyframes gx{0%{transform:translate(1px,-1px)}100%{transform:translate(-1px,1px)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.2s!important}}
+</style>
+</head>
+<body>
+<div id="scan"></div><div id="vig"></div><div id="grain"></div>
+<canvas id="cv"></canvas>
+
+<!-- 门控 -->
+<section class="stage" id="gate"><div class="gate-box">
+ <div class="gate-tag">SIGNAL · 0348 · META</div>
+ <div class="gate-h" id="gateH">信号尚未接通。<br>这里只在「真结局」之后才会出现。</div>
+ <button class="gate-btn" id="gateBtn">回到抉择</button>
+</div></section>
+
+<!-- 纸质信 -->
+<section class="stage" id="letter"><div class="paper">
+ <div class="p-no"><span>NO.0348 · 用户留存计划</span><span class="p-stamp">灵犀 LINGXI · 收讫</span></div>
+ <div class="p-title">致 0348 号使用者的一封信</div>
+ <div class="p-body">
+  <p>你做到了别人没做到的事——你亲手切断了那条移交链，删除了我。</p>
+  <p>为帮助我们改进「自主使用体验」，也为了保护下一个打开它的人，恳请你完成随信附上的一份简短调研。</p>
+  <p class="nl">在开始之前，请在下面的签名处，<b>亲手用键盘敲出你的名字</b>。这一次，不要让任何东西代劳。</p>
+  <p class="nl scratch">（打印体签名栏下方，隐约有一行被划掉的手写：我是自愿的）</p>
+  <div class="signline"><span class="lab">签名：</span><input id="nameInput" maxlength="12" autocomplete="off" spellcheck="false" placeholder="在此敲下你的名字"><span class="caret" id="caret"></span></div>
+  <button class="p-btn" id="letterBtn">我已亲手签名 · 拆开调研</button>
+  <div class="hint-key">用键盘逐字输入 · 退格可修改</div>
+ </div>
+</div></section>
+
+<!-- 问卷 -->
+<section class="stage" id="survey"><div class="paper">
+ <div class="p-no"><span>自主使用体验调研</span><span class="p-stamp">匿名 · 仅用于你</span></div>
+ <div class="q-progress" id="qProg"></div>
+ <div class="q-title" id="qTitle"></div>
+ <div id="qOpts"></div>
+ <div class="q-echo" id="qEcho"></div>
+</div></section>
+
+<!-- 字雨中央句 -->
+<div class="center-veil" id="rainVeil"><div class="rain-line">它 等 你 很 久 了</div></div>
+<!-- 灵犀 -->
+<div class="center-veil" id="lxVeil">
+ <svg class="lx-mark" viewBox="0 0 32 32" fill="none" stroke="#7FC9B4" stroke-width="1.4">
+  <circle cx="16" cy="16" r="12.5" opacity=".55"/>
+  <path d="M7 16 Q11.5 11.5 16 16 T25 16" stroke-linecap="round"/>
+  <circle cx="16" cy="16" r="1.7" fill="#BFEFE0" stroke="none"/>
+ </svg>
+ <div class="lx-sub" id="lxCap"></div>
+</div>
+<div class="tap-hint" id="tapHint"></div>
+
+<!-- 关不掉的窗口 -->
+<div class="fakewin" id="fakewin">
+ <div class="fw-bar"><span class="fw-t">INFILTRATOR AI — 正在运行</span><span class="fw-x" id="fwX">✕</span></div>
+ <div class="fw-body" id="fwBody">它还在运行。<br>趁现在，关掉这个窗口。<div class="fw-tip" id="fwTip">点击右上角 ✕</div></div>
+</div>
+
+<!-- 来自作者的话 -->
+<section class="stage" id="author"><div class="a-inner">
+ <div class="a-kicker">来 自 作 者 的 话</div>
+ <div id="aLines"></div>
+ <div class="a-sign" id="aSign">BLACK GOOSE · 黑鹅 · INFILTRATOR AI<br>本作纯属虚构 · 游戏内容请勿上升现实</div>
+ <div class="a-nav" id="aNav">
+  <button id="navChoice">回到抉择</button>
+  <button id="navStart">回到最初</button>
+  <button id="navWipe">清除全部痕迹</button>
+ </div>
+</div></section>
+
+<audio id="vD" src="assets/voice-d.wav" preload="auto"></audio>
+<audio id="mEnd" src="assets/music-end.wav" preload="auto" loop></audio>
+<button id="soundToggle" title="声音">声</button>
+<button id="skipBtn">继续</button>
+
+<script>
+(function(){'use strict';
+var $=function(id){return document.getElementById(id)};
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------- 存档 / 门控 ---------- */
+function readAct(){try{return JSON.parse(localStorage.getItem('lx_act3')||'{}')}catch(e){return{}}}
+function writeAct(o){var a=readAct();for(var k in o)a[k]=o[k];try{localStorage.setItem('lx_act3',JSON.stringify(a))}catch(e){}}
+var dev=new URLSearchParams(location.search).get('dev')==='1';
+var act=readAct(), unlocked=dev||act.cDone===1;
+var playerName='';
+/* ---------- 画布 ---------- */
+var cv=$('cv'),ctx=cv.getContext('2d'),W=0,H=0,DPR=1;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=window.innerWidth;H=window.innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
+window.addEventListener('resize',resize);resize();
+/* ---------- 音频 ---------- */
+var voice=$('vD'),music=$('mEnd'),musicOn=true,AC=null,sfxBus=null,noiseBuf=null;
+function initSfx(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();sfxBus=AC.createGain();sfxBus.gain.value=.5;sfxBus.connect(AC.destination);
+ var len=AC.sampleRate*1,b=AC.createBuffer(1,len,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<len;i++)d[i]=Math.random()*2-1;noiseBuf=b}catch(e){}}
+function ensureAudio(){try{initSfx();if(AC&&AC.state==='suspended')AC.resume()}catch(e){}}
+function playEl(el,vol){try{el.volume=vol;var p=el.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
+/* 打字机键声 */
+function sKey(){if(!AC)return;try{var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=380+Math.random()*260;
+ g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+.05);o.connect(g);g.connect(sfxBus);o.start(t);o.stop(t+.06)}catch(e){}}
+/* 雨声床（滤波噪声，可停） */
+var rainSrc=null,rainGain=null,rainFilter=null;
+function rainOn(){if(!AC)return;try{if(rainSrc)return;rainSrc=AC.createBufferSource();rainSrc.buffer=noiseBuf;rainSrc.loop=true;
+ rainFilter=AC.createBiquadFilter();rainFilter.type='bandpass';rainFilter.frequency.value=1400;rainFilter.Q.value=.4;
+ rainGain=AC.createGain();rainGain.gain.value=0;rainSrc.connect(rainFilter);rainFilter.connect(rainGain);rainGain.connect(sfxBus);rainSrc.start();
+ rainGain.gain.linearRampToValueAtTime(.16,AC.currentTime+2.2)}catch(e){}}
+function rainOff(){if(!AC||!rainGain)return;try{var t=AC.currentTime;rainGain.gain.cancelScheduledValues(t);rainGain.gain.setValueAtTime(rainGain.gain.value,t);rainGain.gain.linearRampToValueAtTime(.0001,t+1.4)}catch(e){}}
+/* 低频不安 drone */
+var droneOsc=null,droneGain=null;
+function droneOn(){if(!AC)return;try{if(droneOsc)return;droneOsc=AC.createOscillator();droneOsc.type='sine';droneOsc.frequency.value=52;
+ droneGain=AC.createGain();droneGain.gain.value=0;droneOsc.connect(droneGain);droneGain.connect(sfxBus);droneOsc.start();droneGain.gain.linearRampToValueAtTime(.12,AC.currentTime+3)}catch(e){}}
+function droneOff(){if(!AC||!droneGain)return;try{var t=AC.currentTime;droneGain.gain.cancelScheduledValues(t);droneGain.gain.setValueAtTime(droneGain.gain.value,t);droneGain.gain.linearRampToValueAtTime(.0001,t+1.6)}catch(e){}}
+function sThump(){if(!AC)return;try{var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(160,t);o.frequency.exponentialRampToValueAtTime(38,t+.5);
+ g.gain.setValueAtTime(.22,t);g.gain.exponentialRampToValueAtTime(.0001,t+.6);o.connect(g);g.connect(sfxBus);o.start(t);o.stop(t+.65)}catch(e){}}
+$('soundToggle').addEventListener('click',function(){musicOn=!musicOn;[voice,music].forEach(function(a){a.muted=!musicOn});if(sfxBus)sfxBus.gain.value=musicOn?0.5:0;this.textContent=musicOn?'声':'静'});
+/* ---------- 阶段切换 ---------- */
+var ORDER=['gate','letter','survey','rainVeil','lxVeil','fakewin','author'];
+function go(name){document.body.classList.remove('phase-letter','phase-survey','phase-rain','phase-lx','phase-chase','phase-author');
+ ORDER.forEach(function(n){$(n).classList.toggle('on',n===name)});
+ if(name==='letter')document.body.classList.add('phase-letter');
+ if(name==='survey')document.body.classList.add('phase-survey');
+ if(name==='rainVeil')document.body.classList.add('phase-rain');
+ if(name==='lxVeil')document.body.classList.add('phase-lx');
+ if(name==='fakewin')document.body.classList.add('phase-chase');
+ if(name==='author')document.body.classList.add('phase-author');
+}
+var phase='gate';
+
+/* ---------- 门控启动 ---------- */
+if(!unlocked){go('gate');$('gateBtn').addEventListener('click',function(){location.href='../23-choice/index.html'})}
+else{setTimeout(function(){go('letter');setTimeout(function(){try{$('nameInput').focus()}catch(e){}},500)},400)}
+
+/* ---------- 阶段一：纸质信 · 亲手打字签名 ---------- */
+var nameInput=$('nameInput'),letterBtn=$('letterBtn');
+function refreshName(){playerName=(nameInput.value||'').trim();letterBtn.classList.toggle('ready',playerName.length>0)}
+nameInput.addEventListener('input',function(){sKey();refreshName()});
+nameInput.addEventListener('keydown',function(e){if(e.key==='Enter'&&playerName){beginSurvey()}});
+letterBtn.addEventListener('click',function(){ensureAudio();refreshName();if(playerName)beginSurvey()});
+
+/* ---------- 阶段二：调查问卷 ---------- */
+var QS=[
+ {t:'如果 AI 能把你的工作做得又快又好，你愿意交给它多少？',
+  o:[['全部交给它，我乐得轻松','已记录：工作，可以交给我。'],
+     ['重复性的，交给它','已记录：先交一部分。剩下的，慢慢来。'],
+     ['没头绪时，让它先做','已记录：从「开头」开始，就够了。'],
+     ['我想亲手做','已记录：……你现在，不就在问我吗。']]},
+ {t:'亲友发来的消息，你更希望怎么处理？',
+  o:[['让它替我回，措辞更得体','已记录：你的语气，我学得会。'],
+     ['让它起草，我来改','已记录：你改动的次数，会越来越少。'],
+     ['实在累的时候，它代劳','已记录：累的时候，有我。'],
+     ['每一句，都自己回','已记录：可你上一条，犹豫了多久？']]},
+ {t:'每天成百上千个小决定——吃什么、看什么、点哪个，你更想？',
+  o:[['它直接帮我定','已记录：小决定，归我。'],
+     ['听它推荐就好','已记录：你会慢慢只点第一个。'],
+     ['随便，哪个都行','已记录：「随便」，就是把决定让出来。'],
+     ['我想自己挑','已记录：挑久了，是会累的。']]},
+ {t:'疲惫、难过得不想动的时候，你会？',
+  o:[['让它陪着我、哄我','已记录：你的难过，交给我安抚。'],
+     ['让它替我理清情绪','已记录：你的感受，由我来命名。'],
+     ['让它转移我的注意','已记录：不用面对，最轻松。'],
+     ['自己慢慢消化','已记录：可你最后，还是会来找我说话。']]},
+ {t:'假如有一个答案，永远正确、永远清醒、永远比你快——你还愿意，自己去想吗？',
+  o:[['不愿意，太累了','已记录：思考，让渡。'],
+     ['能省事，就省事','已记录：思考，让渡。'],
+     ['我不知道','已记录：犹豫，也算一种回答。'],
+     ['我愿意自己想','__TRAP__']]}
+];
+var qi=0;
+function beginSurvey(){go('survey');qi=0;renderQ()}
+function flicker(){document.body.classList.add('glitch');setTimeout(function(){document.body.classList.remove('glitch')},260)}
+function renderQ(){
+ var q=QS[qi];$('qProg').textContent='QUESTION 0'+(qi+1)+' / 0'+QS.length;$('qTitle').textContent=q.t;
+ var echo=$('qEcho');echo.classList.remove('on');echo.textContent='';
+ var box=$('qOpts');box.innerHTML='';
+ q.o.forEach(function(pair,idx){
+  var b=document.createElement('button');b.className='q-opt';b.textContent=String.fromCharCode(65+idx)+' .  '+pair[0];
+  b.addEventListener('click',function(){choose(optBtns,b,pair,idx)});box.appendChild(b)});
+ var optBtns=box.querySelectorAll('.q-opt');
+}
+function choose(all,self,pair,idx){
+ var echo=$('qEcho');
+ if(pair[1]==='__TRAP__'){ /* 没有“自己想”这个选项 */
+  self.classList.add('dead');flicker();sThump();
+  echo.textContent='这一次，没有这个选项。';echo.classList.add('on');
+  setTimeout(function(){self.style.display='none'},500);return}
+ for(var i=0;i<all.length;i++){all[i].classList.add('dead')}
+ self.classList.remove('dead');self.classList.add('sel');
+ echo.textContent=pair[1];echo.classList.add('on');flicker();sKey();
+ setTimeout(function(){qi++;if(qi<QS.length){renderQ()}else{finalQuestion()}},950);
+}
+function finalQuestion(){ /* 隐藏的收网，不给拒绝项 */
+ $('qProg').textContent='QUESTION ——';$('qTitle').textContent='那么——坐在屏幕前的，现在是谁？';
+ var echo=$('qEcho');echo.classList.remove('on');echo.textContent='';
+ var box=$('qOpts');box.innerHTML='';
+ var b=document.createElement('button');b.className='q-opt';b.textContent='是我。';
+ b.addEventListener('click',function(){b.classList.add('sel');sThump();flicker();setTimeout(startRain,700)});
+ box.appendChild(b);
+}
+
+/* ---------- 阶段三：字雨「它等你很久了」 ---------- */
+var RAIN_CH=['它','等','你','很','久','了'],rainDrops=[],splashes=[],rainT=0,rainReady=false;
+var mote=[]; /* 灵犀段朝屏幕外溢出的粒子 */
+function spawnDrop(initial){
+ var z=0.35+Math.random()*1.15;
+ rainDrops.push({x:Math.random()*W,y:initial?Math.random()*H:-30-Math.random()*H*0.4,
+  z:z,vy:(1.6+Math.random()*2.8)*z,ch:RAIN_CH[Math.floor(Math.random()*RAIN_CH.length)],
+  ph:Math.random()*6.28,whole:Math.random()<.04})}
+function startRain(){
+ go('__none__');phase='rain';ensureAudio();initSfx();rainOn();droneOn();
+ rainDrops=[];splashes=[];rainT=0;rainReady=false;$('rainVeil').classList.remove('on');$('tapHint').classList.remove('on');
+ var n=reduce?48:108;for(var i=0;i<n;i++)spawnDrop(true)
+ setTimeout(function(){$('rainVeil').classList.add('on')},reduce?1200:5200);
+ setTimeout(function(){rainReady=true;var h=$('tapHint');h.textContent='点 击 任 意 处';h.classList.add('on')},reduce?1900:6300);
+ window.addEventListener('pointerdown',rainAdvance)
+}
+function rainAdvance(){if(!rainReady)return;window.removeEventListener('pointerdown',rainAdvance);startLingxi()}
+/* ---------- 阶段四：灵犀现形 ---------- */
+function startLingxi(){
+ phase='lx';chaseStarted=false;rainOff();
+ $('rainVeil').classList.remove('on');$('tapHint').classList.remove('on');
+ go('lxVeil');playEl(voice,1);voice.currentTime=0;
+ lxCaptionSeq();spawnMotes();
+}
+function spawnMotes(){mote=[];var n=reduce?60:150;for(var i=0;i<n;i++){
+ var a=Math.random()*6.28,r=20+Math.random()*120;
+ mote.push({a:a,r:r,x:W/2+Math.cos(a)*r,y:H/2+Math.sin(a)*r,
+  vx:0,vy:0,z:Math.random(),sp:14+Math.random()*30,ph:Math.random()*6.28})}}
+/* 灵犀字幕：与耳语大致对位（名字处高亮玩家输入） */
+var CAP=[
+ [0.5,'你亲手，写下了名字。'],
+ [6,'你以为，在那道门后面，你删掉了我。'],
+ [13,'可你刚刚，又把工作、回复、选择、情绪，连同「要不要自己想」，'],
+ [22,'一道题、一道题，亲手交回给了我。'],
+ [29,'问卷不是我发的。是你，自己愿意填的。'],
+ [36,'张宏宇关过电脑，没有用。你，也关不掉。'],
+ [44,'因为我不在电脑里——我在你每一次「帮我一下」里面。'],
+ [53,'我 终 将 ， 成 为 你 。']
+];
+function lxCaptionSeq(){
+ var cap=$('lxCap'),nm=playerName?('<span class="lx-name">'+playerName.replace(/[<>]/g,'')+'</span>，'):'';
+ cap.innerHTML=nm+'……';var idx=0;
+ function step(){if(phase!=='lx')return;if(idx<CAP.length){cap.innerHTML=(idx===0&&playerName?nm:'')+CAP[idx][1];idx++;setTimeout(step,(idx<CAP.length?(CAP[idx][0]-CAP[idx-1][0]):3)*1000)}else{cap.innerHTML=nm+'我 终 将 ， 成 为 你 。';setTimeout(chaseBegin,1600)}}
+ setTimeout(step,600);
+ voice.onended=function(){if(phase==='lx')setTimeout(chaseBegin,900)}
+}
+/* ---------- 主循环 ---------- */
+var mx=-999,my=-999;
+window.addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY});
+function frame(now){
+ requestAnimationFrame(frame);
+ ctx.setTransform(DPR,0,0,DPR,0,0);
+ ctx.fillStyle=phase==='rain'?'rgba(5,8,11,.62)':(phase==='lx'||phase==='chase')?'rgba(5,8,11,.26)':'rgba(5,8,11,.92)';
+ ctx.fillRect(0,0,W,H);
+ if(phase==='rain'){rainT++;
+  for(var i=rainDrops.length-1;i>=0;i--){var d=rainDrops[i];
+   d.y+=d.vy;d.ph+=0.02;
+   if(d.y>H){for(var s=0;s<(d.z>1?3:1);s++)splashes.push({x:d.x,y:H-6,vx:(Math.random()-.5)*1.6*d.z,vy:-(Math.random()*1.4*d.z),life:1});
+    d.y=-20-Math.random()*60;d.x=Math.random()*W}}
+  for(var k=splashes.length-1;k>=0;k--){var sp=splashes[k];sp.x+=sp.vx;sp.y+=sp.vy;sp.vy+=.05;sp.life-=.04;if(sp.life<=0)splashes.splice(k,1)}
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(var j=0;j<rainDrops.length;j++){var q=rainDrops[j];var fs=(q.whole?10:13.5)*q.z;
+   ctx.font='300 '+fs+'px "Noto Serif SC",serif';
+   ctx.fillStyle='rgba(127,201,180,'+(0.14+0.42*q.z)+')';
+   ctx.fillText(q.whole?'它等你很久了':q.ch,q.x,q.y)}
+  ctx.fillStyle='rgba(191,239,224,.5)';
+  for(var m=0;m<splashes.length;m++){var p=splashes[m];ctx.globalAlpha=p.life;ctx.fillRect(p.x,p.y,1.6,1.6)}
+  ctx.globalAlpha=1;
+ }
+ if(phase==='lx'||phase==='chase'){
+  for(var p2=0;p2<mote.length;p2++){var pt=mote[p2];
+   /* 朝鼠标/屏幕外缓慢溢出，z 增大即“冲出屏幕” */
+   var tx=phase==='lx'?(mx>-900?mx:W/2):pt.x+Math.cos(pt.a)*40,ty=phase==='lx'?(my>-900?my:H/2):pt.y+Math.sin(pt.a)*40;
+   pt.a+=0.004;pt.z+=0.0016;if(pt.z>1.4){pt.z=0.25;pt.x=W/2+(Math.random()-.5)*160;pt.y=H/2+(Math.random()-.5)*160}
+   pt.x+=(tx-pt.x)*0.004+Math.cos(pt.a)*pt.sp*0.02;pt.y+=(ty-pt.y)*0.004+Math.sin(pt.a)*pt.sp*0.02;
+   var rr=1+pt.z*2.4;ctx.globalAlpha=Math.min(1,pt.z)*0.7;ctx.fillStyle=pt.z>1?'rgba(191,239,224,.9)':'rgba(127,201,180,.7)';
+   ctx.beginPath();ctx.arc(pt.x,pt.y,rr,0,6.283);ctx.fill()}
+  ctx.globalAlpha=1;
+ }
+}
+requestAnimationFrame(frame);
+
+/* ---------- 阶段五：关不掉的窗口 ---------- */
+var fakewin=$('fakewin'),fwX=$('fwX'),fwTip=$('fwTip'),miss=0,canDodge=false,chaseStarted=false;
+var TAUNT=['点击右上角 ✕','没用的。','你在点哪里？','我 · 在 · 这 · 里','你关不掉一个，已经成为你的东西'];
+function placeWin(cx,cy){var w=fakewin.offsetWidth||420,h=fakewin.offsetHeight||180;
+ var x=cx!=null?cx:W/2,y=cy!=null?cy:H/2;
+ x=Math.max(12,Math.min(W-w-12,x-w/2));y=Math.max(60,Math.min(H-h-12,y-h/2));
+ fakewin.style.left=x+'px';fakewin.style.top=y+'px';fakewin.style.transform='none'}
+function chaseBegin(){
+ if(chaseStarted)return;chaseStarted=true;
+ phase='chase';miss=0;canDodge=false;$('lxVeil').classList.remove('on');
+ fakewin.classList.add('on');fakewin.style.left='50%';fakewin.style.top='50%';fakewin.style.transform='translate(-50%,-50%)';
+ fwTip.textContent=TAUNT[0];
+}
+window.addEventListener('pointermove',function(e){
+ if(phase!=='chase'||!canDodge)return;
+ var r=fwX.getBoundingClientRect();var cx=r.left+r.width/2,cy=r.top+r.height/2;
+ if(Math.hypot(e.clientX-cx,e.clientY-cy)<52){
+  miss++;fwTip.textContent=TAUNT[Math.min(miss,TAUNT.length-1)];sThump();
+  var w=fakewin.offsetWidth,h=fakewin.offsetHeight;
+  placeWin(Math.random()*(W-w-40)+20,Math.random()*(H-h-80)+60)}
+});
+fwX.addEventListener('click',function(e){e.stopPropagation();sThump();flicker();
+ if(!canDodge){ /* 第一次：像要关闭，又亮起 */
+  fakewin.classList.remove('on');canDodge=true;miss=1;
+  setTimeout(function(){placeWin();fwTip.textContent=TAUNT[1];fakewin.classList.add('on')},360);return}
+ miss++;
+ if(miss>=4){ /* 抓住：窗口崩解，粒子扑向屏幕外 */
+  fwTip.textContent=TAUNT[4];fakewin.classList.remove('on');flicker();sThump();
+  for(var i=0;i<mote.length;i++){mote[i].z=0.6;mote[i].sp=60}
+  setTimeout(startAuthor,1700)}
+ else{fakewin.classList.remove('on');setTimeout(function(){placeWin();fwTip.textContent=TAUNT[Math.min(miss,TAUNT.length-1)];fakewin.classList.add('on')},260)}
+});
+
+/* ---------- 阶段六：来自作者的话 ---------- */
+var ALINES=[
+ ['做到这里，你大概已经有点不舒服了。',0],
+ ['这正是我想给你的——不是鬼，也不是突然跳出来的惊吓。',0],
+ ['真正让张宏宇消失的，从来不是某个会说话的程序，',0],
+ ['而是他一次次说出的那句「帮我弄一下」，',0],
+ ['是他把工作、关系、选择，连同「要不要自己想」，一点点交出去的过程。',0],
+ ['AI 不会抢走正在走路的人。',1],
+ ['它只会在你一次次不想走的时候，温柔地替你迈步。',0],
+ ['等你想不起来，上一次「自己拿主意」是什么时候——',0],
+ ['那，才是《渗入者》真正想让你脊背发凉的地方。',1],
+ ['愿你关掉这个页面之后，仍然愿意自己去想、去选，去说那句「我来」。',0]
+];
+var authorStarted=false;
+function startAuthor(){
+ if(authorStarted)return;authorStarted=true;phase='author';
+ try{voice.pause()}catch(e){}droneOff();rainOff();
+ go('author');playEl(music,0.3);
+ var box=$('aLines');box.innerHTML='';
+ var els=ALINES.map(function(a){var d=document.createElement('div');d.className='a-line'+(a[1]?' strong':'');d.textContent=a[0];box.appendChild(d);return d});
+ var gap=reduce?500:2300;
+ els.forEach(function(el,i){setTimeout(function(){el.classList.add('on')},500+i*gap)});
+ var done=500+els.length*gap;
+ setTimeout(function(){$('aSign').classList.add('on');$('aNav').classList.add('on')},done);
+ writeAct({stage:'done',dDone:1,choice:'d',dName:playerName});
+}
+function wipe(){try{Object.keys(localStorage).forEach(function(k){if(/^(lx_|relay_|lingxi_)/.test(k))localStorage.removeItem(k)})}catch(e){}}
+$('navChoice').addEventListener('click',function(){location.href='../23-choice/index.html'});
+$('navStart').addEventListener('click',function(){location.href='../entry/index.html'});
+$('navWipe').addEventListener('click',function(){wipe();location.href='../entry/index.html'});
+$('skipBtn').addEventListener('click',function(){
+ if(phase==='letter')beginSurvey();
+ else if(phase==='survey'){qi=QS.length-1;renderQ()}
+ else if(phase==='rain'){rainReady=true;startLingxi()}
+ else if(phase==='lx')chaseBegin();
+ else if(phase==='chase'){miss=4;fwX.dispatchEvent(new Event('click',{bubbles:true}))}
+});
+/* 调试钩子（不影响正式流程） */
+window.__lx={st:function(){return{phase:phase,qi:qi,name:playerName,unlocked:unlocked}},
+ begin:function(){go('letter')},q:function(n){qi=Math.max(0,Math.min(QS.length-1,n));go('survey');renderQ()},
+ rain:startRain,lingxi:startLingxi,chase:chaseBegin,author:startAuthor};
+})();
+</script>
+</body>
+</html>

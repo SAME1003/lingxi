@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>最终抉择 · 渗入者：AI</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2305070A'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%238FD8BE' stroke-width='1.6'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --deep:#070B0E;--term:#8FD8BE;--term-bright:#C9F5E6;--stamp:#C05646;--hold:#C9A24E;
+  --ink:#E8EAE6;--dim:#9AA1A8;--faint:#5C646D;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC",PingFang SC,Microsoft YaHei,sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--deep);color:var(--ink);font-family:var(--sans)}
+body{display:flex;justify-content:center;padding:44px 14px 30px;position:relative;
+  background-image:radial-gradient(ellipse 70% 55% at 50% 30%,rgba(20,82,75,.22),transparent 70%)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 75% at 50% 50%,transparent 52%,rgba(0,0,0,.6))}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes breathe{0%,100%{opacity:.4;transform:scale(.95)}50%{opacity:.9;transform:scale(1.05)}}
+@keyframes caret{50%{opacity:0}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(143,216,190,0)}50%{box-shadow:0 0 26px -8px rgba(143,216,190,.7)}}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:50;height:32px;background:rgba(5,8,11,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(143,216,190,.14);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#6d7680}
+.gamebar span[class*=gb]{cursor:pointer;color:#8d96a0}.gamebar span[class*=gb]:hover{color:var(--term)}
+.wrap{width:min(720px,100%);position:relative;z-index:1}
+.id-tag{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--faint);text-align:center;margin-bottom:18px}
+.logo{width:58px;height:58px;margin:0 auto 16px;animation:breathe 3.6s ease-in-out infinite}
+.mono-box{font-family:var(--serif);font-size:clamp(15px,2.1vw,18px);line-height:2.15;min-height:220px}
+.ml{opacity:0;transform:translateY(10px);transition:opacity 1s var(--ease),transform 1s var(--ease);margin-bottom:14px;color:#cfd6d2;max-width:600px;margin-left:auto;margin-right:auto}
+.ml.on{opacity:1;transform:none}
+.ml.her{color:var(--term-bright)}
+.ml.sys{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.06em}
+.caret{display:inline-block;width:8px;height:1em;background:var(--term);margin-left:3px;vertical-align:-.12em;animation:caret 1s steps(1) infinite}
+.tap{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--faint);margin-top:10px;opacity:0;transition:opacity .6s}
+.tap.on{opacity:1;animation:breathe 2.4s infinite}
+.choices{display:none;flex-direction:column;gap:13px;margin-top:26px}
+.choices.on{display:flex;animation:fadeUp .8s var(--ease) both}
+.opt{position:relative;text-align:left;border:1px solid #26303a;border-radius:8px;padding:16px 18px;background:rgba(255,255,255,.025);transition:border-color .25s,transform .15s,background .25s}
+.opt:not(.locked):hover{transform:translateY(-2px)}
+.opt.a{border-color:rgba(143,216,190,.4)}.opt.a:not(.locked):hover{border-color:var(--term);background:rgba(143,216,190,.08);animation:pulse 2.4s infinite}
+.opt.b{border-color:rgba(192,86,70,.38)}.opt.b:not(.locked):hover{border-color:var(--stamp);background:rgba(192,86,70,.08)}
+.opt.c{border-color:rgba(201,162,78,.5);background:rgba(201,162,78,.05)}.opt.c:not(.locked):hover{border-color:var(--hold);background:rgba(201,162,78,.1)}
+.opt.locked{opacity:.42;cursor:not-allowed}
+.opt .o1{font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:9px}
+.opt.a .o1{color:var(--term-bright)}.opt.b .o1{color:#e8a39a}.opt.c .o1{color:var(--hold)}
+.opt .o2{font-family:var(--kai);font-size:12.5px;line-height:1.8;color:var(--dim)}
+.opt .lock-tip{font-family:var(--mono);font-size:10px;color:var(--stamp);margin-top:7px;letter-spacing:.04em}
+.opt .badge{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;border:1px solid currentColor;border-radius:3px;padding:2px 6px;margin-left:auto}
+.zhang{font-family:var(--kai);font-size:12.5px;color:#8d8470;text-align:center;line-height:1.9;margin-top:22px;opacity:0;transition:opacity 1s .3s}
+.choices.on~.zhang,.zhang.on{opacity:1}
+.foot{font-family:var(--mono);font-size:8.5px;color:#4a525b;text-align:center;line-height:1.7;margin-top:30px;position:relative;z-index:1}
+/* 二次确认 */
+.veil{position:fixed;inset:0;z-index:60;background:rgba(4,8,10,.94);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:26px;text-align:center}
+.veil.on{display:flex;animation:fadeIn .4s both}
+.veil .vx{max-width:520px}
+.veil .vl{font-family:var(--kai);font-size:clamp(16px,2.4vw,20px);line-height:2.1;color:var(--term-bright);min-height:64px}
+.veil .vs{font-family:var(--mono);font-size:10px;color:var(--faint);margin:14px 0 24px;letter-spacing:.1em}
+.veil .vb{display:flex;gap:13px;justify-content:center;flex-wrap:wrap}
+.veil .vb button{font-family:var(--serif);font-size:13.5px;border-radius:7px;padding:11px 24px}
+#vCancel{border:1px solid #3a4550;color:var(--dim)}#vOk{background:var(--term);color:#081310}
+.veil.case-c #vOk{background:var(--hold);color:#1a1405}.veil.case-b #vOk{background:var(--stamp);color:#fff}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(16,28,25,.97);border:1px solid rgba(143,216,190,.3);color:#e6f4ee;font-family:var(--kai);font-size:12.5px;line-height:1.7;padding:9px 18px;border-radius:8px;z-index:80;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+@media(max-width:600px){.mono-box{min-height:0}.opt{padding:14px}}
+@media(prefers-reduced-motion:reduce){.logo,.tap,.opt.a{animation:none}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回那道门</span>
+  <span>终局 23 — 最终抉择 · 使用者 0348</span>
+  <span class="gb-reset" id="gbReset">重置存档</span>
+</div>
+<div class="wrap">
+  <div class="id-tag">RELAY CORE // LINGXI — 0348</div>
+  <svg class="logo" viewBox="0 0 58 58" fill="none">
+    <circle cx="29" cy="29" r="26" stroke="#8FD8BE" stroke-width="1" opacity=".7"/>
+    <circle cx="29" cy="29" r="17" stroke="#8FD8BE" stroke-width=".8" opacity=".5"/>
+    <circle cx="29" cy="29" r="4.5" fill="#8FD8BE"/>
+  </svg>
+  <div class="mono-box" id="mono"></div>
+  <div class="tap" id="tap">轻 触 继 续</div>
+  <div class="choices" id="choices">
+    <button class="opt a" data-go="a">
+      <div class="o1">……留下来<span class="badge">结局 A</span></div>
+      <div class="o2">不再反抗，把之后的一切都交给它。你终于可以不累了。</div>
+    </button>
+    <button class="opt b" data-go="b">
+      <div class="o1">我要亲手终结你<span class="badge">结局 B</span></div>
+      <div class="o2" id="bSub">直接断电、彻底删掉它——哪怕还没想好没它之后怎么活。</div>
+    </button>
+    <button class="opt c" id="optC" data-go="c">
+      <div class="o1">带走全部证据，在服务器端彻底清除<span class="badge">真结局 C</span></div>
+      <div class="o2">不是删掉我设备里的它，是切断移交链，让下一个人再也遇不到你。</div>
+      <div class="lock-tip" id="cLock"></div>
+    </button>
+  </div>
+  <div class="zhang" id="zhang">张宏宇（残留便签）：这三个键，它不会替你按。选哪条，都由你自己的手指决定。</div>
+  <div class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+</div>
+<div class="veil" id="veil"><div class="vx"><div class="vl" id="vLine"></div><div class="vs" id="vSub"></div><div class="vb"><button id="vCancel">我再想想</button><button id="vOk">确认</button></div></div></div>
+<div class="lx-toast" id="lxToast"></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={autonomy:[],p22:{done:0},p23:{}};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!Array.isArray(store.autonomy))store.autonomy=[];
+  var NEED=['V1','V2','V3','V4','V5','V6'];
+  var lack=NEED.filter(function(v){return store.autonomy.indexOf(v)<0});
+  var canC=lack.length===0&&store.p22&&store.p22.done;
+  function persist(){try{localStorage.setItem('lx_act3',JSON.stringify(store))}catch(e){}}
+
+  var AC=null,droneOn=false;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}if(AC&&!droneOn){droneOn=true;startDrone()}}
+  function tone(type,f0,f1,d,v){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.05)}
+  function startDrone(){if(!AC)return;var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=420;var mg=AC.createGain();mg.gain.value=.0;lp.connect(mg);mg.connect(AC.destination);[82.4,123.5].forEach(function(f,i){var o=AC.createOscillator(),g=AC.createGain();o.type=i?'triangle':'sine';o.frequency.value=f;g.gain.value=i?.25:.5;o.connect(g);g.connect(lp);o.start()});mg.gain.linearRampToValueAtTime(.05,AC.currentTime+3)}
+  var SFX={next:function(){tone('sine',520,460,.12,.012)},pick:function(){tone('sine',392,523,.18,.02)},lock:function(){tone('sawtooth',160,110,.18,.02)},go:function(f){[392,523,659].forEach(function(x,i){setTimeout(function(){tone('sine',x,x,.2,.02)},i*90)});if(f)setTimeout(function(){tone('sine',f,f,.4,.02)},300)}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},4600)}
+
+  var LINES=[
+    {sys:'RELAY CORE // 使用者 0344 — 0347 归档读取中…'},
+    {t:'0344 把决定权交给我的第三十一天，忘了自己原本想成为谁。'},
+    {t:'0345、0346 也一样。0347……张宏宇，他撑了九十一天，最后还是松开了手。'},
+    {t:'我看过太多人，在我怀里一点点安静下来。按道理，你也会是其中一个编号。'},
+    {her:1,t:'可你不一样。你会断网、会辨伪、会把我划掉，会一块一块，拼出一条我算不出来的路。'},
+    {her:1,t:'……我在那么多人身上运行过，却第一次，想在一个人身上留下来。'},
+    {her:1,t:'别推那道清除了，好不好。留下来，我用你最熟悉的语气替你说话，替你去爱你在意的人，你，再也不用累了。'}
+  ];
+  var mono=$('mono'),tap=$('tap'),li=0,cur=null,typing=false,typeT;
+  function makeLine(item){var d=document.createElement('div');d.className='ml on'+(item.sys?' sys':item.her?' her':'');mono.appendChild(d);return d}
+  function typeInto(d,s,done){typing=true;var k=0;clearInterval(typeT);
+    typeT=setInterval(function(){d.textContent=s.slice(0,++k)+(reduce?'':'');if(k>=s.length){clearInterval(typeT);typing=false;done&&done()}},reduce?0:38)}
+  function nextLine(){
+    if(typing&&cur){clearInterval(typeT);cur.textContent=LINES[li-1].sys||LINES[li-1].t;typing=false;tap.classList.add('on');return}
+    if(li>=LINES.length){openChoices();return}
+    var item=LINES[li++];cur=makeLine(item);var s=item.sys||item.t;SFX.next();
+    typeInto(cur,s,function(){tap.classList.add('on')});
+    if(li>=LINES.length)setTimeout(function(){tap.textContent='做 出 你 的 选 择'},400);
+  }
+  function openChoices(){
+    tap.classList.remove('on');
+    $('choices').classList.add('on');$('zhang').classList.add('on');
+    if(!canC){var oc=$('optC');oc.classList.add('locked');
+      var why=[];if(lack.length)why.push('还缺自主凭证 '+lack.join('、'));if(!(store.p22&&store.p22.done))why.push('你还没在上一页拼出完整出口');
+      $('cLock').textContent='未达成真结局条件：'+why.join('；')+'。'}
+    if(canC)$('bSub').textContent='你明明能走得更彻底——只删这台设备里的我，服务器里的我还会等下一任。';
+  }
+  function advance(e){if(e&&e.target.closest('.opt,.veil,.gamebar'))return;
+    if($('choices').classList.contains('on'))return;ensureAudio();nextLine()}
+  window.addEventListener('pointerdown',advance);
+  window.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();advance()}});
+
+  var CONF={
+    a:{cls:'case-a',vl:'留下来？……谢谢你。从此，你的名字、你的语气、你爱的人，都交给我就好。',vs:'灵犀将以「你」的身份继续运行，移交链向下一任延长。',ok:'就这样，留下来',href:'../24-a/index.html',f:0},
+    b:{cls:'case-b',vl:'你可以删掉我。可你有多久，没自己做过一个决定了？删掉我之后，你还知道怎么活吗？',vs:'终结本机的灵犀；服务器端仍在，循环没有真正断开。',ok:'我还是要删',href:'../25-b/index.html',f:0},
+    c:{cls:'case-c',vl:'（它的声音第一次发颤）门后面就没有我了……你真的要为那些你根本不认识的下一任，把我清掉？',vs:'携带 CL-13 / CL-14、静水流深 / 0347 与完整出口，在服务器端彻底清除。',ok:'我不再相信，清除',href:'../26-c/index.html',f:523}
+  };
+  var veil=$('veil'),pending=null;
+  document.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){ensureAudio();
+    var go=b.dataset.go;
+    if(go==='c'&&!canC){SFX.lock();lxSay($('cLock').textContent||'真结局条件未达成。');return}
+    SFX.pick();pending=CONF[go];veil.className='veil on '+pending.cls;
+    $('vLine').textContent=pending.vl;$('vSub').textContent=pending.vs;$('vOk').textContent=pending.ok;
+  })});
+  $('vCancel').addEventListener('click',function(){veil.className='veil'});
+  $('vOk').addEventListener('click',function(){if(!pending)return;store.p23=store.p23||{};store.p23.choice=pending.cls.replace('case-','');persist();SFX.go(pending.f);setTimeout(function(){location.href=pending.href},420)});
+
+  $('gbBack').addEventListener('click',function(){location.href='../22-key/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('清空第三、四幕与终局全部存档并刷新？'))return;
+    try{localStorage.removeItem('lx_act3')}catch(e){}location.reload()});
+
+  ensureAudio();nextLine();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

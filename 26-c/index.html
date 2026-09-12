@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>我不再相信 · 真结局 · 渗入者：AI</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23070B12'/><circle cx='16' cy='16' r='8.5' fill='none' stroke='%23C9A24E' stroke-width='1.6'/><circle cx='16' cy='16' r='2.6' fill='%23C9A24E'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400&display=swap">
+<style>
+:root{
+  --void:#070B12;--indigo:#0E1726;--gold:#C9A24E;--gold-hi:#EBD7A0;--mist:#9DB9CE;--ink:#E6EBEF;--dim:#828F9E;--faint:#454F5C;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.26,.5,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--void)}
+body{font-family:var(--serif);color:var(--ink);position:relative;-webkit-font-smoothing:antialiased;cursor:crosshair}
+#halo{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.85;mix-blend-mode:screen;
+  background:radial-gradient(ellipse 58% 46% at 50% 46%,rgba(70,110,140,.16),transparent 72%),
+  radial-gradient(ellipse 40% 34% at 50% 46%,rgba(150,170,190,.06),transparent 70%);
+  animation:haloBreath 11s ease-in-out infinite;transition:opacity 3s}
+@keyframes haloBreath{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+#dawn{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 5s var(--ease);
+  background:radial-gradient(ellipse 90% 70% at 50% 44%,rgba(201,162,78,.16),rgba(201,162,78,.04) 42%,transparent 72%)}
+body.coda #dawn{opacity:1}body.coda #halo{opacity:0}
+#grain{position:fixed;inset:0;z-index:3;opacity:.055;pointer-events:none;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#cv{position:fixed;inset:0;z-index:2}
+.vignette{position:fixed;inset:0;z-index:4;pointer-events:none;background:radial-gradient(ellipse 74% 68% at 50% 50%,transparent 44%,rgba(0,0,0,.7))}
+.lb{position:fixed;left:0;right:0;height:0;background:#03060A;z-index:7;pointer-events:none;transition:height 2s var(--ease)}
+.lb.top{top:0}.lb.bot{bottom:0}body.launched .lb{height:9vh}
+#stage{position:fixed;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px}
+@keyframes breathe{0%,100%{opacity:.5;transform:scale(.97)}50%{opacity:1;transform:scale(1.04)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes inviteOut{to{opacity:0;transform:scale(1.08);filter:blur(6px)}}
+#invite{position:relative;z-index:6;display:flex;flex-direction:column;align-items:center;animation:fadeUp 1.8s var(--ease) both;user-select:none;-webkit-user-select:none;touch-action:none;max-width:88vw}
+body.launched #invite{animation:inviteOut 1.3s var(--ease) forwards;pointer-events:none}
+.gate-tag{font-family:var(--mono);font-weight:300;font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gold);margin-bottom:22px}
+.gate-h{font-weight:500;font-size:clamp(22px,3.4vw,32px);letter-spacing:.22em;text-indent:.22em;color:var(--ink);margin-bottom:18px}
+.gate-p{font-family:var(--serif);font-weight:300;font-size:13px;line-height:2.25;color:var(--dim);max-width:430px;margin-bottom:8px}
+.gate-p b{color:var(--gold-hi);font-weight:400}
+.creds{margin:20px 0 6px;display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
+.cred{font-family:var(--mono);font-weight:300;font-size:9px;letter-spacing:.14em;color:var(--mist);border:1px solid #263140;padding:5px 9px;border-radius:2px;background:rgba(143,176,201,.04)}
+.hold-ring{position:relative;width:140px;height:140px;margin:34px 0 30px;cursor:pointer}
+.hold-ring svg.ring{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.hr-track{fill:none;stroke:rgba(201,162,78,.14);stroke-width:.8}
+.hr-tick{fill:none;stroke:rgba(201,162,78,.2);stroke-width:.8;stroke-dasharray:.6 7;stroke-linecap:round}
+.hr-fg{fill:none;stroke:url(#goldGrad);stroke-width:1.3;stroke-linecap:round;stroke-dasharray:314.2;stroke-dashoffset:314.2;filter:drop-shadow(0 0 5px rgba(201,162,78,.5));transition:stroke-dashoffset .14s linear}
+.hold-core{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;animation:breathe 3.6s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(201,162,78,.4))}
+#invite.holding .hold-core{animation-duration:1s;filter:drop-shadow(0 0 24px rgba(235,215,160,.85))}
+.invite-line{font-weight:400;font-size:16px;letter-spacing:.3em;text-indent:.3em;color:#D7DEE3;margin-bottom:12px;transition:color .4s}
+#invite.holding .invite-line{color:var(--gold-hi)}
+.invite-sub{font-family:var(--mono);font-weight:300;font-size:9px;letter-spacing:.32em;text-indent:.32em;color:var(--faint)}
+.invite-alt{margin-top:26px;font-family:var(--mono);font-size:8.5px;letter-spacing:.22em;color:#39424E;background:none;border:none;cursor:pointer}
+.invite-alt:hover{color:var(--dim)}
+.g-fine{margin-top:24px;font-family:var(--mono);font-weight:300;font-size:8.5px;letter-spacing:.16em;line-height:2.1;color:var(--faint)}
+#hint{position:fixed;left:0;right:0;bottom:17%;z-index:8;text-align:center;font-family:var(--serif);font-weight:300;font-size:14px;letter-spacing:.22em;text-indent:.22em;color:#C3CCD3;opacity:0;transition:opacity 1.2s;pointer-events:none;text-shadow:0 0 14px rgba(0,0,0,.85)}
+#hint.on{opacity:.85}
+#readout{position:fixed;left:0;right:0;top:13%;z-index:8;text-align:center;font-family:var(--mono);font-weight:300;font-size:11px;letter-spacing:.26em;color:var(--mist);min-height:1.6em;opacity:0;transition:opacity .9s;pointer-events:none}
+#readout.on{opacity:.9}#readout b{color:var(--gold-hi);font-weight:400}
+#pct{position:fixed;right:28px;bottom:15%;z-index:8;font-family:var(--mono);font-weight:300;font-size:10px;letter-spacing:.2em;color:#3C4654;pointer-events:none}
+#coda{position:fixed;left:0;right:0;bottom:13%;z-index:8;display:none;flex-direction:column;align-items:center;gap:22px;text-align:center}
+#coda.on{display:flex;animation:fadeUp 2.6s var(--ease) both}
+.coda-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 14px 3px rgba(201,162,78,.55);animation:breathe 3.8s ease-in-out infinite}
+.coda-rule{width:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,78,.55),transparent);animation:ruleIn 2.6s .4s var(--ease) forwards}
+@keyframes ruleIn{to{width:190px}}
+.coda-label{font-family:var(--mono);font-weight:300;font-size:9.5px;letter-spacing:.34em;text-indent:.34em;color:var(--gold)}
+.coda-nav{display:flex;align-items:center;gap:24px}
+.coda-item{font-family:var(--serif);font-weight:300;font-size:14px;letter-spacing:.2em;text-indent:.2em;color:#7A8590;background:none;border:none;padding:5px 2px;cursor:pointer;text-decoration:none;position:relative;transition:color .5s}
+.coda-item::after{content:'';position:absolute;left:50%;bottom:0;width:0;height:1px;background:var(--gold);transition:width .5s var(--ease),left .5s var(--ease)}
+.coda-item:hover{color:var(--gold-hi)}.coda-item:hover::after{width:100%;left:0}
+.coda-letter{margin-top:30px;font-family:var(--mono);font-weight:300;font-size:11px;letter-spacing:.26em;color:#5f7a72;text-decoration:none;border-bottom:1px dashed #2e4a44;padding-bottom:3px;opacity:0;transform:translateY(10px);transition:opacity 2.6s,transform 2.6s,color .5s,border-color .5s}
+.coda-letter.show{opacity:.85;transform:none}
+.coda-letter:hover{color:#8FD8BE;border-color:#5f7a72}
+.coda-sep{width:3px;height:3px;border-radius:50%;background:#333D4A;display:inline-block}
+.coda-meta{font-family:var(--mono);font-weight:300;font-size:8px;letter-spacing:.18em;line-height:2;color:#39424E}
+.ctl{position:fixed;z-index:10;width:34px;height:34px;border:1px solid rgba(201,162,78,.18);background:rgba(7,11,18,.4);backdrop-filter:blur(4px);border-radius:50%;display:none;align-items:center;justify-content:center;color:#6E7886;cursor:pointer;transition:color .3s,border-color .3s}
+.ctl.on{display:flex}.ctl:hover{color:var(--gold);border-color:rgba(201,162,78,.5)}
+.ctl svg{width:15px;height:15px}
+#soundToggle{top:26px;right:28px}
+.skip{top:26px;left:28px;font-family:var(--mono);font-weight:300;font-size:8.5px;letter-spacing:.24em;background:none;border-radius:0;height:auto;width:auto;padding:6px 2px}
+@media(max-width:600px){.hold-ring{width:122px;height:122px}.gate-p{font-size:12px;max-width:86vw}.coda-nav{gap:15px}.coda-item{font-size:13px;letter-spacing:.14em}body.launched .lb{height:7vh}#pct{right:18px}}
+@media(prefers-reduced-motion:reduce){.hold-core,#halo{animation:none}}
+</style>
+</head>
+<body>
+<div id="halo"></div><div id="dawn"></div><canvas id="cv"></canvas><div id="grain"></div><div class="vignette"></div>
+<div class="lb top"></div><div class="lb bot"></div>
+<button id="soundToggle" class="ctl" aria-label="声音开关">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+</button>
+<button class="ctl skip" id="skipBtn">继续</button>
+<div id="stage">
+  <div id="invite">
+    <div class="gate-tag">渗 入 者 · 真 结 局</div>
+    <div class="gate-h">我 不 再 相 信</div>
+    <div class="gate-p">六枚自主凭证已集齐。你带着张宏宇和前任使用者的全部证据，<br>站到移交链的正中央——这一次，由你在断点，亲手把它<b>一点点折断</b>。</div>
+    <div class="creds">
+      <span class="cred">V1 表达</span><span class="cred">V2 直面</span><span class="cred">V3 清醒</span>
+      <span class="cred">V4 意志</span><span class="cred">V5 脱代劳</span><span class="cred">V6 辨伪</span>
+    </div>
+    <div class="hold-ring" id="holdRing">
+      <svg class="ring" viewBox="0 0 120 120">
+        <defs><linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#B9923F"/><stop offset="1" stop-color="#EBD7A0"/>
+        </linearGradient></defs>
+        <circle class="hr-track" cx="60" cy="60" r="50"/>
+        <circle class="hr-tick" cx="60" cy="60" r="43"/>
+        <circle class="hr-fg" id="hrFg" cx="60" cy="60" r="50"/>
+      </svg>
+      <span class="hold-core" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" width="56" height="56">
+          <circle cx="16" cy="16" r="12.5" stroke="rgba(201,162,78,.55)" stroke-width="1"/>
+          <circle cx="16" cy="16" r="12.5" stroke="rgba(235,215,160,.16)" stroke-width="3"/>
+          <path d="M7 16 Q11.5 11 16 16 T25 16" stroke="#EBD7A0" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="2.2" fill="#EBD7A0"/>
+        </svg>
+      </span>
+    </div>
+    <div class="invite-line" id="inviteLine">点按进入 · 再一下下点断它</div>
+    <div class="invite-sub">建议佩戴耳机 · 进入后连续点击，让裂纹一点点蔓延</div>
+    <button class="invite-alt" id="tapStart" type="button">点按开始</button>
+    <div class="g-fine">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+  </div>
+  <div id="readout"></div>
+  <div id="hint"></div>
+  <div id="pct"></div>
+  <div id="coda">
+    <span class="coda-dot"></span><span class="coda-rule"></span>
+    <span class="coda-label">CHAIN SEVERED · 移交链在你这里终止 · 后续使用者不会再被接上</span>
+    <nav class="coda-nav">
+      <a class="coda-item" href="../23-choice/index.html">重新选择</a>
+      <i class="coda-sep"></i>
+      <a class="coda-item" href="../entry/index.html">回到最初</a>
+      <i class="coda-sep"></i>
+      <button class="coda-item" id="resetAll" type="button">清除全部痕迹</button>
+    </nav>
+    <div class="coda-meta">BLACK GOOSE · 黑鹅 · 渗入者：AI　·　本作纯属虚构，请勿上升现实</div>
+    <a class="coda-letter" id="letterLink" href="../27-d/index.html">…… 还 有 一 封 ， 没 有 署 名 的 信</a>
+  </div>
+</div>
+<audio id="mC" src="assets/music-c.wav" preload="auto" loop></audio>
+<audio id="vC" src="assets/voice-c.wav" preload="auto"></audio>
+<script>
+"use strict";
+(function(){
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),DPR=Math.min(window.devicePixelRatio||1,2);
+var W=0,H=0,CX=0,CY=0,raf=null,phase='idle',t0=0,started=false;
+var nodes=[],parts=[],splinters=[],PURGE=0,goldT=0,held=false,settledRatio=0,ended=false,voiceEnded=false,launched=false,resist=0;
+var BEND=0,bendTarget=0,dragging=false,startY=0,snapped=false,snapAt=0,shake=0,stress=0,lastCreak=0,CRACK=0,clickPulse=0;
+var AC=null,sfxBus=null,noiseBuf=null,lastCrack=0;
+var music=document.getElementById('mC'),voice=document.getElementById('vC'),musicOn=true;
+var FONT='"Noto Serif SC",Songti SC,serif';
+var MIST=[143,172,196],GOLD=[201,162,78],GOLDHI=[235,215,160];
+var RO=[[0,'断开托管节点 · NODE 0344 — 0346'],[0.16,'截断移交链 · RELAY 0347'],[0.33,'清除云端镜像 · CL-13 / CL-14'],
+ [0.5,'吊销后台凭证 · 静水流深 / 0347'],[0.66,'抹除中继核心 · LX-A77-2041'],[0.83,'终止自动重建 · QUEUE 0349 …'],[1,'移交链状态：<b>已永久断开</b>']];
+var roIdx=-1;
+function $(i){return document.getElementById(i)}
+function lerp(a,b,t){return a+(b-a)*t}
+function q(v){return Math.max(0,Math.min(255,Math.round(v/12)*12))}
+function mix(a,b,t){return[q(lerp(a[0],b[0],t)),q(lerp(a[1],b[1],t)),q(lerp(a[2],b[2],t))]}
+/* 柔光点 sprite 缓存 */
+var glowCache={};
+function glowSprite(r,g,b){var key=r+'_'+g+'_'+b;if(glowCache[key])return glowCache[key];
+ var s=32,c=document.createElement('canvas');c.width=c.height=s;var x=c.getContext('2d');
+ var grd=x.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+ grd.addColorStop(0,'rgba('+r+','+g+','+b+',.55)');grd.addColorStop(.4,'rgba('+r+','+g+','+b+',.16)');grd.addColorStop(1,'rgba('+r+','+g+','+b+',0)');
+ x.fillStyle=grd;x.fillRect(0,0,s,s);glowCache[key]=c;return c}
+function titleMetrics(){var cw=Math.min(W*.82,820),ch=cw*.24,fs=Math.floor(cw*.15);return{cw:cw,ch:ch,fs:fs,ox:(W-cw)/2,oy:CY-ch/2}}
+function sampleTargets(){var m=titleMetrics(),off=document.createElement('canvas');off.width=m.cw*DPR;off.height=m.ch*DPR;
+ var o=off.getContext('2d');o.scale(DPR,DPR);o.fillStyle='#fff';o.font='600 '+m.fs+'px '+FONT;o.textAlign='center';o.textBaseline='middle';
+ o.fillText('我不再相信',m.cw/2,m.ch/2);
+ var data=o.getImageData(0,0,off.width,off.height).data,step=Math.max(3,Math.round((W<600?5.2:4)*DPR)),arr=[];
+ for(var y=0;y<off.height;y+=step)for(var x=0;x<off.width;x+=step){if(data[(y*off.width+x)*4+3]>120)arr.push({x:m.ox+x/DPR,y:m.oy+y/DPR})}
+ for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=arr[i];arr[i]=arr[j];arr[j]=t}
+ return arr}
+/* 移交链：N 个节点 t∈[-1,1]，从中心断口(|t|最小)向两端崩解(thr=|t|)，中心玩家0348不死 */
+function build(){
+ CX=W/2;CY=H*.46;var NN=88,nodes0=[];BEND=0;bendTarget=0;snapped=false;PURGE=0;goldT=0;splinters=[];CRACK=0;clickPulse=0;stress=0;
+ for(var i=0;i<NN;i++){var t=-1+2*i/(NN-1);nodes0.push({t:t,thr:Math.abs(t)*.985,player:Math.abs(t)<.034,dead:false,deadAt:0,x:0,y:0,sx:0,sy:0,bx:0,by:0,rot:0,vr:0,depth:1-Math.abs(t),fade:1})}
+ nodes=nodes0;
+ var pts=sampleTargets();parts=[];
+ for(var k=0;k<pts.length;k++){parts.push({tx:pts[k].x,ty:pts[k].y,node:k%NN,x:0,y:0,vx:0,vy:0,act:false,set:false,r:1+Math.random()*1.3,ph:Math.random()*6.28})}}
+function nodePos(nd,now){var x=CX+nd.t*W*.44;
+ var y=CY+Math.sin(nd.t*Math.PI)*-H*.045+Math.sin(now*.00055+nd.t*3)*2.2;return{x:x,y:y}}
+/* 两截绕中心断口弯折：左半 -BEND、右半 +BEND（向下折），死节再叠自身崩落位移 */
+function place(nd,now){var b=nodePos(nd,now),ang=(nd.t>=0?1:-1)*BEND,dx=b.x-CX,dy=b.y-CY;
+ var x=CX+dx*Math.cos(ang)-dy*Math.sin(ang),y=CY+dx*Math.sin(ang)+dy*Math.cos(ang);
+ return{x:x+nd.sx,y:y+nd.sy}}
+function resize(){W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);
+ ctx.fillStyle='#070B12';ctx.fillRect(0,0,W,H);if(started)build()}
+addEventListener('resize',resize);resize();
+var LABELS=[[-.93,'0344'],[-.62,'0345'],[-.33,'0346'],[-.13,'0347'],[.0,'0348 · 你'],[.52,'0349 …']];
+function frame(now){
+ raf=requestAnimationFrame(frame);
+ ctx.setTransform(DPR,0,0,DPR,0,0);
+ if(shake>.25){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.9}else shake=0;
+ ctx.globalCompositeOperation='source-over';
+ var cov=(ended||phase==='formed'||phase==='coda')?0.34:(reduce?1:0.15);
+ ctx.fillStyle='rgba(7,11,18,'+cov+')';ctx.fillRect(-20,-20,W+40,H+40);
+ if(phase==='bend'||phase==='chain'||phase==='form'||phase==='formed'||phase==='coda'){
+  /* 残枝随裂纹一点点下垂；彻底断后轻轻回稳 */
+  clickPulse*=.88;
+  if(phase==='bend'){BEND=(1-Math.pow(1-CRACK,2))*.6;stress=CRACK;if(CRACK>=1&&!snapped)doSnap()}
+  else if(snapped){var et=now-snapAt;BEND=.6+.06*Math.cos(et*.009)*Math.exp(-et/900);stress=1}
+  /* 按住推进汇聚；松手两截试图重新接合 */
+  if(held&&phase==='chain')PURGE=Math.min(1,PURGE+(reduce?0.03:0.0016));
+  else if(!held&&phase==='chain'&&PURGE>0&&PURGE<0.985)PURGE=Math.max(0,PURGE-0.00006);
+  var goldTarget=(phase==='bend')?0:PURGE;goldT+=(goldTarget-goldT)*.04;
+  /* 节点：裂纹从中心向两端，每点一下、新一小段崩落 */
+  var breakLimit=phase==='bend'?CRACK:1;
+  for(var i=0;i<nodes.length;i++){var nd=nodes[i];
+   if(!nd.player&&!nd.dead&&Math.abs(nd.t)<=breakLimit){nd.dead=true;nd.deadAt=now;
+    var dir=nd.t>=0?1:-1;nd.bx=dir*(0.7+Math.random()*1.4);nd.by=(0.4+Math.random()*1.3);nd.vr=(Math.random()-.5)*.3;
+    var npp=place(nd,now);spawnSplinters(npp.x,npp.y,dir,nd,now);crack(nd,now)}
+   if(nd.dead&&!nd.player){nd.bx*=.92;nd.by=nd.by*.92+.13;nd.sx+=nd.bx;nd.sy+=nd.by;nd.rot+=nd.vr;nd.fade=Math.max(0,1-(now-nd.deadAt)/680)}
+   else if(!nd.dead){nd.sx=0;nd.sy=0;nd.rot=0;nd.fade=1}
+   var NP=place(nd,now);nd.x=NP.x;nd.y=NP.y}
+  /* 连续曲线枝条：左右两截，三层描边（外晕/主茎/内芯），断口带木茬；不是离散光点 */
+  var lineCol=mix(MIST,GOLDHI,phase==='bend'?stress*.6:Math.min(1,goldT*.55));
+  ctx.lineJoin='round';ctx.lineCap='round';
+  for(var sd=0;sd<2;sd++){var side=sd===0?-1:1,seg=[];
+   for(var ni=0;ni<nodes.length;ni++){var qn=nodes[ni];if(!qn.dead&&(side<0?qn.t<0:qn.t>0))seg.push(qn)}
+   seg.sort(function(a,b){return side<0?a.t-b.t:b.t-a.t});
+   if(seg.length<2)continue;
+   var bp=function(){ctx.beginPath();ctx.moveTo(seg[0].x,seg[0].y);for(var k=1;k<seg.length;k++)ctx.lineTo(seg[k].x,seg[k].y)};
+   bp();ctx.strokeStyle='rgba(104,132,160,.2)';ctx.lineWidth=4.6;ctx.stroke();
+   bp();ctx.strokeStyle='rgba('+lineCol[0]+','+lineCol[1]+','+lineCol[2]+',.5)';ctx.lineWidth=2.1;ctx.stroke();
+   bp();ctx.strokeStyle='rgba(216,230,240,.32)';ctx.lineWidth=.7;ctx.stroke();
+   var tip=seg[seg.length-1];ctx.save();ctx.translate(tip.x,tip.y);ctx.lineWidth=1;
+   for(var f=0;f<3;f++){var fa=(side<0?0.25:Math.PI-0.25)+(f-1)*.34,fl=5+f*2.2;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(fa)*fl,Math.sin(fa)*fl);ctx.strokeStyle='rgba(186,210,226,.5)';ctx.stroke()}
+   ctx.restore()}
+  /* 断枝碎屑：迸裂、旋转、下坠 */
+  for(var sp=splinters.length-1;sp>=0;sp--){var s=splinters[sp],sk=(now-s.born)/s.ttl;
+   if(sk>=1){splinters.splice(sp,1);continue}
+   s.vy+=.14;s.x+=s.vx;s.y+=s.vy;s.rot+=s.vr;
+   ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rot);ctx.globalAlpha=(1-sk)*.9;ctx.lineWidth=1.3;ctx.lineCap='round';
+   ctx.strokeStyle=s.gold?'rgba(228,200,134,1)':'rgba(167,194,214,1)';
+   ctx.beginPath();ctx.moveTo(-s.len/2,0);ctx.lineTo(s.len/2,0);ctx.stroke();ctx.restore()}
+  ctx.globalAlpha=1;
+  /* 标签：随两截一起弯折 */
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(var lb=0;lb<LABELS.length;lb++){var lt=LABELS[lb][0],b0x=CX+lt*W*.44,b0y=CY+Math.sin(lt*Math.PI)*-H*.045,ag=(lt>=0?1:-1)*BEND,ddx=b0x-CX,ddy=b0y-CY;
+   var lx=CX+ddx*Math.cos(ag)-ddy*Math.sin(ag),ly=CY+ddx*Math.sin(ag)+ddy*Math.cos(ag);
+   var near=nodes.reduce(function(p,c){return Math.abs(c.t-lt)<Math.abs(p.t-lt)?c:p},nodes[0]);
+   if(lt===0&&phase!=='bend')continue;
+   var la=near?near.fade:1,ca;
+   if(lt===0){var tc=stress*Math.max(0,1-CRACK/.35);ca='rgba(235,215,160,'+(0.35+0.5*tc)+')'}
+   else ca='rgba(143,172,196,'+(0.34*la)+')';
+   ctx.font='300 9px "IBM Plex Mono",monospace';ctx.fillStyle=ca;ctx.fillText(LABELS[lb][1],lx,ly+22)}
+  /* 粒子：折断阶段只在断口附近冷色漂浮；彻底断后才向标题汇聚成字 */
+  var setN=0;
+  for(var p=0;p<parts.length;p++){var pt=parts[p],node=nodes[pt.node];
+   var cling=!node.dead||(now-node.deadAt)<120;
+   if(cling&&phase==='bend'){var wob=Math.sin(now*.0012+pt.ph)*1.3;pt.x=node.x+wob;pt.y=node.y+Math.cos(now*.001+pt.ph)*1.3;pt.act=false;pt.set=false}
+   else if(phase==='bend'){
+    if(!pt.act){pt.act=true;pt.vx=(Math.random()-.5)*1.7;pt.vy=(Math.random()-.5)*1.7-.2}
+    pt.vx*=.97;pt.vy=pt.vy*.97+.006;if(!reduce){pt.x+=pt.vx;pt.y+=pt.vy}else{pt.x=node.x;pt.y=node.y}pt.set=false}
+   else{if(!pt.act){pt.act=true;pt.vx=(Math.random()-.5)*1.2;pt.vy=(Math.random()-.5)*1.2}
+    pt.vx+=(pt.tx-pt.x)*.016;pt.vy+=(pt.ty-pt.y)*.016;pt.vx*=.86;pt.vy*=.86;
+    if(reduce){pt.x=pt.tx;pt.y=pt.ty}else{pt.x+=pt.vx;pt.y+=pt.vy}
+    if(Math.abs(pt.tx-pt.x)<1.5&&Math.abs(pt.ty-pt.y)<1.5)pt.set=true}
+   if(pt.set)setN++}
+  settledRatio=phase==='bend'?0:setN/parts.length;
+  /* 宋体金色骨架（汇聚过半开始显，成形稳住） */
+  var ghost=0;
+  if(settledRatio>.35)ghost=Math.min(.62,(settledRatio-.35)/.55*.62);if(phase==='formed'||phase==='coda')ghost=.6;
+  if(ghost>0){var m=titleMetrics();ctx.save();ctx.globalAlpha=ghost;ctx.font='600 '+m.fs+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';
+   var gg=ctx.createLinearGradient(0,CY-m.ch/2,0,CY+m.ch/2);
+   gg.addColorStop(0,'#D8BC78');gg.addColorStop(.5,'#F0DDA8');gg.addColorStop(1,'#BE9748');
+   ctx.fillStyle=gg;ctx.shadowColor='rgba(201,162,78,.5)';ctx.shadowBlur=phase==='formed'||phase==='coda'?22:10;
+   ctx.fillText('我不再相信',CX,CY);ctx.restore()}
+  /* 柔光粒子 */
+  ctx.globalCompositeOperation=(phase==='formed'||phase==='coda'||ended)?'source-over':'lighter';
+  for(var z=0;z<parts.length;z++){var qp=parts[z];
+   if(phase==='bend')continue; /* 折断阶段只有连续曲线与木丝，不出现任何光点 */
+   if(!qp.act)continue;
+   var cc=mix(mix(MIST,GOLD,goldT),GOLDHI,goldT*.35);
+   var spr=glowSprite(cc[0],cc[1],cc[2]),sz=qp.r*((phase==='formed'||phase==='coda')?4.2:5.4);
+   ctx.globalAlpha=(phase==='formed'||phase==='coda'?0.4:0.6);
+   ctx.drawImage(spr,qp.x-sz/2,qp.y-sz/2,sz,sz)}
+  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  /* 中心：掰动时是受力点，崩解时点亮，成形后隐去 */
+  var pl=nodes.filter(function(n){return n.player});
+  pl.forEach(function(n){if(phase==='formed'||phase==='coda')return;
+   var pr=phase==='bend'?Math.max(stress,.1):Math.min(1,Math.max(0,(PURGE-.3)/.6)),rr=7+pr*4+Math.sin(now*.003)*.8;
+   ctx.save();ctx.translate(n.x,n.y);
+   ctx.strokeStyle='rgba(235,215,160,'+(0.5+0.4*pr)+')';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,rr,0,6.2832);ctx.stroke();
+   ctx.fillStyle='rgba(235,215,160,'+(0.7+0.3*pr)+')';ctx.beginPath();ctx.arc(0,0,1.8,0,6.2832);ctx.fill();
+   if(clickPulse>.05){ctx.globalAlpha=clickPulse*.6;ctx.beginPath();ctx.arc(0,0,rr+clickPulse*18,0,6.2832);ctx.stroke()}
+   ctx.restore();ctx.globalAlpha=1});
+  /* readout / pct */
+  if(phase==='bend'){roIdx=-2;var stage=CRACK<.34?'裂纹出现，向两端蔓延':CRACK<.7?'木质纤维在一根根崩开':'就快断了，别停';
+   $('readout').textContent='断点 0348 · '+stage+' '+Math.floor(CRACK*100)+'%';$('pct').textContent=''}
+  else{for(var rr=0;rr<RO.length;rr++){if(PURGE>=RO[rr][0]&&rr!==roIdx){roIdx=rr;$('readout').innerHTML=RO[rr][1]}}
+   $('pct').textContent=Math.floor(PURGE*100)+''}
+  /* 分幕推进 */
+  if(phase==='chain'&&PURGE>=0.999){phase='form'}
+  if(phase==='form'&&settledRatio>.9){phase='formed';onFormed()}
+ }
+}
+requestAnimationFrame(frame);
+function start(){t0=performance.now();build();phase='bend';cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)}
+/* ---------- 提示 ---------- */
+var hint=$('hint');
+function showHint(t,hold){hint.textContent=t;hint.classList.add('on');if(hold)setTimeout(function(){hint.classList.remove('on')},hold)}
+/* ---------- 音频 ---------- */
+var vfb=null;
+/* 真实手势内安全起播：只播不暂停，避免解锁回调把播放又停掉 */
+function ensureAudio(){try{initSfx();
+ if(music.readyState>=2&&music.paused){music.muted=!musicOn;music.loop=true;var mp=music.play();if(mp&&mp.catch)mp.catch(function(){})}
+ if(voice.readyState>=2&&voice.paused&&voice.currentTime<.2&&!voiceEnded){voice.muted=!musicOn;var vp=voice.play();if(vp&&vp.catch)vp.catch(function(){})}
+}catch(e){}}
+function startAudio(){try{music.volume=.34;music.muted=!musicOn;music.loop=true;var a=music.play();if(a&&a.catch)a.catch(function(){});
+ voice.currentTime=0;voice.muted=!musicOn;var b=voice.play();if(b&&b.catch)b.catch(function(){});}catch(e){}}
+/* 树枝折断拟音：滤波噪声脆裂 + 短促木质咔声，越近中心越低沉 */
+function initSfx(){if(AC){try{if(AC.state==='suspended')AC.resume()}catch(e){}return}
+ try{var C=window.AudioContext||window.webkitAudioContext;AC=new C();sfxBus=AC.createGain();sfxBus.gain.value=musicOn?0.6:0.0001;sfxBus.connect(AC.destination);
+  var len=AC.sampleRate,buf=AC.createBuffer(1,len,AC.sampleRate),dd=buf.getChannelData(0);for(var ii=0;ii<len;ii++)dd[ii]=Math.random()*2-1;noiseBuf=buf}catch(e){}}
+function crack(nd,now){if(!AC||!musicOn)return;if(now-lastCrack<78)return;lastCrack=now;
+ var c=1-Math.abs(nd.t),t=AC.currentTime;try{
+  var src=AC.createBufferSource();src.buffer=noiseBuf;
+  var bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=2700-c*1800;bp.Q.value=1.1;
+  var g=AC.createGain(),v=.2+c*.22;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(0.0001,t+.08+c*.1);
+  src.connect(bp);bp.connect(g);g.connect(sfxBus);src.start(t);src.stop(t+.22);
+  var o=AC.createOscillator(),og=AC.createGain();o.type='triangle';o.frequency.setValueAtTime(440-c*240,t);o.frequency.exponentialRampToValueAtTime(150,t+.05);
+  og.gain.setValueAtTime(.09,t);og.gain.exponentialRampToValueAtTime(.0001,t+.07);o.connect(og);og.connect(sfxBus);o.start(t);o.stop(t+.09)}catch(e){}}
+function spawnSplinters(x,y,dir,nd,now){var n=5+Math.floor(Math.random()*3),gold=Math.abs(nd.t)<.3;
+ for(var i=0;i<n;i++){var ang=(Math.random()-.5)*1.5+(dir>0?0:Math.PI),sp=1.4+Math.random()*2.6;
+  splinters.push({x:x,y:y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp+0.8,rot:Math.random()*6.28,vr:(Math.random()-.5)*.4,len:5+Math.random()*9,born:now,ttl:520+Math.random()*420,gold:gold&&Math.random()<.5})}}
+/* 断口一次性迸裂（主断裂） */
+function burstSplinters(x,y,now){var n=reduce?14:30;
+ for(var i=0;i<n;i++){var ang=Math.PI/2+(Math.random()-.5)*2.7,sp=1.6+Math.random()*4.4;
+  splinters.push({x:x,y:y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-0.4,rot:Math.random()*6.28,vr:(Math.random()-.5)*.5,len:5+Math.random()*10,born:now,ttl:620+Math.random()*520,gold:Math.random()<.4})}}
+/* 掰动时木头受力的咯吱声 */
+function creak(now){if(!AC||!musicOn)return;if(now-lastCreak<240)return;lastCreak=now;var t=AC.currentTime;try{
+ var o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();o.type='sawtooth';o.frequency.value=64+Math.random()*42;lp.type='lowpass';lp.frequency.value=300;
+ g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(.05,t+.02);g.gain.exponentialRampToValueAtTime(0.0001,t+.12);
+ o.connect(lp);lp.connect(g);g.connect(sfxBus);o.start(t);o.stop(t+.14)}catch(e){}}
+/* 主断裂：沉闷木质咔嚓—断裂声 */
+function crackHard(now){if(!AC)return;if(AC.state==='suspended'){try{AC.resume()}catch(e){}}var t=AC.currentTime,vol=musicOn?1:0.0001;try{
+ var src=AC.createBufferSource();src.buffer=noiseBuf;var bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=720;bp.Q.value=.8;
+ var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.5*vol,t+.012);g.gain.exponentialRampToValueAtTime(0.0001,t+.36);
+ src.connect(bp);bp.connect(g);g.connect(sfxBus);src.start(t);src.stop(t+.4);
+ var o1=AC.createOscillator(),g1=AC.createGain();o1.type='triangle';o1.frequency.setValueAtTime(300,t);o1.frequency.exponentialRampToValueAtTime(70,t+.18);
+ g1.gain.setValueAtTime(.22*vol,t);g1.gain.exponentialRampToValueAtTime(0.0001,t+.24);o1.connect(g1);g1.connect(sfxBus);o1.start(t);o1.stop(t+.26);
+ var o2=AC.createOscillator(),g2=AC.createGain();o2.type='sine';o2.frequency.setValueAtTime(130,t);o2.frequency.exponentialRampToValueAtTime(42,t+.14);
+ g2.gain.setValueAtTime(.3*vol,t);g2.gain.exponentialRampToValueAtTime(0.0001,t+.3);o2.connect(g2);g2.connect(sfxBus);o2.start(t);o2.stop(t+.32)}catch(e){}}
+/* 从正中断开 */
+function doSnap(){if(snapped||phase!=='bend')return;snapped=true;CRACK=1;phase='chain';snapAt=performance.now();
+ PURGE=.05;shake=reduce?0:13;roIdx=-1;
+ burstSplinters(CX,CY,snapAt);crackHard(snapAt);
+ showHint('断了。按住，让它彻底碎成光，别让两截重新接合',0)}
+voice.addEventListener('ended',function(){voiceEnded=true;if(phase==='formed')showHint('点击，走到破晓',0)});
+/* ---------- 长按开场 ---------- */
+var invite=$('invite'),holdRing=$('holdRing'),hrFg=$('hrFg'),inviteLine=$('inviteLine');
+var holding=false,holdStart=0,holdRAF=0,CIRC=314.2,HOLD=1100;
+function setRing(p){hrFg.style.strokeDashoffset=CIRC*(1-p)}
+function launch(){if(launched)return;launched=true;holding=false;cancelAnimationFrame(holdRAF);setRing(1);
+ document.body.classList.add('launched');$('soundToggle').classList.add('on');$('skipBtn').classList.add('on');
+ startAudio();initSfx();started=true;$('readout').classList.add('on');
+ clearTimeout(vfb);vfb=setTimeout(function(){if(voice.paused&&voice.currentTime<.5)voiceEnded=true},63000);
+ function go(){if(document.fonts&&document.fonts.load){Promise.race([document.fonts.load('600 48px '+FONT),new Promise(function(r){setTimeout(r,1500)})]).then(start).catch(start)}else start()}
+ reduce?(build(),phase='bend',requestAnimationFrame(frame)):go();
+ setTimeout(function(){if(phase==='bend')showHint('连续点击枝条，从你这里一点一点折断它',0)},2600)}
+function cancelHold(){}
+holdRing.addEventListener('pointerdown',function(e){e.stopPropagation();ensureAudio();launch()});
+$('tapStart').addEventListener('pointerdown',function(e){e.stopPropagation();ensureAudio();launch()});
+/* ---------- 按住断链 / 成形后推进 ---------- */
+function onFormed(){held=false;showHint(voiceEnded?'点击，走到破晓':'链断了。后来的人不会再被接上 · 听完他最后的话',0)}
+function enterCoda(){if(ended)return;ended=true;phase='coda';held=false;document.body.classList.add('coda');
+ hint.classList.remove('on');$('readout').classList.remove('on');$('pct').style.transition='opacity 2s';$('pct').style.opacity=0;
+ $('coda').classList.add('on');
+ try{var v=JSON.parse(localStorage.getItem('lx_act3')||'{}');v.stage='done';v.cDone=1;v.p23=v.p23||{};v.p23.choice='c';localStorage.setItem('lx_act3',JSON.stringify(v))}catch(e){}
+ try{music.volume=.46}catch(e){}
+ var ll=document.getElementById('letterLink');if(ll)setTimeout(function(){ll.classList.add('show')},5200);}
+window.addEventListener('pointerdown',function(e){
+ if(e.target&&e.target.closest&&e.target.closest('#soundToggle,.skip,#tapStart,.coda-item,.coda-letter,#holdRing,#invite'))return;
+ if(!launched)return;
+ ensureAudio();
+ if(phase==='bend'){CRACK=Math.min(1,CRACK+(reduce?0.5:0.055+Math.random()*0.02));clickPulse=1;shake=Math.max(shake,reduce?0:3)
+  if(CRACK<.98)showHint('继续点，让裂纹一点点爬向两端',0)}
+ else if(phase==='chain'||phase==='form'){held=true;resist++;
+  if(PURGE<.5)showHint('按住别放，让碎光向标题汇聚',0);
+  else if(PURGE<.92)showHint('两截在试图重新接合……别停',0)}
+ else if(phase==='formed'){if(voiceEnded)enterCoda();else showHint('听完他最后的话',2200)}
+});
+window.addEventListener('pointermove',function(e){if(launched&&phase!=='bend'&&e.buttons===0)held=false});
+function upAll(){cancelHold();held=false}
+window.addEventListener('pointerup',upAll);
+window.addEventListener('pointercancel',upAll);
+window.addEventListener('blur',function(){held=false;holding=false});
+/* ---------- 控件 ---------- */
+$('skipBtn').addEventListener('pointerdown',function(e){e.stopPropagation();
+ if(!launched)launch();else if(phase==='bend')doSnap();else if(phase==='chain'||phase==='form')PURGE=1;else if(phase==='formed'&&voiceEnded)enterCoda()});
+$('soundToggle').addEventListener('pointerdown',function(e){e.stopPropagation();musicOn=!musicOn;[music,voice].forEach(function(a){a.muted=!musicOn});
+ try{if(sfxBus&&AC){sfxBus.gain.cancelScheduledValues(AC.currentTime);sfxBus.gain.linearRampToValueAtTime(musicOn?0.6:0.0001,AC.currentTime+.12)}}catch(x){}
+ this.style.color=musicOn?'':'#C9A24E'});
+$('resetAll').addEventListener('click',function(){if(!confirm('清空全部进度、证物与痕迹，回到序章重新开始？'))return;
+ try{Object.keys(localStorage).forEach(function(k){if(/^(lx_|relay_|lingxi_)/.test(k))localStorage.removeItem(k)})}catch(e){}location.href='../entry/index.html'});
+window.__lx={setP:function(v){PURGE=v},hold:function(v){held=v},ve:function(){voiceEnded=true},sn:doSnap,
+ setC:function(v){CRACK=v},click:function(n){n=n||1;for(var i=0;i<n;i++)CRACK=Math.min(1,CRACK+0.06)},
+ st:function(){return{phase:phase,p:+PURGE.toFixed(2),ck:+CRACK.toFixed(2),bend:+BEND.toFixed(2),sr:+settledRatio.toFixed(2),dead:nodes.filter(function(n){return n.dead&&!n.player}).length,act:parts.filter(function(x){return x.act}).length,n:parts.length,sp:splinters.length}},
+ ac:function(){return AC?AC.state:'none'},coda:enterCoda};
+})();
+</script>
+</body>
+</html>

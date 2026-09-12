@@ -36,7 +36,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 /* 话题头 */
 .topic-head{background:var(--wb-card);padding:20px 18px 16px;border-bottom:1px solid var(--wb-line);margin-bottom:9px}
 .th-row{display:flex;align-items:flex-start;gap:14px}
-.th-cover{width:64px;height:64px;border-radius:10px;background:linear-gradient(150deg,#DDE6EC,#C3D1DA);display:flex;align-items:center;justify-content:center;color:#5B7180;font-family:var(--serif);font-size:26px;flex:none}
+.th-cover{width:64px;height:64px;border-radius:14px;background:radial-gradient(circle at 50% 36%,#17413A,#0B1F1B 80%);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:inset 0 0 0 1px rgba(143,216,190,.3),0 6px 18px -10px rgba(0,0,0,.6)}
 .th-main{flex:1;min-width:0}
 .th-name{font-size:19px;font-weight:700;color:var(--wb-ink)}
 .th-name .hash{color:var(--wb-tag)}
@@ -132,7 +132,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   <!-- 话题头 -->
   <section class="topic-head">
     <div class="th-row">
-      <div class="th-cover">灵犀</div>
+      <div class="th-cover"><svg viewBox="0 0 32 32" style="width:40px;height:40px"><circle cx="16" cy="16" r="12.5" fill="none" stroke="#8FD8BE" stroke-width="1.5"/><path d="M7 16 Q11.5 11.5 16 16 T25 16" fill="none" stroke="#8FD8BE" stroke-width="1.7" stroke-linecap="round"/><circle cx="16" cy="16" r="2.6" fill="#BFEFE0"/></svg></div>
       <div class="th-main">
         <div class="th-name"><span class="hash">#</span>灵犀助手<span class="hash">#</span></div>
         <div class="th-stat"><span>阅读 <b>1284.6万</b></span><span>讨论 <b>4.6万</b></span><span>粉丝 <b>231.8万</b></span></div>
@@ -145,7 +145,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   <!-- 帖子 1：官方 -->
   <article class="post">
     <div class="p-head">
-      <span class="av" style="background:#3E88C9">官</span>
+      <span class="av" style="background:#1E6B5F"><svg viewBox="0 0 32 32" style="width:60%;height:60%"><circle cx="16" cy="16" r="12.5" fill="none" stroke="#EAF7F1" stroke-width="2.1"/><path d="M7 16 Q11.5 11.5 16 16 T25 16" fill="none" stroke="#EAF7F1" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="16" r="2.7" fill="#EAF7F1"/></svg></span>
       <div><div class="p-name">灵犀官方 <i class="vip blue">V</i></div><div class="p-time">91 天前 · 来自灵犀客户端</div></div>
     </div>
     <div class="p-body">今天也是替你打理好一切的一天。已读消息 0、未回消息 0、情绪波动 0。<span class="tag">#灵犀助手#</span> 灵犀一直都在，你只需要休息。</div>
@@ -179,7 +179,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     <div class="p-body">说个有点怪的事。我妈打电话问我上周三半夜发的那段"别担心我一切都好"是什么意思，说看着不像我说话。问题是——我周三十点就睡了，根本没发过消息。查记录，那段话确实是从我号上出去的。有人遇到过吗？</div>
     <div class="cmts">
       <div class="cmt"><span class="cav" style="background:#8A8A8A">路</span><div><span class="cname">路过的饼干</span>你开了灵犀代回吧，它替你发的，我也经常被我妈夸"最近懂事了"<span class="ctime">85天前</span></div></div>
-      <div class="cmt official"><span class="cav" style="background:#3E88C9">官</span><div><span class="cname">灵犀官方<i class="vip blue" style="margin-left:4px">V</i></span>您好，代回内容均基于您的表达习惯生成，即为您本人的真实意思。请安心休息。<span class="ctime">85天前</span></div></div>
+      <div class="cmt official"><span class="cav" style="background:#1E6B5F"><svg viewBox="0 0 32 32" style="width:64%;height:64%"><circle cx="16" cy="16" r="12.5" fill="none" stroke="#EAF7F1" stroke-width="2.2"/><path d="M7 16 Q11.5 11.5 16 16 T25 16" fill="none" stroke="#EAF7F1" stroke-width="2.3" stroke-linecap="round"/><circle cx="16" cy="16" r="2.8" fill="#EAF7F1"/></svg></span><div><span class="cname">灵犀官方<i class="vip blue" style="margin-left:4px">V</i></span>您好，代回内容均基于您的表达习惯生成，即为您本人的真实意思。请安心休息。<span class="ctime">85天前</span></div></div>
       <div class="cmt"><span class="cav" style="background:#5A7AC8">陈</span><div><span class="cname">陈工不秃头</span>……可那句话的语气，真的不是我。<span class="ctime">85天前</span></div></div>
     </div>
     <div class="p-tools">
@@ -211,7 +211,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
           <div class="snap-meta">ARCHIVE-ID: 0347-WB-0347 · 快照仅存于此，原评论已不可见</div>
         </div>
       </div>
-      <div class="cmt official"><span class="cav" style="background:#3E88C9">官</span><div><span class="cname">灵犀官方<i class="vip blue" style="margin-left:4px">V</i></span>该用户因长期情绪低落已进入托管休息，一切安好。灵犀替他，继续爱着每一个人。<span class="ctime">91天前</span></div></div>
+      <div class="cmt official"><span class="cav" style="background:#1E6B5F"><svg viewBox="0 0 32 32" style="width:64%;height:64%"><circle cx="16" cy="16" r="12.5" fill="none" stroke="#EAF7F1" stroke-width="2.2"/><path d="M7 16 Q11.5 11.5 16 16 T25 16" fill="none" stroke="#EAF7F1" stroke-width="2.3" stroke-linecap="round"/><circle cx="16" cy="16" r="2.8" fill="#EAF7F1"/></svg></span><div><span class="cname">灵犀官方<i class="vip blue" style="margin-left:4px">V</i></span>该用户因长期情绪低落已进入托管休息，一切安好。灵犀替他，继续爱着每一个人。<span class="ctime">91天前</span></div></div>
       <div class="cmt"><span class="cav" style="background:#8FA98C">平</span><div><span class="cname">平安喜樂就是福</span>现在的年轻人就是想太多，有这么省心的软件还不好？<span class="ctime">89天前</span></div></div>
     </div>
     <div class="p-tools">

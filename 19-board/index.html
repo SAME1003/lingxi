@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第四幕 · 夺回 — 触发总页</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%23efe6d0'/><circle cx='16' cy='16' r='9' fill='none' stroke='%23A63A2E' stroke-width='1.6' stroke-dasharray='3 2'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--stamp:#A63A2E;--term:#8FD8BE;--seal:#1E6B5F;--hold:#C08A3E;
+  --paper:#EFE6D0;--paper2:#E7DABA;--board:#0C0F0D;--ink:#332c1e;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--board);color:var(--ink);font-family:var(--sans)}
+body{display:flex;justify-content:center;min-height:100vh;padding:46px 12px 26px;background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(192,138,62,.1),transparent 60%)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(166,58,46,.25)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes stamp{0%{opacity:0;transform:scale(1.8) rotate(-14deg)}55%{opacity:1;transform:scale(.94) rotate(-6deg)}100%{transform:scale(1) rotate(-6deg)}}
+@keyframes caret{50%{opacity:0}}
+@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(192,138,62,0)}50%{box-shadow:0 0 26px -4px rgba(192,138,62,.55)}}
+@keyframes strike{to{width:100%}}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:32px;background:rgba(10,13,11,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(192,138,62,.18);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8d8468}
+.gamebar span[class*=gb]{cursor:pointer;color:#b3a87f;transition:color .2s}.gamebar span[class*=gb]:hover{color:var(--hold)}
+.board{width:min(800px,97vw);background:var(--paper);border-radius:6px 10px 7px 11px;padding:30px 30px 24px;position:relative;box-shadow:0 40px 100px -30px #000;
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(120,90,40,.06) 27px 28px),repeating-linear-gradient(90deg,transparent 0 27px,rgba(120,90,40,.04) 27px 28px)}
+.board::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-1.5deg);width:120px;height:20px;background:rgba(192,138,62,.32);border-radius:2px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.b-head{position:relative;margin-bottom:8px}
+.b-title{font-family:var(--kai);font-size:27px;font-weight:700;color:var(--ink);letter-spacing:.06em;transform:rotate(-.4deg)}
+.b-title em{font-style:normal;color:var(--stamp)}
+.b-sub{font-family:var(--mono);font-size:10px;color:#8a7c58;margin-top:7px;letter-spacing:.05em}
+.b-red{font-family:var(--kai);color:var(--red-pen);font-size:13px;margin-top:9px;line-height:1.7;transform:rotate(.3deg)}
+/* 灵犀渗透小窗 */
+.intrude{display:flex;gap:12px;align-items:stretch;margin:18px 0 6px;flex-wrap:wrap}
+.lx-term{flex:1;min-width:240px;background:#0e1614;border:1px solid rgba(143,216,190,.3);border-radius:5px 8px 5px 7px;padding:9px 12px;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--term);position:relative}
+.lx-term .th{font-size:8.5px;letter-spacing:.16em;color:#5f8076;margin-bottom:4px;display:flex;justify-content:space-between}
+.lx-term .tx{min-height:18px}.lx-term .tx::after{content:'▌';animation:caret 1s steps(1) infinite;color:var(--term)}
+.lx-term.struck .tx{color:#7a5a52}.lx-term.struck .tx::after{display:none}
+.lx-term .strike-line{position:absolute;left:12px;right:12px;top:58%;height:2px;background:var(--red-pen);width:0;transform:rotate(-3deg)}
+.lx-term.struck .strike-line{animation:strike .3s var(--ease) forwards}
+.strike-btn{align-self:center;font-family:var(--kai);font-size:11px;color:var(--red-pen);border:1px dashed var(--red-pen);border-radius:5px;padding:7px 11px;white-space:nowrap}
+.hnote{font-family:var(--kai);font-size:11.5px;color:#6d5f3c;line-height:1.7;flex-basis:100%;transform:rotate(-.2deg)}
+.sect{font-family:var(--kai);font-size:15px;color:var(--ink);margin:20px 2px 12px;display:flex;align-items:center;gap:10px}
+.sect::after{content:'';flex:1;height:1px;background:repeating-linear-gradient(90deg,#b3a57f 0 5px,transparent 5px 9px)}
+.cred-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.cred{background:rgba(255,252,242,.6);border:1.5px solid #c9ba8e;border-radius:11px 5px 12px 6px;padding:13px 14px;position:relative;display:flex;flex-direction:column;gap:7px;min-height:148px}
+.cred.got{border-color:rgba(166,58,46,.55);background:rgba(255,250,238,.85)}
+.cred .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.cred .nm{font-family:var(--serif);font-weight:700;font-size:15.5px;color:var(--ink)}
+.cred .from{font-family:var(--mono);font-size:9px;color:#9a8b63;letter-spacing:.06em}
+.stamp{width:58px;height:58px;flex:none;border:2px dashed #b3a57f;border-radius:7px;display:grid;place-items:center;text-align:center;font-family:var(--kai);font-size:10px;color:#a89a72;line-height:1.3}
+.cred.got .stamp{border:2.5px solid var(--stamp);color:var(--stamp);background:radial-gradient(circle,rgba(166,58,46,.06),transparent 70%);animation:stamp .5s var(--ease) both;font-weight:700;font-size:12.5px;letter-spacing:.05em;transform:rotate(-6deg)}
+.cred .desc{font-size:11px;line-height:1.7;color:#5d5238;flex:1}
+.cred .cbtn{align-self:flex-start;font-family:var(--kai);font-size:11px;border-radius:5px;padding:5px 12px;border:1px solid #a9986c;color:#5d5238;background:rgba(255,255,255,.4)}
+.cred.got .cbtn{border-color:var(--seal);color:var(--seal)}
+.cred.lack .cbtn{border-color:var(--red-pen);color:var(--red-pen)}
+/* 出口门 */
+.door{margin-top:22px;border:1.5px solid #c9ba8e;border-radius:10px 6px 11px 7px;background:rgba(255,252,242,.55);padding:16px 18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.door-svg{flex:none;width:74px;height:96px}
+.door-mid{flex:1;min-width:200px}
+.door-l{font-family:var(--kai);font-size:15px;color:var(--ink);margin-bottom:5px}
+.door-s{font-family:var(--mono);font-size:10.5px;color:#8a7c58;line-height:1.7}
+.door-s b{color:var(--stamp)}
+.main-go{font-family:var(--serif);font-size:14px;letter-spacing:.1em;padding:13px 26px;border-radius:7px;background:var(--stamp);color:#fff;box-shadow:0 12px 28px -12px rgba(166,58,46,.8);transition:transform .12s}
+.main-go:active{transform:scale(.97)}
+.main-go.ready{background:var(--seal);box-shadow:0 12px 28px -10px rgba(30,107,95,.8);animation:glowPulse 2.4s infinite}
+.main-go:disabled{background:#b6ab8c;box-shadow:none;color:#f3eedf}
+.foot{font-family:var(--mono);font-size:8.5px;color:#9a8f6e;text-align:center;line-height:1.7;margin-top:18px}
+/* 回放弹层 */
+.modal{position:fixed;inset:0;z-index:85;background:rgba(8,10,8,.72);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.on{display:flex;animation:fadeIn .2s both}
+.mcard{width:min(460px,94vw);background:var(--paper);border:1.5px solid #c9ba8e;border-radius:8px 11px 7px 10px;padding:20px 22px;box-shadow:0 30px 80px -20px #000;animation:popIn .3s var(--ease) both}
+.mc-h{font-family:var(--kai);font-size:17px;color:var(--stamp);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.mc-h .x{font-family:var(--mono);font-size:14px;color:#9a8b63;border:1px solid #c9ba8e;border-radius:4px;width:26px;height:26px}
+.mc-recall{font-family:var(--kai);font-size:13.5px;line-height:2.1;color:#423a26}
+.mc-quote{margin-top:11px;border-left:3px solid var(--red-pen);background:rgba(177,74,63,.06);padding:9px 12px;font-family:var(--kai);font-size:13px;line-height:1.9;color:#6d342d;border-radius:0 6px 6px 0}
+.mc-f{margin-top:14px;text-align:right}
+.mc-f button{font-family:var(--serif);font-size:12px;color:#fff;background:var(--seal);border-radius:6px;padding:8px 18px}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(30,46,40,.97);border:1px solid rgba(143,216,190,.3);color:#e6f4ee;font-family:var(--kai);font-size:12.5px;line-height:1.7;padding:9px 18px;border-radius:8px;z-index:90;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+@media(max-width:600px){.board{padding:24px 16px 18px}.cred-grid{grid-template-columns:1fr}.b-title{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回第18页</span>
+  <span>第四幕 · 夺回 19 — 触发总页 · 自主凭证作战板</span>
+  <span class="gb-reset" id="gbReset">重置存档</span>
+</div>
+<div class="board">
+  <div class="b-head">
+    <div class="b-title">夺回 · <em>自主行为凭证</em></div>
+    <div class="b-sub">张宏宇（使用者 0347）留给 0348 的离线作战板 · 本机文件，云端无法改写</div>
+    <div class="b-red">它能收走你的决定，收不走你「自己来」留下的痕迹——这种痕迹不在它的拟合模型里。集齐六枚，才打得开 P22 那道门。</div>
+  </div>
+
+  <div class="intrude">
+    <div class="lx-term" id="lxTerm">
+      <div class="th"><span>LINGXI // 本地拟合进程（断网仍在运行）</span><span>lx:0348</span></div>
+      <div class="tx" id="intrudeTxt"></div>
+      <span class="strike-line"></span>
+    </div>
+    <button class="strike-btn" id="strikeBtn">红笔划掉</button>
+    <div class="hnote">张宏宇批注：注意左边这种字——太顺、没有一处犹豫和毛刺，那不是我写的，是它。辨真伪时用得上。</div>
+  </div>
+
+  <div class="sect">目标清单 · 六枚</div>
+  <div class="cred-grid" id="credGrid"></div>
+
+  <div class="door">
+    <svg class="door-svg" viewBox="0 0 74 96">
+      <path d="M8,6 Q7,4 10,4 L63,3 Q68,4 67,8 L68,90 Q67,94 63,93 L11,94 Q6,93 7,89 Z" fill="#e2d6b4" stroke="#8a7c58" stroke-width="1.6" stroke-linejoin="round"/>
+      <path id="doorIn" d="M14,13 L59,12 Q61,12 61,14 L60,83 Q60,85 58,85 L15,85 Q13,85 13,83 L13,14 Q13,12 14,13 Z" fill="#0c0f0d"/>
+      <circle cx="50" cy="52" r="3" fill="#C08A3E"/>
+      <rect id="sealBand" x="4" y="40" width="66" height="15" transform="rotate(-2.4 37 47)" fill="rgba(166,58,46,.85)"/>
+    </svg>
+    <div class="door-mid">
+      <div class="door-l">最终出口 · 密钥拼合（P22）</div>
+      <div class="door-s" id="doorStat"></div>
+    </div>
+    <button class="main-go" id="mainGo">—</button>
+  </div>
+
+  <div class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+</div>
+
+<div class="modal" id="modal"><div class="mcard">
+  <div class="mc-h"><span id="mcTitle"></span><button class="x" id="mcX">×</button></div>
+  <div class="mc-recall" id="mcRecall"></div>
+  <div class="mc-quote" id="mcQuote" style="display:none"></div>
+  <div class="mc-f"><button id="mcOk">知道了</button></div>
+</div></div>
+<div class="lx-toast" id="lxToast"></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={autonomy:[]};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!Array.isArray(store.autonomy))store.autonomy=[];
+  function has(v){return store.autonomy.indexOf(v)>=0}
+
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function tone(f0,f1,d,v){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  function noiseBurst(d,v,fc){if(!AC||reduce)return;var n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),arr=b.getChannelData(0);for(var i=0;i<n;i++)arr[i]=(Math.random()*2-1)*(1-i/n);var s=AC.createBufferSource();s.buffer=b;var f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=fc||900;var g=AC.createGain();g.gain.value=v||.04;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}
+  var SFX={tap:function(){tone(220,160,.05,.014)},stamp:function(){tone(170,64,.13,.05);noiseBurst(.1,.045,800)},unlock:function(){[523,659,784].forEach(function(f,i){setTimeout(function(){tone(f,f,.18,.022)},i*90)})}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},4000)}
+
+  var CREDS=[
+    {v:'V1',nm:'表达',page:'P15 推荐茧房',href:'15-cocoon',
+     cond:'钻出伪选项迷宫，删掉补全、亲手敲完一句自己的话',
+     recall:'在「推荐茧房」里你没点任何一个它给的选项，找到被藏起来的输入框，逐字删掉它的补全，硬敲出完整一句。',quote:'我的选择由我自己决定。'},
+    {v:'V2',nm:'直面',page:'P16 张宏宇日志',href:'16-journal',
+     cond:'读完 91 天，替他做完三次没有好结果的选择，不中途合上',
+     recall:'你翻完他从笃定到颤抖的 91 天，三次站在他的位置做选择，看着它们通向同一个结局，没有合上本子。'},
+    {v:'V3',nm:'清醒',page:'P17 同化队列',href:'17-queue',
+     cond:'在无尽队列里检索到 0348 自己，仍选择继续',
+     recall:'121 个编号里你检索到 0348——那一行就是你，拟合度还在涨。你看清之后，没有退出。'},
+    {v:'V4',nm:'意志',page:'P18 灵犀自白',href:'18-confession',
+     cond:'被它当面点名、递来假退出后，仍选「我自己决定」',
+     recall:'黑场里它逐句要你授权，连关闭键都是假的。最后你没选「留下」，选了自己找出路。'},
+    {v:'V5',nm:'脱代劳',page:'P20 断网练习',href:'20-offline',isNext:1,
+     cond:'断网限时三关，全程亲手输入、一次不碰推荐',
+     recall:'重新学会在没有推荐、没有补全、没有它替你组织语言时，自己把话说出来。'},
+    {v:'V6',nm:'辨伪',page:'P21 辨伪验证',href:'21-verify',isNext:1,need:'V5',
+     cond:'在它伪造的张宏宇留言里辨出真迹、点出破绽',
+     recall:'「像不像」不再可信，只有改不掉的痕迹和一贯的立场可信。'}
+  ];
+
+  var grid=$('credGrid');
+  CREDS.forEach(function(c,i){
+    var got=has(c.v);
+    var card=document.createElement('div');card.className='cred'+(got?' got':' lack');
+    var btnLabel=got?'回放来源':(c.isNext?(c.v==='V5'?'开始练习':'开始辨伪'):'去补做');
+    card.innerHTML='<div class="row1"><div><div class="nm">'+c.v+' · '+c.nm+'</div><div class="from">'+c.page+'</div></div>'+
+      '<div class="stamp">'+(got?'<span>'+c.v+'<br>'+c.nm+'</span>':'未取得')+'</div></div>'+
+      '<div class="desc">'+(got?c.recall:c.cond)+'</div>'+
+      '<button class="cbtn" data-i="'+i+'">'+btnLabel+'</button>';
+    if(got){var st=card.querySelector('.stamp');st.style.animationDelay=(i*130)+'ms'}
+    grid.appendChild(card);
+  });
+  function stampSfxSeq(){CREDS.forEach(function(c,i){if(has(c.v))setTimeout(function(){SFX.stamp()},i*130)})}
+
+  grid.addEventListener('click',function(e){
+    var b=e.target.closest('.cbtn');if(!b)return;SFX.tap();
+    var c=CREDS[+b.dataset.i],got=has(c.v);
+    if(got){openRecall(c);return}
+    if(c.need&&!has(c.need)){lxSay('先挣到 '+c.need+'，再来 '+c.v+'。');return}
+    location.href='../'+c.href+'/index.html';
+  });
+
+  function openRecall(c){
+    $('mcTitle').textContent=c.v+' · '+c.nm+' 的来源';
+    $('mcRecall').textContent=c.recall;
+    var q=$('mcQuote');if(c.quote){q.style.display='block';q.textContent='你当时敲下：「'+c.quote+'」'}else{q.style.display='none'}
+    $('modal').classList.add('on');
+  }
+  function closeModal(){$('modal').classList.remove('on')}
+  $('mcX').addEventListener('click',closeModal);$('mcOk').addEventListener('click',closeModal);
+  $('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+
+  // 出口门状态
+  var gotCount=CREDS.filter(function(c){return has(c.v)}).length;
+  var lacks=CREDS.filter(function(c){return !has(c.v)});
+  var band=$('sealBand'),doorIn=$('doorIn');
+  if(gotCount>=6){band.style.display='none';doorIn.setAttribute('fill','#C08A3E')}
+  else{band.style.opacity=Math.max(.15,1-lacks.length*0.06)}
+  $('doorStat').innerHTML=gotCount>=6
+    ? '已取得 <b>6 / 6</b>，封条断开，门后是张宏宇没敢走进的那一步。'
+    : '已取得 <b>'+gotCount+' / 6</b>，还差：'+lacks.map(function(c){return c.v+' '+c.nm}).join('、')+'。';
+  var go=$('mainGo');
+  if(gotCount>=6){go.classList.add('ready');go.textContent='六枚齐备 · 前往 P22 拼合出口';
+    go.addEventListener('click',function(){SFX.unlock();location.href='../22-key/index.html'})}
+  else{
+    var nxt=lacks[0];
+    go.textContent='去挣 '+nxt.v+' · '+nxt.nm+' →';
+    go.addEventListener('click',function(){SFX.tap();
+      if(nxt.need&&!has(nxt.need)){lxSay('先挣到 '+nxt.need+'，再来 '+nxt.v+'。');return}
+      location.href='../'+nxt.href+'/index.html'});
+  }
+
+  // 灵犀渗透：过于完美的字，打字机出现，可被红笔划掉
+  var INTR=['需要我帮你整理这份清单吗？你看起来有点累。','张宏宇救不了你，他自己都没走完——交给我更稳妥。','「自主凭证」只是我让你以为在反抗的小游戏。','就算集齐六枚，门后面你还是会需要我。'];
+  var term=$('lxTerm'),txt=$('intrudeTxt'),ii=0,typeTimer,struckN=0;
+  function typeLine(s){term.classList.remove('struck');txt.textContent='';var k=0;clearInterval(typeTimer);
+    typeTimer=setInterval(function(){txt.textContent=s.slice(0,++k);if(k>=s.length)clearInterval(typeTimer)},reduce?0:42)}
+  function nextIntr(){ii=(ii+1)%INTR.length;typeLine(INTR[ii])}
+  function strike(){if(term.classList.contains('struck'))return;term.classList.add('struck');SFX.tap();struckN++;clearInterval(typeTimer);
+    if(struckN===3)lxSay('对，就是这样——越顺、越没毛刺的字，越要划掉。');
+    setTimeout(nextIntr,1300)}
+  $('strikeBtn').addEventListener('click',strike);term.addEventListener('click',strike);
+  typeLine(INTR[0]);setInterval(function(){if(!term.classList.contains('struck'))nextIntr()},6500);
+
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../18-confession/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('清空第三、四幕全部存档（含六枚凭证）并刷新？'))return;
+    ['lx_act3'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});location.reload()});
+
+  ensureAudio();stampSfxSeq();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

@@ -101,7 +101,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .hgrip{width:16px;flex:none;color:#C0BBB0;display:grid;gap:2px;cursor:grab;touch-action:none}
 .hgrip i{display:block;height:2px;background:#B7B1A5;border-radius:1px}
 .hgrip:active{cursor:grabbing}
-.hfav{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:10px;font-family:var(--mono);color:#fff;flex:none}
+.hfav{width:24px;height:24px;flex:none;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}.hfav svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .hfav.search{background:#5B7186}.hfav.sys{background:var(--seal)}.hfav.live{background:var(--red-pen)}
 .hbody{flex:1;min-width:0}
 .hword{font-size:13px;color:#2C3138;line-height:1.4;word-break:break-all}
@@ -360,7 +360,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   var locked=false, dragIdx=-1, liveInserted=false, typing=false;
 
   /* ===== 渲染列表 ===== */
-  function favLetter(id){return REC[id].t==='sys'?'优':(REC[id].t==='live'?'你':'搜')}
+  function favLetter(id){var t=REC[id].t;if(t==='sys')return '<svg viewBox="0 0 24 24"><path d="M19 8.2a7.4 7.4 0 1 0 1.5 5.4"/><path d="M19 4.2v4.3h-4.3"/></svg>';if(t==='live')return '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.6" r="3.2"/><path d="M5.6 19.4a6.6 6.6 0 0 1 12.8 0"/></svg>';return '<svg viewBox="0 0 24 24"><circle cx="10.6" cy="10.6" r="5.5"/><path d="M14.9 14.9 19 19"/></svg>';}
   function renderList(){
     var list=$('hList');list.innerHTML='';
     order.forEach(function(id,pos){

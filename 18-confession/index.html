@@ -167,7 +167,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     $('finalText').textContent='它把温柔、疲惫和「为你好」一起递到你手边。你没有接。V1 表达、V2 直面、V3 清醒、V4 意志——四枚它无法伪造的凭证，都在你身上了。';
     $('goNext').classList.add('on');
   });
-  $('goNext').addEventListener('click',function(){SFX.tap();lxSay('第四幕由作者开启。你已带着 V1–V4 走到这里，别停下。')});
+  $('goNext').addEventListener('click',function(){SFX.unlock();location.href='../19-board/index.html'});
   $('gbBack').addEventListener('click',function(){location.href='../17-queue/index.html'});
   $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？V4 与 CL-20 会移除。'))return;
     try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-20'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}

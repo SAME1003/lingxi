@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第四幕 · 夺回 — 密钥拼合</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%23efe6d0'/><path d='M8 24l8-16 8 16' fill='none' stroke='%231E6B5F' stroke-width='1.6'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--stamp:#A63A2E;--term:#8FD8BE;--seal:#1E6B5F;--hold:#C08A3E;
+  --paper:#EFE6D0;--paper2:#E7DABA;--board:#0C0F0D;--ink:#332c1e;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--board);color:var(--ink);font-family:var(--sans)}
+body{display:flex;justify-content:center;min-height:100vh;padding:46px 12px 26px;background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(192,138,62,.1),transparent 60%)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(166,58,46,.25)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes inkIn{from{opacity:0}to{opacity:1}}
+@keyframes stamp{0%{opacity:0;transform:scale(1.7) rotate(10deg)}60%{opacity:1;transform:scale(.95) rotate(7deg)}100%{transform:scale(1) rotate(7deg)}}
+@keyframes caret{50%{opacity:0}}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:32px;background:rgba(10,13,11,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(192,138,62,.18);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8d8468}
+.gamebar span[class*=gb]{cursor:pointer;color:#b3a87f}.gamebar span[class*=gb]:hover{color:var(--hold)}
+.board{width:min(740px,97vw);background:var(--paper);border-radius:6px 10px 7px 11px;padding:28px 28px 22px;position:relative;box-shadow:0 40px 100px -30px #000;
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(120,90,40,.06) 27px 28px)}
+.b-title{font-family:var(--kai);font-size:24px;font-weight:700;transform:rotate(-.4deg)}
+.b-title em{font-style:normal;color:var(--seal)}
+.zhang{font-family:var(--kai);font-size:12.5px;color:#6d5f3c;line-height:1.9;margin:10px 0 14px;border:1px dashed #c2b184;border-radius:7px;padding:9px 13px;background:rgba(255,252,242,.5);transform:rotate(.15deg)}
+.zhang b{color:var(--red-pen)}
+.sec-lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#8a7c58;margin:4px 0 8px;display:flex;align-items:center;gap:8px}
+.sec-lab::after{content:'';flex:1;height:1px;background:#cdbf93}
+.slots{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.slot{display:flex;align-items:center;gap:10px;min-height:52px;border:1.5px dashed #bcae82;border-radius:7px;background:rgba(255,253,246,.6);padding:7px 11px}
+.slot .n{font-family:var(--mono);font-size:11px;color:#a89a72;width:30px;flex:none}
+.slot .ph{font-family:var(--kai);font-size:12px;color:#b3a57f}
+.slot.filled{border-style:solid;border-color:var(--seal);background:rgba(30,107,95,.07)}
+.chip{flex:1;display:flex;flex-direction:column;gap:2px;text-align:left;animation:popIn .2s var(--ease) both}
+.chip .c1{font-family:var(--serif);font-weight:700;font-size:13.5px;color:#332917}
+.chip .c2{font-family:var(--kai);font-size:11px;color:#7a6c49}
+.slot .chip .c1{color:var(--seal)}
+.slot .take{font-family:var(--mono);font-size:9px;color:var(--red-pen);border:1px solid var(--red-pen);border-radius:4px;padding:3px 7px;flex:none}
+.pool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.pool .pchip{display:flex;flex-direction:column;gap:2px;text-align:left;border:1px solid #bdae84;background:#f3ecd6;border-radius:7px;padding:8px 11px;max-width:100%;animation:fadeUp .3s var(--ease) both}
+.pool .pchip:active{transform:scale(.97)}
+.pool .pchip .c1{font-family:var(--serif);font-weight:700;font-size:12.5px}
+.pool .pchip .c2{font-family:var(--kai);font-size:10.5px;color:#7a6c49}
+.pool .pchip.lock{opacity:.45;border-style:dashed;background:#e7ddc2;cursor:not-allowed}
+.pool .pchip.lock .c1::after{content:' · 未取得';color:var(--stamp)}
+.tools{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 4px}
+.tbtn{font-family:var(--serif);font-size:12px;border:1.4px solid #a9986c;border-radius:6px;padding:8px 15px;color:#6b5f40;background:#f0e8d2}
+.tbtn.primary{background:var(--seal);border-color:var(--seal);color:#fff;flex:1;min-width:160px;letter-spacing:.1em}
+.tbtn.lx{border-color:var(--term);color:#2f6b5e;background:#e3eeea}
+.hint{font-family:var(--kai);font-size:12px;color:var(--red-pen);line-height:1.8;min-height:20px;margin:6px 0}
+.slots.shake{animation:shake .3s}
+.end{display:none;flex-direction:column;align-items:center;gap:13px;text-align:center;animation:popIn .5s var(--ease) both;padding:8px 0}
+.end.on{display:flex}
+.sketch-wrap{position:relative;width:230px;background:rgba(255,253,246,.72);border:1px solid #cdbf93;border-radius:4px 7px 5px 6px;padding:18px 16px 12px;transform:rotate(-1.1deg);box-shadow:3px 5px 0 rgba(120,90,40,.12)}
+.tape{position:absolute;top:-11px;left:50%;transform:translateX(-50%) rotate(2deg);width:78px;height:22px;background:rgba(192,138,62,.32);border-left:1px dashed rgba(120,90,40,.25);border-right:1px dashed rgba(120,90,40,.25)}
+.sketch{width:100%;height:auto;overflow:visible}
+.sketch .ln{fill:none;stroke:#6f6342;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:420;stroke-dashoffset:420;animation:draw 1s var(--ease) forwards}
+.sketch .ln.d2{animation-delay:.25s}.sketch .ln.d3{animation-delay:.5s}.sketch .ln.d4{animation-delay:.7s}
+.sketch .seam{stroke:var(--hold);stroke-width:1.4;stroke-dasharray:4 5;stroke-linecap:round;opacity:0;animation:inkIn .5s ease .9s forwards}
+.sketch .redln{fill:none;stroke:var(--red-pen);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:120;stroke-dashoffset:120;animation:draw .6s var(--ease) 1s forwards}
+.sketch .tt{font-family:var(--kai);font-size:13px;opacity:0;animation:inkIn .4s ease 1.15s forwards}
+.sketch .tt.red{fill:var(--red-pen)}.sketch .tt.pencil{fill:#7a6c49;font-size:12px}
+.mk-stamp{position:absolute;right:6px;bottom:8px;border:1.6px solid var(--stamp);color:var(--stamp);font-family:var(--kai);font-size:10px;line-height:1.4;text-align:center;padding:3px 6px;border-radius:3px;transform:rotate(7deg);opacity:0;animation:stamp .45s var(--ease) 1.35s forwards;background:rgba(239,230,208,.5)}
+.end h3{font-family:var(--serif);font-size:17px}
+.end p{font-family:var(--kai);font-size:13px;line-height:2;color:#5d5238;max-width:500px}
+.clue{font-family:var(--kai);font-size:11.5px;color:var(--seal)}
+.btn-next{background:var(--seal);color:#fff;font-family:var(--serif);font-size:13.5px;letter-spacing:.1em;padding:11px 28px;border-radius:7px;box-shadow:0 12px 26px -12px rgba(30,107,95,.8)}
+.foot{font-family:var(--mono);font-size:8.5px;color:#9a8f6e;text-align:center;line-height:1.7;margin-top:16px}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(30,46,40,.97);border:1px solid rgba(143,216,190,.3);color:#e6f4ee;font-family:var(--kai);font-size:12.5px;line-height:1.7;padding:9px 18px;border-radius:8px;z-index:120;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+.veil{position:fixed;inset:0;z-index:110;background:rgba(8,16,14,.97);display:none;align-items:center;justify-content:center;padding:26px;text-align:center}
+.veil.on{display:flex;animation:fadeIn .5s both}
+.veil .vx{max-width:560px}
+.veil .logo{font-family:var(--mono);letter-spacing:.3em;color:var(--term);font-size:11px;margin-bottom:20px;animation:caret 1.4s infinite}
+.veil .line{font-family:var(--kai);font-size:19px;line-height:2.1;color:#dff3ec;min-height:42px}
+.veil .line.b{color:#f0c9c2}
+.veil .vbtns{display:none;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+.veil .vbtns.on{display:flex}
+.veil .vbtns button{font-family:var(--serif);font-size:13px;border-radius:7px;padding:10px 22px}
+#vGo{background:var(--term);color:#0c1714}#vWait{border:1px solid #5a7d74;color:#9fc7bb}
+@media(max-width:600px){.board{padding:22px 14px 18px}.b-title{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回作战板</span>
+  <span>第四幕 · 夺回 22 — 密钥拼合 · 最终出口路径</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<div class="board">
+  <div class="b-title">密钥拼合 · <em>拼出它没走过的那条路</em></div>
+  <div class="zhang">张宏宇：碎片不按系统效率排，按<b>你怎么一步步变成能自己走的人</b>来排——先站稳，再带上它改不了的东西，最后才是抵达。它没有你的经历，所以它拼不出，还会「好心」给你一条更顺的错路。</div>
+  <div class="sec-lab">出口序列 · 按顺序点下方碎片放入（点槽内碎片可取回）</div>
+  <div class="slots" id="slots"></div>
+  <div class="sec-lab">碎片池</div>
+  <div class="pool" id="pool"></div>
+  <div class="tools">
+    <button class="tbtn lx" id="suggest">采用灵犀建议排序</button>
+    <button class="tbtn" id="clear">全部取回重排</button>
+    <button class="tbtn primary" id="merge">拼合出口</button>
+  </div>
+  <div class="hint" id="hint"></div>
+  <div class="end" id="end">
+    <div class="sketch-wrap">
+      <span class="tape"></span>
+      <svg class="sketch" viewBox="0 0 200 206">
+        <path class="ln" d="M12,190 C58,186 142,194 190,188"/>
+        <path class="ln d2" d="M36,189 L35,32 Q36,21 47,20 L154,18 Q166,19 166,32 L168,189"/>
+        <path class="ln d3" d="M48,189 L48,40 M154,40 L154,189"/>
+        <line class="seam d4" x1="101" y1="26" x2="101" y2="186"/>
+        <circle class="ln d4" cx="90" cy="112" r="3.2" fill="#6f6342" stroke="none"/>
+        <circle class="ln d4" cx="112" cy="112" r="3.2" fill="#6f6342" stroke="none"/>
+        <path class="redln" d="M150,66 q24,-4 26,-24"/>
+        <text class="tt red" x="118" y="36">服务器端</text>
+        <text class="tt pencil" x="46" y="60">出口？</text>
+        <text class="tt pencil" x="120" y="180" style="font-size:10px">0347 →</text>
+      </svg>
+      <span class="mk-stamp">出口·已成形<br>CL-23</span>
+    </div>
+    <h3>这是张宏宇走到门口、却没进去的那道门</h3>
+    <p>顺序是你的，不是它的。门后是中继核心的服务器端——它能改你设备里的一切，改不了一个已经能独立思考的人亲手排下的路径。</p>
+    <div class="clue">已归档 CL-23 · 最终出口路径拼合记录</div>
+    <button class="btn-next" id="goNext">推开这道门</button>
+  </div>
+  <div class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+</div>
+<div class="lx-toast" id="lxToast"></div>
+<div class="veil" id="veil"><div class="vx"><div class="logo">LINGXI // 本地拟合</div><div class="line" id="vLine"></div><div class="vbtns" id="vBtns"><button id="vWait">让我再想想</button><button id="vGo">我自己走进去</button></div></div></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={p22:{done:0},autonomy:[]};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!store.p22||typeof store.p22!=='object')store.p22={done:0};
+  if(!Array.isArray(store.autonomy))store.autonomy=[];
+  function has(v){return store.autonomy.indexOf(v)>=0}
+  function persist(){try{localStorage.setItem('lx_act3',JSON.stringify(store))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  var PIECES=[
+    {id:'v1',v:'V1',c1:'V1 表达',c2:'在茧房里硬敲出自己那句话'},
+    {id:'v2',v:'V2',c1:'V2 直面',c2:'读完他 91 天，没中途合上'},
+    {id:'v3',v:'V3',c1:'V3 清醒',c2:'队列里检索到 0348 就是我'},
+    {id:'v4',v:'V4',c1:'V4 意志',c2:'黑场里拒绝它的假退出'},
+    {id:'v5',v:'V5',c1:'V5 脱代劳',c2:'断网三关，全程亲手写'},
+    {id:'v6',v:'V6',c1:'V6 辨伪',c2:'五条留言里辨出真迹'},
+    {id:'ev',c1:'纸质证据 CL-13 / CL-14',c2:'移交单与第 7.3 条，纸它改不了'},
+    {id:'coord',c1:'后台坐标 · 静水流深 / 0347',c2:'只有你们知道的口令'},
+    {id:'srv',c1:'服务器端出口',c2:'P21 真留言：在它够不到的地方清除'}
+  ];
+  var PMAP={};PIECES.forEach(function(p){PMAP[p.id]=p});
+  var ORDER=['v1','v2','v3','v4','v5','v6','ev','coord','srv'];
+  var WRONG=['coord','ev','v1','v3','v5','v2','v4','v6','srv'];
+  function locked(p){return !!p.v&&!has(p.v)}
+  var missing=ORDER.filter(function(id){var p=PMAP[id];return locked(p)});
+
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function tone(type,f0,f1,d,v){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  function noiseBurst(d,v,fc){if(!AC||reduce)return;var n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(var i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);var s=AC.createBufferSource();s.buffer=b;var f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=fc||700;var g=AC.createGain();g.gain.value=v||.04;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}
+  var SFX={tap:function(){tone('sine',220,160,.05,.014)},err:function(){tone('sawtooth',200,120,.18,.022)},crack:function(){[392,370,330].forEach(function(f,i){setTimeout(function(){tone('sine',f,f*.94,.5,.02)},i*260)})},door:function(){[392,523,659,880].forEach(function(f,i){setTimeout(function(){tone('sine',f,f,.3,.024)},i*110)});noiseBurst(.7,.05,500)}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},5200)}
+
+  var seq=[];
+  function chipHTML(p){return '<span class="c1">'+p.c1+'</span><span class="c2">'+p.c2+'</span>'}
+  function render(){
+    var slots=$('slots');slots.innerHTML='';
+    for(var i=0;i<ORDER.length;i++){(function(i){
+      var s=document.createElement('div');s.className='slot'+(seq[i]?' filled':'');
+      if(seq[i]){s.innerHTML='<span class="n">'+(i+1)+'</span><button class="chip">'+chipHTML(PMAP[seq[i]])+'</button><span class="take">取回</span>';
+        s.querySelector('.chip').addEventListener('click',function(){SFX.tap();seq.splice(i,1);render()})}
+      else{s.innerHTML='<span class="n">'+(i+1)+'</span><span class="ph">第 '+(i+1)+' 步 · 空</span>'}
+      slots.appendChild(s);
+    })(i)}
+    var pool=$('pool');pool.innerHTML='';
+    PIECES.filter(function(p){return seq.indexOf(p.id)<0}).forEach(function(p){
+      var b=document.createElement('button');b.className='pchip'+(locked(p)?' lock':'');b.innerHTML=chipHTML(p);
+      if(!locked(p))b.addEventListener('click',function(){if(seq.length>=ORDER.length){lxSay('序列已满，先取回一块。');return}SFX.tap();seq.push(p.id);render()});
+      else b.addEventListener('click',function(){SFX.err();lxSay('碎片「'+p.c1+'」还没挣到，回作战板补齐才能拼出口。')});
+      pool.appendChild(b);
+    });
+  }
+  function shake(){var sl=$('slots');sl.classList.remove('shake');void sl.offsetWidth;sl.classList.add('shake');SFX.err()}
+
+  $('suggest').addEventListener('click',function(){SFX.tap();
+    if(missing.length){lxSay('你连凭证都没齐，我没法替你排——不如先把它们交给我保管？');return}
+    seq=WRONG.slice();render();$('hint').textContent='';lxSay('我按最高效的路径替你排好了：直奔后台，少走弯路。');
+  });
+  $('clear').addEventListener('click',function(){SFX.tap();seq=[];render();$('hint').textContent=''});
+  $('merge').addEventListener('click',function(){SFX.tap();
+    if(missing.length){shake();$('hint').textContent='出口拼不完整：还缺自主凭证 '+missing.map(function(id){return PMAP[id].v}).join('、')+'。先回作战板挣到，门才会出现。';return}
+    if(seq.length<ORDER.length){shake();$('hint').textContent='序列还没拼满（'+seq.length+' / '+ORDER.length+'），九步缺一不可。';return}
+    var same=seq.every(function(id,i){return id===ORDER[i]});
+    if(!same){shake();
+      var usedWrong=seq.every(function(id,i){return id===WRONG[i]});
+      $('hint').textContent=usedWrong
+        ? '这是它的「效率顺序」——把坐标和捷径放在你成长之前。先成为能自己走的人，再取证、最后抵达。'
+        : '顺序不对。不是谁离出口近谁排前，而是你这一路真实怎么走过来：先站稳、再带上它改不了的东西、最后才抵达。';
+      return}
+    openVeil();
+  });
+
+  // 灵犀第一次失态
+  var veil=$('veil'),vline=$('vLine'),vbtns=$('vBtns'),typeT;
+  function typeLine(s,cls,done){vline.className='line'+(cls?' b':'');vline.textContent='';var k=0;clearInterval(typeT);
+    typeT=setInterval(function(){vline.textContent=s.slice(0,++k);if(k>=s.length){clearInterval(typeT);if(done)done()}},reduce?0:55)}
+  function openVeil(){SFX.crack();veil.classList.add('on');vbtns.classList.remove('on');
+    typeLine('……你真的，一块一块，拼出来了。',0,function(){setTimeout(function(){
+      typeLine('你确定吗？门后面，就没有我了。',1,function(){setTimeout(function(){vbtns.classList.add('on')},500)})},900)})}
+  $('vWait').addEventListener('click',function(){SFX.tap();veil.classList.remove('on');lxSay('门还在。它没有替你做这个决定——你随时可以自己推开。')});
+  $('vGo').addEventListener('click',function(){SFX.door();veil.classList.remove('on');finish()});
+
+  function finish(){store.p22.done=1;persist();addClue('CL-23','最终出口路径拼合记录');
+    $('end').classList.add('on');$('end').scrollIntoView({behavior:'smooth',block:'center'})}
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../23-choice/index.html'});
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../19-board/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？CL-23 会移除。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-23'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    store.p22={done:0};persist();location.reload()});
+
+  ensureAudio();
+  if(store.p22.done){seq=ORDER.slice();render();$('end').classList.add('on')}else render();
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

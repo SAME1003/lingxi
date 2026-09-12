@@ -79,7 +79,7 @@ input{font-family:inherit}
 .device{background:var(--paper-card);border:1px solid var(--line);border-radius:3px;overflow:hidden;box-shadow:0 28px 56px -40px rgba(27,32,38,.6)}
 .dv-bar{padding:13px 17px;display:flex;align-items:center;gap:11px;color:#fff;transition:background .4s}
 .dv-bar[data-p=dy]{background:var(--dy)}.dv-bar[data-p=xhs]{background:var(--xhs)}.dv-bar[data-p=mail]{background:var(--mail)}.dv-bar[data-p=dm]{background:var(--dm)}
-.dv-ava{width:34px;height:34px;border-radius:4px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px;flex:none}
+.dv-ava{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex:none}.dv-ava svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.95}
 .dv-meta b{display:block;font-size:14px;font-weight:600;letter-spacing:.04em;font-family:var(--sans)}
 .dv-meta span{font-family:var(--kai);font-size:10.5px;letter-spacing:.06em;opacity:.78}
 .dv-body{padding:19px 18px 20px;min-height:330px;display:flex;flex-direction:column}
@@ -339,6 +339,12 @@ input{font-family:inherit}
   var ERRORS=['顺序，就是你经过这四个平台的顺序。','这些字，是我替你说话时，不小心漏出来的。','再想想——我一直在用谁的身份活着？'];
 
   var cur=0,typeTimer=null;
+  var PICON={
+    dy:'<svg viewBox="0 0 24 24"><path d="M9.5 17.6V5.4l9-1.8v11.4"/><circle cx="7.1" cy="17.6" r="2.3"/><circle cx="16.1" cy="15" r="2.3"/></svg>',
+    xhs:'<svg viewBox="0 0 24 24"><path d="M7.5 4h9a1 1 0 0 1 1 1v15l-5.5-3.4L6.5 20V5a1 1 0 0 1 1-1z"/></svg>',
+    mail:'<svg viewBox="0 0 24 24"><rect x="3.6" y="5.4" width="16.8" height="13.2" rx="2.2"/><path d="M4.2 7.2 12 13l7.8-5.8"/></svg>',
+    dm:'<svg viewBox="0 0 24 24"><path d="M5 5.5h14A1.8 1.8 0 0 1 20.8 7.3v7.4a1.8 1.8 0 0 1-1.8 1.8H9.2l-4 3v-3H5a1.8 1.8 0 0 1-1.8-1.8V7.3A1.8 1.8 0 0 1 5 5.5z"/></svg>'
+  };
   var tabsEl=$('tabs'),feed=$('feed'),act=$('actZone');
 
   /* ---------- 独白打字机 ---------- */
@@ -373,7 +379,7 @@ input{font-family:inherit}
   function renderAll(first){
     var p=P[cur],st=act1.p4.steps[p.key]||'open';
     renderTabs();
-    $('dvBar').dataset.p=p.key;$('dvAva').textContent=p.ava;$('dvName').textContent=p.name;$('dvSub').textContent=p.sub;
+    $('dvBar').dataset.p=p.key;$('dvAva').innerHTML=PICON[p.key]||p.ava;$('dvName').textContent=p.name;$('dvSub').textContent=p.sub;
     feed.innerHTML='';act.innerHTML='';
     msg('them',p.them.ava,p.them.color,p.them.text);
     if(st==='open')renderOpen(p);

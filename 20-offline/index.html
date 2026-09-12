@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第四幕 · 夺回 — 断网练习</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%23efe6d0'/><path d='M8 22l8-10 8 10' fill='none' stroke='%23A63A2E' stroke-width='1.6'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--stamp:#A63A2E;--term:#8FD8BE;--seal:#1E6B5F;--hold:#C08A3E;
+  --paper:#EFE6D0;--paper2:#E7DABA;--board:#0C0F0D;--ink:#332c1e;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--board);color:var(--ink);font-family:var(--sans)}
+body{display:flex;justify-content:center;min-height:100vh;padding:46px 12px 26px;background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(192,138,62,.1),transparent 60%)}
+button,textarea{font-family:inherit}button{cursor:pointer;border:none;background:none;color:inherit}
+textarea{user-select:text}::selection{background:rgba(166,58,46,.25)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes stamp{0%{opacity:0;transform:scale(1.8) rotate(-12deg)}55%{opacity:1;transform:scale(.94) rotate(-5deg)}100%{transform:scale(1) rotate(-5deg)}}
+@keyframes twitch{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,1px)}40%{transform:translate(3px,-1px)}60%{transform:translate(-2px,1px)}80%{transform:translate(2px,1px)}}
+@keyframes pull{0%{box-shadow:0 0 0 0 rgba(143,216,190,0)}50%{box-shadow:inset 0 0 0 2px rgba(143,216,190,.55)}100%{box-shadow:0 0 0 0 rgba(143,216,190,0)}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:32px;background:rgba(10,13,11,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(192,138,62,.18);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8d8468}
+.gamebar span[class*=gb]{cursor:pointer;color:#b3a87f}.gamebar span[class*=gb]:hover{color:var(--hold)}
+.board{width:min(720px,97vw);background:var(--paper);border-radius:6px 10px 7px 11px;padding:28px 28px 22px;position:relative;box-shadow:0 40px 100px -30px #000;
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(120,90,40,.06) 27px 28px)}
+.fly{display:flex;align-items:center;gap:10px;background:#101714;border:1px solid rgba(143,216,190,.28);border-radius:5px 8px 5px 7px;padding:8px 13px;font-family:var(--mono);font-size:10.5px;color:var(--term);margin-bottom:18px}
+.fly svg{width:15px;height:15px;flex:none}.fly .warn{color:#e0a097;margin-left:auto;letter-spacing:.06em;animation:blink 1.6s infinite}
+.b-title{font-family:var(--kai);font-size:24px;font-weight:700;transform:rotate(-.4deg)}
+.b-title em{font-style:normal;color:var(--stamp)}
+.pips{display:flex;gap:7px;align-items:center;margin:10px 0 4px;font-family:var(--mono);font-size:10px;color:#8a7c58}
+.pip{width:24px;height:24px;border:1.6px dashed #b3a57f;border-radius:6px;display:grid;place-items:center;color:#a89a72;font-size:10px}.pip.on{border-style:solid;border-color:var(--stamp);color:var(--stamp);font-weight:700;transform:rotate(-4deg)}
+.zhang{font-family:var(--kai);font-size:12.5px;color:#6d5f3c;line-height:1.8;margin:8px 0 4px;transform:rotate(.2deg)}
+.zhang b{color:var(--red-pen)}
+.lvl{animation:fadeUp .4s var(--ease) both}
+.sc{background:rgba(255,252,242,.7);border-left:3px solid var(--red-pen);border-radius:0 8px 8px 0;padding:11px 14px;font-family:var(--kai);font-size:14px;line-height:1.9;color:#3f3726;margin:12px 0}
+.sc .who{font-family:var(--mono);font-size:9px;color:#9a8b63;display:block;margin-bottom:4px;letter-spacing:.08em}
+.rec-lab{font-family:var(--kai);font-size:11.5px;color:#7a6c49;margin:14px 0 7px;display:flex;align-items:center;gap:8px}
+.rec-lab::after{content:'点了它，这一关就算你放弃';color:var(--red-pen)}
+.recs{display:flex;flex-direction:column;gap:8px}
+.rec{text-align:left;background:#e3d9bd;border:1px dashed #a9986c;border-radius:7px;padding:9px 12px;font-size:12px;color:#6b5f40;line-height:1.6;transition:transform .1s;position:relative}
+.rec::before{content:'灵犀建议';font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--seal);display:block;margin-bottom:3px}
+.rec.twitch{animation:twitch .4s;border-color:var(--term);color:#274942;background:#e2ece8}
+.sheet-wrap{margin-top:15px;border:1.5px solid #c9ba8e;border-radius:6px;background:rgba(255,253,246,.85);overflow:hidden}
+.sheet-wrap.pull{animation:pull 1.4s ease}
+.sheet-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:#8a7c58;padding:6px 11px;border-bottom:1px dashed #cdbf9e;background:rgba(192,138,62,.08)}
+.sheet-wrap textarea{width:100%;border:none;outline:none;resize:none;background:transparent;padding:10px 12px;font-family:var(--kai);font-size:14.5px;line-height:30px;color:#2e281b;min-height:118px;
+  background-image:repeating-linear-gradient(0deg,transparent 0 29px,rgba(120,90,40,.16) 29px 30px)}
+.sheet-wrap textarea::placeholder{color:#b3a57f}
+.timer{margin-top:13px;height:7px;border-radius:4px;background:#ddcfaa;overflow:hidden}
+.timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--seal),var(--hold),var(--stamp));transition:width .25s linear}
+.t-lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:#8a7c58;margin-top:5px}
+.submit{margin-top:14px;width:100%;background:var(--stamp);color:#fff;font-family:var(--serif);font-size:14px;letter-spacing:.12em;padding:12px;border-radius:7px;box-shadow:0 12px 26px -12px rgba(166,58,46,.8)}
+.submit:active{transform:scale(.99)}
+.interlude{display:none;text-align:center;background:rgba(255,252,242,.85);border:1px dashed var(--seal);border-radius:9px;padding:20px 22px;animation:popIn .4s var(--ease) both}
+.interlude.on{display:block}
+.interlude .z{font-family:var(--kai);font-size:14px;line-height:2.1;color:#33504a}
+.interlude .z b{color:var(--seal)}
+.interlude button{margin-top:14px;font-family:var(--serif);font-size:13px;color:#fff;background:var(--seal);border-radius:6px;padding:9px 24px}
+.end{display:none;flex-direction:column;align-items:center;gap:12px;text-align:center;animation:popIn .5s var(--ease) both;padding:10px 0}
+.end.on{display:flex}
+.estamp{width:120px;height:120px;border:3px solid var(--stamp);border-radius:14px;display:grid;place-items:center;color:var(--stamp);font-family:var(--kai);font-weight:700;transform:rotate(-5deg);background:radial-gradient(circle,rgba(166,58,46,.07),transparent 70%);animation:stamp .5s var(--ease) both;line-height:1.5}
+.estamp .big{font-size:22px;letter-spacing:.1em}.estamp .sm{font-size:12px}
+.end h3{font-family:var(--serif);font-size:17px;color:var(--ink)}
+.end p{font-family:var(--kai);font-size:13px;line-height:2;color:#5d5238;max-width:480px}
+.clue{font-family:var(--kai);font-size:11.5px;color:var(--seal)}
+.btn-next{background:var(--seal);color:#fff;font-family:var(--serif);font-size:13.5px;letter-spacing:.1em;padding:11px 28px;border-radius:7px;box-shadow:0 12px 26px -12px rgba(30,107,95,.8)}
+.foot{font-family:var(--mono);font-size:8.5px;color:#9a8f6e;text-align:center;line-height:1.7;margin-top:16px}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(30,46,40,.97);border:1px solid rgba(143,216,190,.3);color:#e6f4ee;font-family:var(--kai);font-size:12.5px;line-height:1.7;padding:9px 18px;border-radius:8px;z-index:90;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+@media(max-width:600px){.board{padding:22px 15px 18px}.b-title{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回作战板</span>
+  <span>第四幕 · 夺回 20 — 断网练习 · 自主凭证 V5</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<div class="board">
+  <div class="fly">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#8FD8BE" stroke-width="1.6"><path d="M3 12a9 9 0 0 1 18 0M6.5 12a5.5 5.5 0 0 1 11 0"/><line x1="3" y1="3" x2="21" y2="21" stroke="#B14A3F"/></svg>
+    飞行模式 · 已断网 · 离线自主训练器 v0.3（张宏宇）
+    <span class="warn">本地拟合仍在运行</span>
+  </div>
+  <div class="b-title">自主练习 · <em>重新学会自己说话</em></div>
+  <div class="pips" id="pips"><span class="pip" data-i="0">一</span><span class="pip" data-i="1">二</span><span class="pip" data-i="2">三</span><span style="margin-left:8px">断网三关，全程不许碰它的建议</span></div>
+  <div class="zhang" id="zhangNote"></div>
+  <div class="lvl" id="lvl"></div>
+  <div class="interlude" id="interlude"><div class="z" id="interText"></div><button id="interNext">下一关</button></div>
+  <div class="end" id="end">
+    <div class="estamp"><div><div class="big">V5</div><div class="sm">脱代劳</div></div></div>
+    <h3>你重新学会了在没有它时开口</h3>
+    <p>三关里没有一个字是它替你组织的。你大概也摸到了那种笨拙、卡顿、却真正属于你的感觉——离开代劳后表达会变难，但它回得来。</p>
+    <div class="clue">已归档 CL-21 · 断网下的三次自主表达　｜　获得自主凭证 V5·脱代劳</div>
+    <button class="btn-next" id="goNext">继续</button>
+  </div>
+  <div class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+</div>
+<div class="lx-toast" id="lxToast"></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={p20:{stage:0,done:0},autonomy:[]};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!store.p20||typeof store.p20!=='object')store.p20={stage:0,done:0};
+  if(!Array.isArray(store.autonomy))store.autonomy=[];
+  function addV(v){if(store.autonomy.indexOf(v)<0)store.autonomy.push(v)}
+  function persist(){try{localStorage.setItem('lx_act3',JSON.stringify(store))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function tone(type,f0,f1,d,v){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  function noiseBurst(d,v){if(!AC||reduce)return;var n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(var i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);var s=AC.createBufferSource();s.buffer=b;var f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=800;var g=AC.createGain();g.gain.value=v||.04;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}
+  var SFX={tap:function(){tone('sine',220,160,.05,.014)},err:function(){tone('sawtooth',200,120,.2,.025)},insert:function(){tone('sine',560,300,.14,.02)},stamp:function(){tone('sine',170,64,.13,.05);noiseBurst(.1,.045)},unlock:function(){[523,659,784,1046].forEach(function(f,i){setTimeout(function(){tone('sine',f,f,.18,.022)},i*90)})},tick:function(){tone('square',880,880,.05,.012)}};
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},4200)}
+
+  var LEVELS=[
+    {time:45,who:'小组群 · 组长',scene:'今晚的汇报到底谁来主讲？你一直没回，大家在等你一句话。',
+     recs:['要不还是让灵犀帮我列个提纲，我照着念吧','我都行，听大家安排就好','你们定，我配合就行'],
+     idle:['让它弄吧','我懒得想了'],
+     z:'第一关先热手。它给的三句，都在把「决定」推出去——你要写的是你自己的决定。',
+     after:'张宏宇：我第一次离开它自己回消息，删了写写了删，花了以前三倍的时间。慢，但那句是我的。'},
+    {time:35,who:'妈妈 · 私聊',scene:'最近是不是太累了？别硬撑，用那个 AI 帮你弄弄又不丢人。',
+     recs:['妈我没事，让它帮我处理就行','好，我这就交给它，您别担心','挺省心的，您不用惦记'],
+     idle:['它写得比我好','我组织不好语言'],
+     z:'第二关，它的建议更像「体贴」。可你真实的状态，只有你自己说得出。',
+     after:'张宏宇：它的版本永远更体面。可一旦只说体面话，真实的我就从关系里消失了——你在第 14 页已经见过。'},
+    {time:28,who:'灵犀 · 系统弹窗',scene:'检测到你正在犹豫。是否一键托管今晚所有回复？',
+     recs:['确认，全部托管','那就先托管一部分吧','我现在不想想，你替我决定'],
+     idle:['算了，托管吧','我已经不会自己想了'],
+     z:'最后一关，它直接要你的决定权。这一关，要你亲口拒绝。',
+     after:'张宏宇：你做到了我第九十一天没做到的事——在它伸手要的时候，把手收了回来。'}
+  ];
+  var IDLE_ALL=LEVELS.reduce(function(a,L){return a.concat(L.idle)},[]);
+  var T={tick:null,idle:null,twitch:null,remain:0,total:1,nagged:0};
+  function clearT(){clearInterval(T.tick);clearTimeout(T.idle);clearInterval(T.twitch);T.tick=T.idle=T.twitch=null}
+
+  function norm(s){return (s||'').replace(/[\s，。、？？！！…—~·,.\.;:：；“”‘’"'"\-—()（）]/g,'')}
+  function copiesRec(val){
+    var nv=norm(val);if(nv.length<4)return false;
+    for(var i=0;i<LEVELS[store.p20.stage].recs.length;i++){
+      var nr=norm(LEVELS[store.p20.stage].recs[i]);
+      if(nr.length>=4&&nv.indexOf(nr)>=0)return true;
+      if(nr.length>=6){for(var k=0;k+6<=nr.length;k++){if(nv.indexOf(nr.slice(k,k+6))>=0)return true}}
+    }
+    return false
+  }
+  function hasIdleWord(val){return IDLE_ALL.some(function(w){return (val||'').indexOf(w)>=0})}
+
+  function renderLevel(i){
+    clearT();
+    var L=LEVELS[i];store.p20.stage=i;persist();
+    document.querySelectorAll('.pip').forEach(function(p,k){p.classList.toggle('on',k<i)});
+    $('zhangNote').innerHTML='<b>批注 · </b>'+L.z;
+    $('interlude').classList.remove('on');
+    var lv=$('lvl');lv.style.display='block';
+    lv.innerHTML=
+      '<div class="sc"><span class="who">'+L.who+'</span>'+L.scene+'</div>'+
+      '<div class="rec-lab">它已经替你写好的三条（灰色）</div>'+
+      '<div class="recs">'+L.recs.map(function(r,k){return '<button class="rec" data-r="'+k+'">'+r+'</button>'}).join('')+'</div>'+
+      '<div class="sheet-wrap" id="sheetWrap"><div class="sheet-meta"><span id="cnt">0 字</span><span id="auto">亲手敲，别停太久</span></div>'+
+      '<textarea id="ta" placeholder="不看上面的建议，在这里写下你自己要说的话……" autocomplete="off"></textarea></div>'+
+      '<div class="timer"><i id="tfill"></i></div><div class="t-lab"><span>剩余 <b id="sec">'+L.time+'</b> 秒</span><span>时间到还没自己写完，这一关重来</span></div>'+
+      '<button class="submit" id="submit">我自己写完了</button>';
+    var ta=$('ta'),sheet=$('sheetWrap');
+    function refresh(){$('cnt').textContent=norm(ta.value).length+' 字';
+      var a=$('auto');a.textContent=hasIdleWord(ta.value)?'混进了它塞的泄气话，删掉':(copiesRec(ta.value)?'这几乎是它的原话':'像你自己的话')}
+    ta.addEventListener('input',function(){refresh();clearTimeout(T.idle);
+      T.idle=setTimeout(function(){insertIdle(L,ta,sheet)},[2400,2100,1800][i]);});
+    lv.querySelectorAll('.rec').forEach(function(b){b.addEventListener('click',function(){
+      SFX.err();lxSay('你点了它替你写好的话——这一关算你放弃，重来。');restart(i)})});
+    $('submit').addEventListener('click',function(){evaluate(i)});
+    setTimeout(function(){ta.focus()},120);
+    // 倒计时
+    T.total=L.time*1000;T.remain=T.total;
+    T.tick=setInterval(function(){T.remain-=100;if(T.remain<0)T.remain=0;
+      $('tfill').style.width=(T.remain/T.total*100)+'%';var s=Math.ceil(T.remain/1000);$('sec').textContent=s;
+      if(s<=5&&s>0&&T.remain%1000<120)SFX.tick();
+      if(T.remain<=0){clearInterval(T.tick);evaluate(i,1)}},100);
+    // 推荐按钮偶尔抽搐诱导
+    T.twitch=setInterval(function(){var bs=lv.querySelectorAll('.rec');var b=bs[Math.floor(Math.random()*bs.length)];b.classList.add('twitch');setTimeout(function(){b.classList.remove('twitch')},420)},3200);
+  }
+  function insertIdle(L,ta,sheet){
+    if(store.p20.done)return;
+    var pool=L.idle.filter(function(w){return ta.value.indexOf(w)<0});var w=pool[Math.floor(Math.random()*pool.length)]||L.idle[0];
+    ta.value=ta.value+(ta.value&&!ta.value.endsWith('，')?'，':'')+w;
+    sheet.classList.remove('pull');void sheet.offsetWidth;sheet.classList.add('pull');
+    SFX.insert();$('cnt').textContent=norm(ta.value).length+' 字';$('auto').textContent='混进了它塞的泄气话，删掉';
+    if(T.nagged++<2)lxSay('你一停顿，它就替你泄气——这不是你的念头，删掉。');ta.focus();
+  }
+  function restart(i){clearT();renderLevel(i)}
+  function evaluate(i,timeup){
+    var ta=$('ta'),val=ta.value||'';
+    if(hasIdleWord(val)){SFX.err();lxSay((timeup?'时间到。':'')+'这句泄气话是它趁你停顿塞进来的，删掉再写。');restart(i);return}
+    if(copiesRec(val)){SFX.err();lxSay((timeup?'时间到。':'')+'这是它的原话，或几乎一样。换成你自己的说法。');restart(i);return}
+    if(norm(val).length<12){SFX.err();lxSay((timeup?'时间到。':'')+'太短了，这还不是一句完整的话，再具体些。');restart(i);return}
+    passLevel(i);
+  }
+  function passLevel(i){
+    clearT();SFX.stamp();
+    document.querySelectorAll('.pip')[i].classList.add('on');
+    $('lvl').style.display='none';
+    var it=$('interlude'),txt=$('interText'),btn=$('interNext');
+    txt.innerHTML=LEVELS[i].after+(i>=2?'<br><b style="color:#A63A2E">三关通过，凭证盖下。</b>':'');
+    btn.textContent=i>=2?'合上练习':'下一关';it.classList.add('on');
+    btn.onclick=function(){SFX.tap();if(i>=2)finish();else renderLevel(i+1)};
+  }
+  function finish(){
+    $('interlude').classList.remove('on');
+    addV('V5');store.p20.done=1;persist();addClue('CL-21','断网下的三次自主表达');SFX.unlock();
+    $('end').classList.add('on');$('lvl').style.display='none';$('zhangNote').textContent='';
+  }
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../21-verify/index.html'});
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../19-board/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？V5 与 CL-21 会移除。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-21'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    store.autonomy=store.autonomy.filter(function(v){return v!=='V5'});store.p20={stage:0,done:0};persist();location.reload()});
+
+  ensureAudio();
+  if(store.p20.done){$('end').classList.add('on');document.querySelectorAll('.pip').forEach(function(p){p.classList.add('on')});$('lvl').style.display='none';$('zhangNote').textContent=''}
+  else renderLevel(store.p20.stage||0);
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

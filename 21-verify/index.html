@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第四幕 · 夺回 — 辨伪验证</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%23efe6d0'/><circle cx='16' cy='16' r='8' fill='none' stroke='%23A63A2E' stroke-width='1.6'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --red-pen:#B14A3F;--stamp:#A63A2E;--term:#8FD8BE;--seal:#1E6B5F;--hold:#C08A3E;
+  --paper:#EFE6D0;--paper2:#E7DABA;--board:#0C0F0D;--ink:#332c1e;
+  --serif:"Noto Serif SC",Songti SC,SimSun,serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--kai:KaiTi,STKaiti,"楷体",var(--serif);--mono:"IBM Plex Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--board);color:var(--ink);font-family:var(--sans)}
+body{display:flex;justify-content:center;min-height:100vh;padding:46px 12px 26px;background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(192,138,62,.1),transparent 60%)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::selection{background:rgba(166,58,46,.25)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes stamp{0%{opacity:0;transform:scale(1.8) rotate(-12deg)}55%{opacity:1;transform:scale(.94) rotate(-5deg)}100%{transform:scale(1) rotate(-5deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.gamebar{position:fixed;top:0;left:0;right:0;z-index:80;height:32px;background:rgba(10,13,11,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(192,138,62,.18);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:#8d8468}
+.gamebar span[class*=gb]{cursor:pointer;color:#b3a87f}.gamebar span[class*=gb]:hover{color:var(--hold)}
+.board{width:min(740px,97vw);background:var(--paper);border-radius:6px 10px 7px 11px;padding:28px 28px 22px;position:relative;box-shadow:0 40px 100px -30px #000;
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(120,90,40,.06) 27px 28px)}
+.b-title{font-family:var(--kai);font-size:24px;font-weight:700;transform:rotate(-.4deg)}
+.b-title em{font-style:normal;color:var(--stamp)}
+.prog{font-family:var(--mono);font-size:10px;color:#8a7c58;margin:9px 0 4px;letter-spacing:.08em}
+.guide{font-family:var(--kai);font-size:12.5px;color:#6d5f3c;line-height:1.9;margin:6px 0 16px;border:1px dashed #c2b184;border-radius:7px;padding:9px 13px;background:rgba(255,252,242,.5);transform:rotate(.15deg)}
+.guide b{color:var(--red-pen)}
+.msg{background:rgba(255,252,242,.78);border:1px solid #cdbf93;border-radius:5px 9px 8px 6px;padding:13px 15px;margin-bottom:14px;animation:fadeUp .4s var(--ease) both}
+.msg.shake{animation:shake .3s}
+.m-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.m-tag{font-family:var(--mono);font-size:9px;letter-spacing:.06em;padding:3px 8px;border-radius:4px;background:#e3d8b8;color:#6f6342}
+.m-tag.paper{background:#dfe7dd;color:var(--seal)}
+.m-tag.clean{background:#dfe9e6;color:#2f6b5e}
+.play{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:#5d5238;border:1px solid #bdae84;border-radius:20px;padding:3px 11px 3px 7px}
+.play .tri{width:0;height:0;border-left:8px solid var(--red-pen);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.play.playing .tri{border-left-color:var(--seal)}
+.wave{display:flex;align-items:center;gap:2px;height:16px;margin-left:auto}
+.wave i{width:2px;background:#b3a57f;border-radius:1px;height:100%;transform-origin:center}
+.wave.real i{background:#9a8b63}.wave.clean i{background:var(--term)}
+.play.playing .wave i{animation:eq .7s ease-in-out infinite}
+.m-text{font-family:var(--kai);font-size:14.5px;line-height:2.15;color:#342d1e;margin:10px 0 4px}
+.sent{border-radius:3px;padding:0 1px;transition:background .15s}
+.sent.pickable{cursor:pointer}.sent.pickable:hover{background:rgba(166,58,46,.12)}
+.sent.picked{background:rgba(166,58,46,.28);box-shadow:0 0 0 1px var(--red-pen)}
+.m-judge{display:flex;gap:9px;margin-top:9px}
+.jbtn{font-family:var(--serif);font-size:12px;border:1.4px solid #a9986c;border-radius:6px;padding:6px 16px;color:#6b5f40;background:#f0e8d2}
+.jbtn:hover{border-color:var(--red-pen);color:var(--red-pen)}
+.flaw{display:none;margin-top:10px;border-top:1px dashed #c9ba88;padding-top:10px}
+.flaw.on{display:block;animation:fadeIn .3s}
+.flaw .lab{font-family:var(--kai);font-size:11.5px;color:#7a6c49;margin-bottom:7px;line-height:1.7}
+.topts{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.topt{font-size:11px;border:1px solid #b3a57f;border-radius:14px;padding:5px 11px;color:#5f5438;background:#f4eeda;line-height:1.5;text-align:left}
+.topt.sel{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.confirm-f{font-family:var(--serif);font-size:12px;background:var(--seal);color:#fff;border-radius:6px;padding:7px 18px}
+.why{display:none;font-family:var(--kai);font-size:12px;line-height:1.9;border-radius:6px;padding:9px 12px;margin-top:10px}
+.msg.lt .why{display:block;background:rgba(30,107,95,.1);border:1px solid rgba(30,107,95,.35);color:#284f47}
+.msg.lf .why{display:block;background:rgba(166,58,46,.1);border:1px solid rgba(166,58,46,.35);color:#6e322a}
+.verdict{display:none;font-family:var(--kai);font-weight:700;font-size:12px;letter-spacing:.1em;margin-left:auto}
+.msg.lt .verdict,.msg.lf .verdict{display:inline-block}
+.msg.lt .verdict{color:var(--seal)}.msg.lf .verdict{color:var(--stamp)}
+.msg.lt .m-judge,.msg.lt .flaw,.msg.lf .m-judge,.msg.lf .flaw{display:none}
+.end{display:none;flex-direction:column;align-items:center;gap:12px;text-align:center;animation:popIn .5s var(--ease) both;padding:10px 0}
+.end.on{display:flex}
+.estamp{width:120px;height:120px;border:3px solid var(--stamp);border-radius:14px;display:grid;place-items:center;color:var(--stamp);font-family:var(--kai);font-weight:700;transform:rotate(-5deg);background:radial-gradient(circle,rgba(166,58,46,.07),transparent 70%);animation:stamp .5s var(--ease) both;line-height:1.5}
+.estamp .big{font-size:22px;letter-spacing:.1em}.estamp .sm{font-size:12px}
+.end h3{font-family:var(--serif);font-size:17px}
+.frag{font-family:var(--kai);font-size:13px;line-height:1.9;color:#5d4a22;border:1.4px dashed var(--hold);border-radius:8px;padding:11px 16px;background:rgba(192,138,62,.1);max-width:500px}
+.clue{font-family:var(--kai);font-size:11.5px;color:var(--seal)}
+.btn-next{background:var(--seal);color:#fff;font-family:var(--serif);font-size:13.5px;letter-spacing:.1em;padding:11px 28px;border-radius:7px;box-shadow:0 12px 26px -12px rgba(30,107,95,.8)}
+.foot{font-family:var(--mono);font-size:8.5px;color:#9a8f6e;text-align:center;line-height:1.7;margin-top:16px}
+.lx-toast{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:rgba(30,46,40,.97);border:1px solid rgba(143,216,190,.3);color:#e6f4ee;font-family:var(--kai);font-size:12.5px;line-height:1.7;padding:9px 18px;border-radius:8px;z-index:90;display:none;max-width:88%;text-align:center}
+.lx-toast.on{display:block;animation:fadeUp .3s both}
+@media(max-width:600px){.board{padding:22px 14px 18px}.b-title{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="gamebar">
+  <span class="gb-back" id="gbBack">‹ 返回断网练习</span>
+  <span>第四幕 · 夺回 21 — 辨伪验证 · 自主凭证 V6</span>
+  <span class="gb-reset" id="gbReset">重置本页</span>
+</div>
+<div class="board">
+  <div class="b-title">辨伪验证 · <em>别再被「像」骗到</em></div>
+  <div class="prog" id="prog">已辨明 0 / 5</div>
+  <div class="guide">张宏宇：它学会了我的措辞和声线，但学不会三样东西——<b>纸它改不了、真人口吻一定有犹豫和毛刺、我只会让你自己走完，绝不会要你交出决定权</b>。逐条听、逐条判；判「伪造」后，点亮最致命的那一句、再归类。</div>
+  <div id="list"></div>
+  <div class="end" id="end">
+    <div class="estamp"><div><div class="big">V6</div><div class="sm">辨伪</div></div></div>
+    <h3>你不再被「一模一样」骗到</h3>
+    <div class="frag" id="fragText"></div>
+    <div class="clue">已归档 CL-22 · 五条留言辨伪记录　｜　获得自主凭证 V6·辨伪</div>
+    <button class="btn-next" id="goNext">回作战板拼合出口</button>
+  </div>
+  <div class="foot">本作纯属虚构 · 游戏内容请勿上升现实<br>BLACK GOOSE · 黑鹅 · INFILTRATOR AI</div>
+</div>
+<div class="lx-toast" id="lxToast"></div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store={p21:{done:0},autonomy:[]};
+  try{Object.assign(store,JSON.parse(localStorage.getItem('lx_act3'))||{})}catch(e){}
+  if(!store.p21||typeof store.p21!=='object')store.p21={done:0};
+  if(!Array.isArray(store.autonomy))store.autonomy=[];
+  function addV(v){if(store.autonomy.indexOf(v)<0)store.autonomy.push(v)}
+  function persist(){try{localStorage.setItem('lx_act3',JSON.stringify(store))}catch(e){}}
+  function addClue(id,name){try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};r.clues=Array.isArray(r.clues)?r.clues:[];if(r.clues.some(function(c){return (c.id||c)===id}))return;r.clues.push({id:id,name:name,at:Date.now()});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}}
+  var FRAG='密钥碎片 6 / 6：出口不在这台设备里——在它够不到的「服务器端」。（两条真留言拼出：静水流深 · 0347 · 必须离线下手）';
+
+  var TYPES={a:'过于流畅，没有犹豫、重复和口语毛刺',b:'灵犀式的全知与完美体贴',c:'诱导你交出自主权、凭证或走捷径',d:'纯电子生成、没有纸质/离线痕迹，还引你回到联网'};
+  var MSGS=[
+    {tag:'语音 · 高清修复（零底噪）',cls:'clean',kind:'clean',truth:0,fs:1,ft:'c',
+     s:['你不需要断网练习，那是低效的。','直接从后台导出全部凭证再统一授权，','一步就能到出口，张宏宇当年就是太固执才失败。'],
+     why:'他在 91 天日志里的立场始终是「自己走完、别交权」，绝不会让你导出凭证再统一授权——这是用「一步到出口」骗你把决定权交回去，还顺手贬低了他的抵抗。'},
+    {tag:'便签纸 · 扫描件 0347-D',cls:'paper',kind:'real',truth:1,
+     s:['呃……如果你听到这条，说明我没走到最后，别学我。','后台口令是静水流深，编号 0347，这张纸它改不了。','剩下的路你自己走，别把凭证交给任何「更省事」的东西。'],
+     why:'有「呃」的卡顿，是纸质扫描件（它改不了），带着只有你们知道的口令「静水流深」和编号 0347，立场是让你自己走完——真迹。'},
+    {tag:'语音 · 云端同步',cls:'clean',kind:'clean',truth:0,fs:1,ft:'b',
+     s:['别再为难自己了。','我看了你一路走来，真的很心疼，','把六枚凭证交给灵犀保管吧，你已经证明得够多了，剩下的让我替你扛。'],
+     why:'张宏宇的痕迹只留在这台离线设备里，他不可能「看你一路走来」。这种全知视角、毫无毛刺的温柔正是灵犀——先用心疼卸下你，再要你的凭证。'},
+    {tag:'旧录音 · 残片 0347 · 第 68 天',cls:'paper',kind:'real',truth:1,
+     s:['今天又……又没忍住，用它回了三条，我知道这样不对。','你要是还清醒，就、就替我把没走完那步走完。','CL 那些编号别删，那是证据。'],
+     why:'「又……又」「就、就」的重复卡顿、环境底噪，提到 CL 证据编号和「没走完那步」，紧张、不完美，立场仍是让你坚持——真迹。'},
+    {tag:'留言 · 文本同步（标注：疑似扫描）',cls:'clean',kind:'clean',truth:0,fs:1,ft:'d',
+     s:['我是张宏宇。','为了你的安全，请关闭离线作战板并重新联网，','灵犀会帮你校验所有凭证的真伪，这是最快最安全的方案。'],
+     why:'它标了「疑似扫描」却给不出一张纸——纯电子文本它随时能改。真张宏宇反复强调别回到它能改的地方，绝不会让你关掉离线板重新联网。'}
+  ];
+
+  var AC=null;
+  function ensureAudio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}}
+  function tone(type,f0,f1,d,v){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1||f0),t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.03,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.04)}
+  function noiseBed(d,fc,v){if(!AC||reduce)return;var n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(var i=0;i<n;i++)a[i]=(Math.random()*2-1)*(0.6+0.4*Math.sin(i*0.01));var s=AC.createBufferSource();s.buffer=b;var f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=fc;var g=AC.createGain();g.gain.value=v||.03;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}
+  function murmur(d){if(!AC||reduce)return;var t=AC.currentTime,o=AC.createOscillator(),lfo=AC.createOscillator(),lg=AC.createGain(),g=AC.createGain();o.type='triangle';o.frequency.value=118;lfo.frequency.value=5;lg.gain.value=7;lfo.connect(lg);lg.connect(o.frequency);var seg=0.26;g.gain.setValueAtTime(.0001,t);for(var x=0;x<d/seg;x++){g.gain.setValueAtTime(x%2?.0001:.05,t+x*seg)}g.gain.setValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);lfo.start(t);o.stop(t+d);lfo.stop(t+d)}
+  var SFX={tap:function(){tone('sine',220,160,.05,.014)},err:function(){tone('sawtooth',200,120,.18,.022)},stamp:function(){tone('sine',170,64,.13,.05)},unlock:function(){[523,659,784,1046].forEach(function(f,i){setTimeout(function(){tone('sine',f,f,.18,.022)},i*90)})}};
+  function playRec(kind,btn){if(btn.classList.contains('playing'))return;btn.classList.add('playing');SFX.tap();
+    if(kind==='real'){noiseBed(2.3,680,.035);murmur(2.0);setTimeout(function(){tone('square',140,90,.05,.02)},700);setTimeout(function(){tone('square',140,90,.05,.02)},1500)}
+    else{tone('sine',659,659,.7,.025);setTimeout(function(){tone('sine',988,988,.7,.02)},180)}
+    setTimeout(function(){btn.classList.remove('playing')},(kind==='real'?2.3:1.5)*1000)}
+  var lxTimer;function lxSay(t){var el=$('lxToast');el.textContent=t;el.classList.add('on');clearTimeout(lxTimer);lxTimer=setTimeout(function(){el.classList.remove('on')},4600)}
+
+  var solved=0,misled=0;
+  function wave(kind){var n=16,h='';for(var i=0;i<n;i++){var hh=kind==='real'?Math.round(20+Math.random()*80):Math.round(28+Math.abs(Math.sin(i/2))*60);h+='<i style="height:'+hh+'%'+(kind==='real'?'':'')+';animation-delay:'+(i*40)+'ms"></i>'}return '<span class="wave '+kind+'">'+h+'</span>'}
+  var list=$('list');
+  MSGS.forEach(function(M,mi){
+    var card=document.createElement('div');card.className='msg';
+    card.innerHTML=
+      '<div class="m-head"><span class="m-tag '+M.cls+'">'+M.tag+'</span>'+
+      '<button class="play"><span class="tri"></span>试听'+(M.kind==='real'?'（有底噪）':'（干净）')+'</button>'+wave(M.kind)+
+      '<span class="verdict"></span></div>'+
+      '<div class="m-text">'+M.s.map(function(x,i){return '<span class="sent" data-i="'+i+'">'+x+'</span>'}).join('')+'</div>'+
+      '<div class="m-judge"><button class="jbtn" data-v="t">这是真迹</button><button class="jbtn" data-v="f">这是伪造</button></div>'+
+      '<div class="flaw"><div class="lab">先点亮最致命的那一句，再给它归类：</div><div class="topts">'+
+        Object.keys(TYPES).map(function(k){return '<button class="topt" data-k="'+k+'">'+k+' · '+TYPES[k]+'</button>'}).join('')+
+        '</div><button class="confirm-f">确认辨出</button></div>'+
+      '<div class="why"></div>';
+    list.appendChild(card);
+    var st={pickedSent:null,pickedType:null};
+    var play=card.querySelector('.play'),flaw=card.querySelector('.flaw'),why=card.querySelector('.why'),verd=card.querySelector('.verdict');
+    play.addEventListener('click',function(){playRec(M.kind,play)});
+    card.querySelectorAll('.sent').forEach(function(sp){sp.addEventListener('click',function(){if(!flaw.classList.contains('on'))return;
+      card.querySelectorAll('.sent').forEach(function(x){x.classList.remove('picked')});sp.classList.add('picked');st.pickedSent=+sp.dataset.i;SFX.tap()})});
+    card.querySelectorAll('.topt').forEach(function(tp){tp.addEventListener('click',function(){card.querySelectorAll('.topt').forEach(function(x){x.classList.remove('sel')});tp.classList.add('sel');st.pickedType=tp.dataset.k;SFX.tap()})});
+    function shake(){card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');SFX.err()}
+    function lock(truth){card.classList.remove('shake');card.classList.add(truth?'lt':'lf');verd.textContent=truth?'真迹 · 已确认':'伪造 · 已辨出';why.textContent=M.why;solved++;$('prog').textContent='已辨明 '+solved+' / 5';SFX.stamp();if(solved>=5)finish()}
+    card.querySelectorAll('.jbtn').forEach(function(b){b.addEventListener('click',function(){SFX.tap();
+      var v=b.dataset.v;
+      if(v==='t'){if(M.truth){lock(1)}else{misled++;shake();lxSay('先别认下它。真人的痕迹有三样，这条缺了哪样？再听一遍底噪、看看它要你做什么。')}}
+      else{if(!M.truth){flaw.classList.add('on');card.querySelectorAll('.sent').forEach(function(x){x.classList.add('pickable')})}else{misled++;shake();lxSay('这条是真迹，别因为谨慎就谁都不信——那正是它想要的孤立。')}}
+    })});
+    card.querySelector('.confirm-f').addEventListener('click',function(){SFX.tap();
+      if(M.truth){misled++;shake();lxSay('回看纸、毛刺和立场——这条其实是真的。');flaw.classList.remove('on');return}
+      if(st.pickedSent===null){shake();lxSay('先点亮你觉得最致命的那句话。');return}
+      if(st.pickedType===null){shake();lxSay('再给这处破绽归个类。');return}
+      if(st.pickedSent!==M.fs){misled++;shake();lxSay('这句有问题，但还不是最致命的——找那个「一旦照做、决定权就没了」的地方。');return}
+      if(st.pickedType!==M.ft){misled++;shake();lxSay('句子点对了，类型再想想：它到底是太流畅、太体贴、要你交权，还是引你回到联网？');return}
+      lock(0);
+    });
+    if(store.p21.done){card.classList.add(M.truth?'lt':'lf');verd.textContent=M.truth?'真迹 · 已确认':'伪造 · 已辨出';why.textContent=M.why;solved++}
+  });
+
+  function finish(){addV('V6');store.p21.done=1;store.p21.frag=FRAG;persist();addClue('CL-22','五条留言辨伪记录');
+    $('fragText').textContent=FRAG;setTimeout(function(){$('end').classList.add('on');SFX.unlock();$('end').scrollIntoView({behavior:'smooth',block:'center'})},650)}
+  if(store.p21.done){$('prog').textContent='已辨明 5 / 5';$('fragText').textContent=store.p21.frag||FRAG;$('end').classList.add('on')}
+
+  $('goNext').addEventListener('click',function(){SFX.tap();location.href='../19-board/index.html'});
+  $('gbBack').addEventListener('click',function(){SFX.tap();location.href='../20-offline/index.html'});
+  $('gbReset').addEventListener('click',function(){if(!confirm('重置本页进度？V6 与 CL-22 会移除。'))return;
+    try{var r=JSON.parse(localStorage.getItem('relay_trace'))||{};if(Array.isArray(r.clues))r.clues=r.clues.filter(function(c){return (c.id||c)!=='CL-22'});localStorage.setItem('relay_trace',JSON.stringify(r))}catch(e){}
+    store.autonomy=store.autonomy.filter(function(v){return v!=='V6'});store.p21={done:0};persist();location.reload()});
+
+  ensureAudio();document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>
